@@ -374,15 +374,18 @@
       if(anchor){
         const pref = pool.filter(isRush);
         const cands = pref.length ? pref : pool;
-        let best = null, bestDetour = Infinity;
+        const slack = anchor._anchor - curT;          // 이벤트 전까지 남은 시간(분)
+        let best = null, bestCost = Infinity;
         for(let i=0;i<cands.length;i++){
           const b = cands[i];
           const toB = dist(cur,b), bToA = dist(b,anchor), toA = dist(cur,anchor);
-          const arriveA = curT + (toB + bToA)*WALK_MIN;
-          const detour = toB + bToA - toA;
-          if(arriveA <= anchor._anchor - 5 && detour < bestDetour){ best = b; bestDetour = detour; }
+          const extra = (toB + bToA - toA)*WALK_MIN + DWELL_MIN;   // 우회 추가 비용(분)
+          const arriveA = curT + (toB + bToA)*WALK_MIN + DWELL_MIN;
+          if(arriveA <= anchor._anchor - 5 && extra <= Math.max(0, slack-5)*0.7 && extra < bestCost){
+            best = b; bestCost = extra;
+          }
         }
-        if(best && bestDetour <= 450) chosen = best;   // 정시 이벤트를 놓치지 않는 범위에서만 우회
+        if(best) chosen = best;    // 정시 이벤트를 놓치지 않는 범위에서만 우회
       } else {
         const pref = pool.filter(isRush);
         const cands = pref.length ? pref : pool;
