@@ -90,7 +90,14 @@
   .course{padding:10px 12px 24px}
   .hero{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px}
   .hero h2{margin:0 0 4px;font-size:16px}
-  .hero p{margin:0;font-size:13px;color:var(--ink2)}
+  .hero p{margin:0;font-size:13px;color:var(--ink2);word-break:keep-all}
+  .crset{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:6px;margin-top:11px}
+  .crset label{display:block;font-size:10.5px;color:var(--ink3);font-weight:800;margin-bottom:3px}
+  .crset select{width:100%;font-size:12.5px;border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 4px;color:var(--ink);font-weight:700}
+  .crsum{font-size:12px;color:var(--ink2);margin-top:9px;background:#fafaf7;border:1px solid var(--line);border-radius:10px;padding:8px 10px;word-break:keep-all}
+  .step .time{font-size:11.5px;color:#2563eb;font-weight:800;margin-top:2px}
+  .step .time.anchor{color:var(--brand)}
+  .step .time.warn{color:#b91c1c}
   .prog{height:8px;background:#eee;border-radius:99px;margin-top:11px;overflow:hidden}
   .prog i{display:block;height:100%;background:linear-gradient(90deg,#f05322,#f59e0b);width:0%}
   .hero .nums{display:flex;justify-content:space-between;font-size:12px;color:var(--ink2);margin-top:6px}
@@ -201,8 +208,16 @@
 
   const LS_FAV = 'mz26.fav.v1';
   const LS_DONE = 'mz26.done.v1';
+  const LS_COURSE = 'mz26.course.v1';
+  const VISITS = [
+    {k:'1120', label:'11/20(금)', dow:5},
+    {k:'1121', label:'11/21(토)', dow:6},
+    {k:'1122', label:'11/22(일)', dow:0}
+  ];
+  const START_TIMES = [570,600,630,660,690,720,750,780,810,840,870];
   let favs = new Set(loadJSON(LS_FAV, []));
   let done = new Set(loadJSON(LS_DONE, []));
+  let course = Object.assign({day:'1120', start:570, entry:'2'}, loadJSON(LS_COURSE, {}));
   let tab = 'booth';
   let q = '';
   let hall = 'all';
@@ -212,6 +227,7 @@
 
   function loadJSON(k, d){ try{ const v = JSON.parse(localStorage.getItem(k)); return v==null?d:v; }catch(e){ return d; } }
   function save(){ try{ localStorage.setItem(LS_FAV, JSON.stringify([...favs])); localStorage.setItem(LS_DONE, JSON.stringify([...done])); }catch(e){} updateFavBadge(); }
+  function saveCourse(){ try{ localStorage.setItem(LS_COURSE, JSON.stringify(course)); }catch(e){} }
   function toast(msg){ const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('on'), 1800); }
 
   // ---------- share link ----------
@@ -231,16 +247,33 @@
     if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(function(){toast('공유 링크를 복사했어요')}).catch(function(){toast(url)}); } else { toast(url); }
   }
 
-  // ---------- route ----------
+  // ---------- route : 우선순위 기반 추천 순서 ----------
+  // ※ 최단 경로/최적 경로 계산이 아니라, 정시 이벤트 시각을 고정한 뒤 가까운 부스를 잇는 참고용 순서입니다.
   function dist(a,b){ return Math.hypot(a.x-b.x, (a.y-b.y)*0.75); }
+  const WALK_MIN = 0.006;   // 도면 좌표 1,000 ≈ 350m · 4km/h 보행 가정(추정)
+  const DWELL_MIN = 4;      // 부스당 체류 시간 추정
+  const ENTRY_Y = 960;      // 배치도 하단 출입구 라인
+  // 홀별 출입구 좌표: 배치도 하단(출입구 쪽) 부스들의 가운데 x를 출발점으로 사용
+  const ENTRIES = (function(){
+    const out = {};
+    HALLS.slice(0,4).forEach(h=>{
+      const xs = BOOTHS.filter(b=>b.hall===h.k && b.y>820).map(b=>b.x).sort((a,b)=>a-b);
+      out[h.k] = {x: xs.length? xs[Math.floor(xs.length/2)] : 120, y: ENTRY_Y, name: h.name+' 입구'};
+    });
+    return out;
+  })();
+
   function nnSort(list, startPt){
     const rest = list.slice();
+    if(!rest.length) return [];
     const out = [];
-    let cur = startPt || rest.reduce((m,b)=> (b.x + b.y*0.3) < (m.x + m.y*0.3) ? b : m, rest[0]);
-    // start node = leftmost/topmost, then greedy nearest neighbour
-    const start = rest.reduce((m,b)=> (b.x*1.0 + b.y*0.35) < (m.x*1.0 + m.y*0.35) ? b : m, rest[0]);
-    out.push(start); rest.splice(rest.indexOf(start),1);
-    let last = start;
+    let last;
+    if(startPt){
+      last = startPt;                      // 출발점에서 가장 가까운 부스가 첫 노드
+    } else {
+      last = rest.reduce((m,b)=> (b.x + b.y*0.35) < (m.x + m.y*0.35) ? b : m, rest[0]);
+      out.push(last); rest.splice(rest.indexOf(last),1);
+    }
     while(rest.length){
       let bi = 0, bd = Infinity;
       for(let i=0;i<rest.length;i++){ const d = dist(last, rest[i]); if(d<bd){bd=d;bi=i;} }
@@ -248,25 +281,128 @@
     }
     return out;
   }
-  function routeOrder(ids, prioritize){
-    const list = ids.map(id=>BY[id]).filter(Boolean);
-    const groups = {};
-    list.forEach(b=>{ (groups[b.hall] = groups[b.hall] || []).push(b); });
+  function orderByHall(list){
+    const byHall = {};
+    list.forEach(b=>{ (byHall[b.hall] = byHall[b.hall] || []).push(b); });
     const out = [];
-    if(prioritize){
-      const tiers = [[],[]];
-      list.forEach(b=>{ const t = b.openRun ? 0 : (b.firstCome ? 1 : 2); (tiers[t] = tiers[t] || []).push(b); });
-      for(let t=0;t<3;t++){
-        const arr = tiers[t] || [];
-        if(!arr.length) continue;
-        const byHall = {};
-        arr.forEach(b=>{ (byHall[b.hall] = byHall[b.hall] || []).push(b); });
-        HALLS.forEach(h=>{ if(byHall[h.k]) out.push(...nnSort(byHall[h.k])); });
-      }
-      return out;
-    }
-    HALLS.forEach(h=>{ if(groups[h.k]) out.push(...nnSort(groups[h.k])); });
+    HALLS.forEach(h=>{ if(byHall[h.k]) out.push(...nnSort(byHall[h.k])); });
     return out;
+  }
+
+  // 이벤트 문구의 요일 표기(금·토 / 일 / 매일)를 시간 앞에서 찾아 묶는다
+  function daySetBefore(txt, idx){
+    const seg = txt.slice(Math.max(0, idx-48), idx);
+    const re = /(매일|평일|주말|금요일|토요일|일요일|금|토|일)/g;
+    const marks = []; let m;
+    while((m = re.exec(seg))){
+      const before = seg[m.index-1] || '';
+      if(/[0-9]/.test(before) || /[가-힣]/.test(before)) continue;  // '1일 2회', '매일' 속 '일' 제외
+      marks.push({i:m.index, t:m[1]});
+    }
+    if(!marks.length) return null;
+    const group = [marks[marks.length-1]];                        // 마지막 요일 묶음만 사용
+    for(let k=marks.length-2;k>=0;k--){
+      const gap = seg.slice(marks[k].i + marks[k].t.length, group[0].i);
+      if(/^[\s·,|/]*$/.test(gap)) group.unshift(marks[k]); else break;
+    }
+    const out = new Set();
+    group.forEach(x=>{
+      const t = x.t.replace('요일','');
+      if(t==='매일' || t==='평일' || t==='주말') out.add('#all');
+      else out.add({'금':5,'토':6,'일':0}[t]);
+    });
+    return out.size ? out : null;
+  }
+  // 공개 문구에 시각이 적힌 이벤트만 [{min, days}] 로 추출
+  function evTimeList(b){
+    if(b._times) return b._times;
+    const res = [];
+    (b.ev||[]).forEach(txt=>{
+      const re = /(오전|오후)\s?(\d{1,2})\s?시(?:\s?(\d{1,2})\s?분)?|(\d{1,2}):(\d{2})/g;
+      let m;
+      while((m = re.exec(txt))){
+        let hh, mm;
+        if(m[4] != null){ hh = parseInt(m[4],10); mm = parseInt(m[5],10); }
+        else {
+          hh = parseInt(m[2],10); mm = m[3]? parseInt(m[3],10) : 0;
+          if(m[1]==='오후' && hh<12) hh += 12;
+          if(m[1]==='오전' && hh===12) hh = 0;
+        }
+        if(hh<8 || hh>19) continue;                                  // 관람시간 밖 표기는 제외
+        res.push({min: hh*60+mm, days: daySetBefore(txt, m.index)});
+      }
+    });
+    b._times = res;
+    return res;
+  }
+  function evTimesFor(b, dow){
+    const out = [];
+    evTimeList(b).forEach(t=>{
+      if(!t.days || t.days.has('#all') || t.days.has(dow)) out.push(t.min);
+    });
+    return [...new Set(out)].sort((a,b)=>a-b);
+  }
+  function fmtMin(m){
+    m = Math.max(0, Math.round(m));
+    const h = Math.floor(m/60), mm = m%60;
+    return (h<10?'0':'')+h+':'+(mm<10?'0':'')+mm;
+  }
+  function courseOpt(){
+    const day = VISITS.find(v=>v.k===course.day) || VISITS[0];
+    return {dow: day.dow, startMin: +course.start || 570, startPt: ENTRIES[course.entry] || ENTRIES['2']};
+  }
+
+  // 정시 이벤트를 시간표로 고정하고, 그 사이에 출발 입구에서 가까운 부스를 끼워 넣는다
+  function buildRoute(ids, opt){
+    const list = ids.map(id=>BY[id]).filter(Boolean);
+    const startPt = opt.startPt, dow = opt.dow, startMin = opt.startMin;
+    const timed = [], rush = [], rest = [];
+    list.forEach(b=>{
+      const ts = evTimesFor(b, dow).filter(t=> t >= startMin && t <= 18*60);
+      if(ts.length){ b._anchor = ts[0]; timed.push(b); }
+      else { (b.openRun || b.firstCome) ? rush.push(b) : rest.push(b); }
+    });
+    timed.sort((a,b)=> (a._anchor-b._anchor) || (dist(startPt,a)-dist(startPt,b)));
+    let pool = rush.concat(rest);
+    const anchors = timed.slice();
+    const steps = [];
+    let cur = startPt, curT = startMin, guard = 0;
+    const isRush = b => !!(b.openRun || b.firstCome);
+    while((anchors.length || pool.length) && guard++ < 5000){
+      const anchor = anchors[0] || null;
+      let chosen = null;
+      if(anchor){
+        const pref = pool.filter(isRush);
+        const cands = pref.length ? pref : pool;
+        let best = null, bestDetour = Infinity;
+        for(let i=0;i<cands.length;i++){
+          const b = cands[i];
+          const toB = dist(cur,b), bToA = dist(b,anchor), toA = dist(cur,anchor);
+          const arriveA = curT + (toB + bToA)*WALK_MIN;
+          const detour = toB + bToA - toA;
+          if(arriveA <= anchor._anchor - 5 && detour < bestDetour){ best = b; bestDetour = detour; }
+        }
+        if(best && bestDetour <= 450) chosen = best;   // 정시 이벤트를 놓치지 않는 범위에서만 우회
+      } else {
+        const pref = pool.filter(isRush);
+        const cands = pref.length ? pref : pool;
+        chosen = cands.reduce((m,b)=> dist(cur,b) < dist(cur,m) ? b : m, cands[0]);
+      }
+      if(!chosen){
+        const proj = curT + dist(cur,anchor)*WALK_MIN;
+        steps.push({b:anchor, arrive: proj, anchor: anchor._anchor, late: proj > anchor._anchor + 1});
+        curT = Math.max(proj, anchor._anchor) + DWELL_MIN;
+        cur = anchor;
+        anchors.shift();
+      } else {
+        curT += dist(cur, chosen)*WALK_MIN;
+        steps.push({b:chosen, arrive: curT});
+        curT += DWELL_MIN;
+        cur = chosen;
+        pool = pool.filter(x=> x !== chosen);
+      }
+    }
+    return steps;
   }
   function timeHint(b){
     const txt = (b.ev||[]).join(' ');
@@ -300,7 +436,7 @@
   }
   function sortedList(){
     const arr = BOOTHS.filter(match);
-    if(sortMode === 'route') return routeOrder(arr.map(b=>b.id), true);
+    if(sortMode === 'route') return orderByHall(arr);
     if(sortMode === 'booth'){
       return arr.slice().sort((a,b)=>{
         const h = HALLIDX[a.hall] - HALLIDX[b.hall];
@@ -355,8 +491,6 @@
   }
 
   function renderBooth(){
-    const arr = sortedList();
-    const evCount = arr.filter(b=>b.ev&&b.ev.length).length;
     let html = '<div class="controls">'
       + '<div class="search"><input id="q" placeholder="브랜드·부스번호·품목 검색 (예: 라포그, 3238)" value="'+esc(q)+'">'
       + '<button class="clr" id="clr" style="display:'+(q?'block':'none')+'">×</button></div>'
@@ -373,17 +507,25 @@
       + '<select class="sel" id="sort"><option value="route" '+(sortMode==='route'?'selected':'')+'>동선순</option>'
       + '<option value="booth" '+(sortMode==='booth'?'selected':'')+'>부스번호순</option>'
       + '<option value="event" '+(sortMode==='event'?'selected':'')+'>이벤트 우선</option></select></div>'
-      + '<div class="count">'+arr.length+'개 부스 · 이벤트 있는 부스 '+evCount+'개</div>'
+      + '<div class="count" id="cnt"></div>'
       + '</div>'
-      + '<div class="list">'+ (arr.length? arr.map(card).join('') : '<div class="empty">조건에 맞는 부스가 없어요.<br>검색어나 필터를 풀어보세요.</div>') +'</div>';
+      + '<div class="list" id="list"></div>';
     view.innerHTML = html;
-    const qi = document.getElementById('q');
-    qi.addEventListener('input', e=>{ q = e.target.value; debounce(()=>renderBooth(), 180); });
-    document.getElementById('clr').onclick = ()=>{ q=''; renderBooth(); };
+    bindSearch(paintBoothList);
     view.querySelectorAll('[data-hall]').forEach(el=>el.onclick=()=>{ hall = el.dataset.hall; renderBooth(); });
     view.querySelectorAll('[data-ev]').forEach(el=>el.onclick=()=>{ const k=el.dataset.ev; evFilter.has(k)?evFilter.delete(k):evFilter.add(k); renderBooth(); });
     document.getElementById('cat').onchange = e=>{ cat = e.target.value; renderBooth(); };
     document.getElementById('sort').onchange = e=>{ sortMode = e.target.value; renderBooth(); };
+    paintBoothList();
+  }
+  // 검색 결과 목록만 갱신 (입력창 DOM·포커스 유지)
+  function paintBoothList(){
+    const arr = sortedList();
+    const evCount = arr.filter(b=>b.ev&&b.ev.length).length;
+    const list = document.getElementById('list');
+    if(list) list.innerHTML = arr.length? arr.map(card).join('') : '<div class="empty">조건에 맞는 부스가 없어요.<br>검색어나 필터를 풀어보세요.</div>';
+    const cnt = document.getElementById('cnt');
+    if(cnt) cnt.textContent = arr.length+'개 부스 · 이벤트 있는 부스 '+evCount+'개';
   }
 
   function timeGroups(){
@@ -406,11 +548,6 @@
     });
   }
   function renderEvent(){
-    const evBooths = BOOTHS.filter(b=>b.ev&&b.ev.length);
-    let arr;
-    if(hall==='all' && cat==='all' && !q) arr = evBooths.slice().sort((a,b)=> (HALLIDX[a.hall]-HALLIDX[b.hall]) || ((parseInt(a.id.replace(/\D/g,''))||0)-(parseInt(b.id.replace(/\D/g,''))||0)));
-    else arr = evBooths.filter(match);
-    const un = MZ.unplaced || [];
     let html = '<div class="controls">'
       + '<div class="search"><input id="q" placeholder="이벤트 검색 (예: 뽑기, 샘플, 쿠폰)" value="'+esc(q)+'">'
       + '<button class="clr" id="clr" style="display:'+(q?'block':'none')+'">×</button></div>'
@@ -421,7 +558,7 @@
       + '<div class="scroll">'
       + EVFILTERS.filter(f=>f.k!=='ev').map(f=>'<button class="chip acc" data-ev="'+f.k+'" data-on="'+(evFilter.has(f.k)?1:0)+'">'+f.label+'</button>').join('')
       + '</div>'
-      + '<div class="count">주최측 공개 현장이벤트 · 부스 '+arr.length+'곳'+(un.length?' + 부스 미확인 '+un.length+'곳':'')+'</div>'
+      + '<div class="count" id="cnt"></div>'
       + '</div>'
       + (function(){
           const tg = timeGroups();
@@ -432,32 +569,57 @@
               + (g.booths.length>8? ' 외 '+(g.booths.length-8)+'곳' : '') + '</span></div>').join('')
             + '<div class="ttn">※ 주최측 공개 문구에 시간이 적힌 이벤트만 모았습니다. 요일별로 시간이 다를 수 있으니(예: 슈퍼벳 금·토 11/2/4시, 일 10/12/2시) 아래 카드의 원문을 확인하세요.</div></div>';
         }())
-      + '<div class="list">'
-      + arr.map(card).join('')
+      + '<div class="list" id="list"></div>';
+    view.innerHTML = html;
+    bindSearch(paintEventList);
+    view.querySelectorAll('[data-hall]').forEach(el=>el.onclick=()=>{ hall = el.dataset.hall; renderEvent(); });
+    view.querySelectorAll('[data-ev]').forEach(el=>el.onclick=()=>{ const k=el.dataset.ev; evFilter.has(k)?evFilter.delete(k):evFilter.add(k); renderEvent(); });
+    paintEventList();
+  }
+  // 이벤트 탭: 기본 화면에서도 hall·cat·q·이벤트 필터를 항상 거친 뒤 정렬한다
+  function paintEventList(){
+    const evBooths = BOOTHS.filter(b=>b.ev&&b.ev.length);
+    const arr = evBooths.filter(match).sort((a,b)=> (HALLIDX[a.hall]-HALLIDX[b.hall]) || ((parseInt(a.id.replace(/\D/g,''))||0)-(parseInt(b.id.replace(/\D/g,''))||0)));
+    const un = MZ.unplaced || [];
+    const cnt = document.getElementById('cnt');
+    if(cnt) cnt.textContent = '주최측 공개 현장이벤트 · 부스 '+arr.length+'곳'+(un.length?' + 부스 미확인 '+un.length+'곳':'');
+    const list = document.getElementById('list');
+    if(!list) return;
+    list.innerHTML = arr.map(card).join('')
       + (un.length? ('<div class="hallhead"><span class="hb ha">?</span><span class="hs">부스 번호가 공개 자료에 없는 브랜드</span></div>'
           + un.map(u=>'<div class="card"><div class="top"><span class="bnum ha">?</span><div class="name"><div class="t">'+esc(u.n)+'</div>'
             + '<div class="m">부스 번호 미확인 · 현장 안내데스크/앱에서 검색</div></div></div>'
             + '<div class="evwrap"><div class="evsummary"><span class="lab">현장 이벤트</span>'+esc(u.ev[0]||'')+'</div>'
             + (u.ev.length>1? '<div class="evfull open">'+u.ev.slice(1).map(e=>'<div class="item">'+esc(e)+'</div>').join('')+'</div>':'')
-            + '</div></div>').join('')) : '')
-      + '</div>';
-    view.innerHTML = html;
-    const qi = document.getElementById('q');
-    qi.addEventListener('input', e=>{ q = e.target.value; debounce(()=>renderEvent(), 180); });
-    document.getElementById('clr').onclick = ()=>{ q=''; renderEvent(); };
-    view.querySelectorAll('[data-hall]').forEach(el=>el.onclick=()=>{ hall = el.dataset.hall; renderEvent(); });
-    view.querySelectorAll('[data-ev]').forEach(el=>el.onclick=()=>{ const k=el.dataset.ev; evFilter.has(k)?evFilter.delete(k):evFilter.add(k); renderEvent(); });
+            + '</div></div>').join('')) : '');
   }
 
   function renderCourse(){
-    const ids = [...favs];
-    const ordered = routeOrder(ids, true);
-    const total = ordered.length;
-    const dn = ordered.filter(b=>done.has(b.id)).length;
+    const opt = courseOpt();
+    const steps = buildRoute([...favs], opt);
+    const total = steps.length;
+    const dn = steps.filter(s=>done.has(s.b.id)).length;
     const pctv = total? Math.round(dn/total*100) : 0;
+    const anchorN = steps.filter(s=>s.anchor!=null).length;
+    const dayLabel = (VISITS.find(v=>v.k===course.day) || VISITS[0]).label;
+    const entryName = (ENTRIES[course.entry] || ENTRIES['2']).name;
     let html = '<div class="course">';
-    html += '<div class="hero"><h2>내 즐겨찾기 최적 동선</h2>'
-      + '<p>'+(total? '오픈런·선착순 부스를 먼저, 그다음 2홀 → 3홀 → 4홀 → 5홀 순서로 도면상 가까운 부스부터 이어 붙였어요.' : '부스 목록에서 ☆를 눌러 가고 싶은 곳을 담으면, 도면 좌표로 최적 순서를 만들어 드려요.')+'</p>'
+    html += '<div class="hero"><h2>내 즐겨찾기 추천 방문 순서</h2>'
+      + '<p>'+(total
+          ? '선택한 방문일·시작 시간에 맞는 <b>정시 이벤트 시각을 먼저 고정</b>하고, 그 사이에 출발 입구에서 가까운 부스를 차례로 넣었어요. 최단 경로 보장은 아니고 <b>우선순위 기반 추천 순서</b>입니다.'
+          : '부스 목록에서 ☆를 눌러 가고 싶은 곳을 담으면, 방문일·시작 시간·출발 입구에 맞춰 추천 순서를 만들어 드려요.')+'</p>'
+      + '<div class="crset">'
+      + '<div><label for="cday">방문일</label><select id="cday">'
+      + VISITS.map(v=>'<option value="'+v.k+'" '+(course.day===v.k?'selected':'')+'>'+v.label+'</option>').join('')
+      + '</select></div>'
+      + '<div><label for="cstart">시작 시간</label><select id="cstart">'
+      + START_TIMES.map(m=>'<option value="'+m+'" '+(+course.start===m?'selected':'')+'>'+fmtMin(m)+'</option>').join('')
+      + '</select></div>'
+      + '<div><label for="centry">출발 입구</label><select id="centry">'
+      + ['2','3','4','5'].map(k=>'<option value="'+k+'" '+(course.entry===k?'selected':'')+'>'+HALLNAME[k]+' 입구</option>').join('')
+      + '</select></div>'
+      + '</div>'
+      + (total? '<div class="crsum">'+esc(dayLabel)+' '+fmtMin(+course.start)+' · '+esc(entryName)+' 출발<br>정시 이벤트 '+anchorN+'곳 고정 · 즐겨찾기 '+total+'곳</div>' : '')
       + '<div class="prog"><i style="width:'+pctv+'%"></i></div>'
       + '<div class="nums"><span>방문 완료 '+dn+' / '+total+'</span><span>'+pctv+'%</span></div>'
       + '<div class="btnrow">'
@@ -467,32 +629,43 @@
       + '</div></div>';
 
     if(!total){
-      html += '<div class="empty">아직 담은 부스가 없어요.<br><br>🔍 <b>부스</b> 탭에서 ☆를 누르면<br>여기에 최적 순서로 정리됩니다.</div></div>';
+      html += '<div class="empty">아직 담은 부스가 없어요.<br><br>🔍 <b>부스</b> 탭에서 ☆를 누르면<br>여기에 방문일·시간에 맞춘 추천 순서로 정리됩니다.</div></div>';
       view.innerHTML = html;
       bindCourse(); return;
     }
     let stepNo = 0, curHall = null;
-    ordered.forEach(b=>{
+    steps.forEach(s=>{
+      const b = s.b;
       if(b.hall !== curHall){
         curHall = b.hall;
-        const inHall = ordered.filter(x=>x.hall===curHall).length;
+        const inHall = steps.filter(x=>x.b.hall===curHall).length;
         html += '<div class="hallhead"><span class="hb '+HALLCLS[b.hall]+'">'+HALLNAME[b.hall]+'</span><span class="hs">'+inHall+'곳</span></div>';
       }
       stepNo++;
       const isDone = done.has(b.id);
       const first = (b.ev&&b.ev.length)? b.ev[0] : '';
-      const th = timeHint(b);
+      const th = (s.anchor==null)? timeHint(b) : '';
       const thTxt = th ? (/시/.test(th) ? ' · ⏰ '+th : ' · '+th) : '';
+      let tTxt, tCls = 'time';
+      if(s.anchor != null){
+        tCls += ' anchor';
+        tTxt = '⏰ '+fmtMin(s.anchor)+' 이벤트 · '+fmtMin(s.arrive)+' 도착';
+        if(s.late){ tCls += ' warn'; tTxt += ' (늦을 수 있어요)'; }
+        else if(s.anchor - s.arrive >= 3) tTxt += ' · ' + Math.round(s.anchor - s.arrive) + '분 여유';
+      } else {
+        tTxt = '예상 '+fmtMin(s.arrive)+' 도착'+(s.arrive > 18*60 ? ' · 폐장 후' : '');
+      }
       html += '<div class="step'+(isDone?' isdone':'')+'">'
         + '<div class="no">'+(isDone?'✓':stepNo)+'</div>'
         + '<div class="body"><div class="t">'+esc(b.label||('부스 '+b.id))+'</div>'
         + '<div class="m">'+esc(b.id)+' · '+esc(HALLNAME[b.hall])+(b.cat?' · '+esc(b.cat):'')+esc(thTxt)+'</div>'
+        + '<div class="'+tCls+'">'+tTxt+'</div>'
         + (first? '<div class="e">'+esc(first)+'</div>' : '')
         + '<div class="acts"><button class="tick" data-done="'+(isDone?1:0)+'" data-tick="'+esc(b.id)+'">'+(isDone?'방문 완료':'방문 체크')+'</button>'
         + '<button class="tick" data-star2="'+esc(b.id)+'">★ 빼기</button></div>'
         + '</div></div>';
     });
-    html += '<div class="note">※ 순서는 공개된 부스배치도 좌표를 기준으로 계산한 참고용 동선입니다. 현장 통로 사정에 따라 조정하세요.</div>';
+    html += '<div class="note">※ 순서는 공개된 부스배치도 좌표로 계산한 참고용 추천 순서입니다(이동 350m당 약 5분·부스당 4분 체류 가정). 정시 이벤트는 공개 문구에 시각이 적힌 것만 반영했고, 현장 대기줄과 통로 사정에 따라 달라질 수 있어요.</div>';
     html += '</div>';
     view.innerHTML = html;
     bindCourse();
@@ -507,6 +680,9 @@
     const s = document.getElementById('share'); if(s) s.onclick = shareLink;
     const tb = document.getElementById('tobo'); if(tb) tb.onclick = ()=> switchTab('booth');
     const rd = document.getElementById('resetdone'); if(rd) rd.onclick = ()=>{ done.clear(); save(); renderCourse(); };
+    const cd = document.getElementById('cday'); if(cd) cd.onchange = e=>{ course.day = e.target.value; saveCourse(); renderCourse(); };
+    const cs = document.getElementById('cstart'); if(cs) cs.onchange = e=>{ course.start = +e.target.value; saveCourse(); renderCourse(); };
+    const ce = document.getElementById('centry'); if(ce) ce.onchange = e=>{ course.entry = e.target.value; saveCourse(); renderCourse(); };
   }
 
   function renderMap(){
@@ -565,6 +741,22 @@
 
   let _dt;
   function debounce(fn, ms){ clearTimeout(_dt); _dt = setTimeout(fn, ms); }
+  // 검색 입력: 입력창 DOM은 그대로 두고 결과 목록만 갱신, 한글 조합 중에는 갱신을 미룬다
+  let _composing = false;
+  function bindSearch(paint){
+    const qi = document.getElementById('q');
+    if(!qi) return;
+    qi.addEventListener('compositionstart', ()=>{ _composing = true; });
+    qi.addEventListener('compositionend', ()=>{ _composing = false; q = qi.value; debounce(paint, 60); });
+    qi.addEventListener('input', e=>{
+      q = e.target.value;
+      const c = document.getElementById('clr'); if(c) c.style.display = q? 'block' : 'none';
+      if(_composing || e.isComposing) return;
+      debounce(paint, 180);
+    });
+    const clr = document.getElementById('clr');
+    if(clr) clr.onclick = ()=>{ q=''; qi.value=''; clr.style.display='none'; paint(); };
+  }
 
   function updateFavBadge(){
     const n = favs.size;
