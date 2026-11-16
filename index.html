@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f05322">
+<title>메가주 2026 시즌2 · 부스·이벤트·동선 가이드</title>
+<style>
+  :root{
+    --bg:#f6f6f4; --card:#ffffff; --ink:#191919; --ink2:#5b5b5b; --ink3:#8d8d8d;
+    --line:#e5e5e0; --brand:#f05322; --brand-soft:#fff1ec;
+    --h2:#2f6df6; --h3:#0e9f6e; --h4:#b45309; --h5:#a21caf; --hg:#0e7490; --ha:#6b7280;
+    --fav:#eab308;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;background:#e9e9e5;color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",sans-serif;
+    font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%}
+  #app{max-width:520px;margin:0 auto;background:var(--bg);min-height:100vh;position:relative;padding-bottom:88px}
+  header{background:linear-gradient(160deg,#fff4ef,#fff 70%);
+    border-bottom:1px solid var(--line);padding:14px 16px 10px}
+  header h1{margin:0;font-size:19px;letter-spacing:-.4px}
+  header h1 span{color:var(--brand)}
+  header .sub{font-size:12.5px;color:var(--ink2);margin-top:3px}
+  header .stat{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
+  .pill{font-size:11.5px;padding:3px 8px;border-radius:999px;background:#fff;border:1px solid var(--line);color:var(--ink2)}
+  .pill b{color:var(--ink);font-weight:700}
+
+  /* controls */
+  .controls{position:sticky;top:0;z-index:20;background:var(--bg);padding:10px 12px 6px;border-bottom:1px solid var(--line)}
+  .search{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 12px}
+  .search input{border:0;outline:0;flex:1;font-size:15px;background:transparent;color:var(--ink)}
+  .search .clr{border:0;background:#eee;color:#666;border-radius:50%;width:22px;height:22px;font-size:13px;line-height:1;display:none}
+  .scroll{display:flex;gap:6px;overflow-x:auto;padding:9px 0 2px;scrollbar-width:none}
+  .scroll::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto;border:1px solid var(--line);background:#fff;color:var(--ink2);border-radius:999px;
+    padding:7px 12px;font-size:13px;font-weight:600;white-space:nowrap}
+  .chip[data-on="1"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .chip.h2[data-on="1"]{background:var(--h2);border-color:var(--h2)}
+  .chip.h3[data-on="1"]{background:var(--h3);border-color:var(--h3)}
+  .chip.h4[data-on="1"]{background:var(--h4);border-color:var(--h4)}
+  .chip.h5[data-on="1"]{background:var(--h5);border-color:var(--h5)}
+  .chip.hg[data-on="1"]{background:var(--hg);border-color:var(--hg)}
+  .chip.ha[data-on="1"]{background:var(--ha);border-color:var(--ha)}
+  .chip.acc[data-on="1"]{background:var(--brand);border-color:var(--brand)}
+  .row2{display:flex;gap:6px;align-items:center;justify-content:space-between}
+  .sel{font-size:13px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px 8px;color:var(--ink);font-weight:600}
+  .count{font-size:12px;color:var(--ink3);padding:2px 12px 0}
+
+  /* list */
+  .list{padding:8px 12px 20px;display:flex;flex-direction:column;gap:9px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 12px 10px;position:relative}
+  .card.fav{border-color:#f3d47a;box-shadow:0 0 0 1px #f6e3a8 inset}
+  .card.done{opacity:.55}
+  .card .top{display:flex;gap:8px;align-items:flex-start}
+  .bnum{font-size:11.5px;font-weight:800;color:#fff;background:var(--ha);border-radius:7px;padding:3px 6px;letter-spacing:.2px;flex:0 0 auto}
+  .bnum.h2{background:var(--h2)} .bnum.h3{background:var(--h3)} .bnum.h4{background:var(--h4)}
+  .bnum.h5{background:var(--h5)} .bnum.hg{background:var(--hg)} .bnum.ha{background:var(--ha)}
+  .name{flex:1;min-width:0}
+  .name .t{font-weight:700;font-size:15.5px;letter-spacing:-.3px;word-break:keep-all}
+  .name .m{font-size:11.5px;color:var(--ink3);margin-top:1px}
+  .star{border:0;background:transparent;font-size:22px;line-height:1;color:#cfcfcf;padding:2px 2px 2px 6px;width:40px;height:36px}
+  .star[data-fav="1"]{color:var(--fav)}
+  .info{font-size:13px;color:var(--ink2);margin-top:8px;word-break:keep-all}
+  .prods{font-size:12px;color:var(--ink3);margin-top:5px;word-break:keep-all}
+  .tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+  .tag{font-size:11px;padding:2.5px 7px;border-radius:6px;background:#f2f2ee;color:#555;font-weight:600}
+  .tag.ev{background:var(--brand-soft);color:#c2410c}
+  .tag.first{background:#fff7e6;color:#a16207}
+  .tag.run{background:#fee2e2;color:#b91c1c}
+  .tag.coupon{background:#f0e9ff;color:#5b21b6}
+  .evwrap{margin-top:9px;border-top:1px dashed var(--line);padding-top:8px}
+  .evsummary{font-size:12.5px;color:#333;background:#fafaf7;border-radius:9px;padding:8px 10px;word-break:keep-all}
+  .evsummary .lab{font-weight:800;color:var(--brand);font-size:11px;display:block;margin-bottom:2px}
+  .more{border:0;background:transparent;color:#2563eb;font-size:12.5px;font-weight:700;padding:7px 0 0}
+  .evfull{display:none;margin-top:6px}
+  .evfull.open{display:block}
+  .evfull .item{font-size:12.5px;color:#333;padding:7px 0;border-top:1px solid #f0f0ec;word-break:keep-all}
+  .evfull .item:first-child{border-top:0}
+
+  /* course */
+  .course{padding:10px 12px 24px}
+  .hero{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px}
+  .hero h2{margin:0 0 4px;font-size:16px}
+  .hero p{margin:0;font-size:13px;color:var(--ink2)}
+  .prog{height:8px;background:#eee;border-radius:99px;margin-top:11px;overflow:hidden}
+  .prog i{display:block;height:100%;background:linear-gradient(90deg,#f05322,#f59e0b);width:0%}
+  .hero .nums{display:flex;justify-content:space-between;font-size:12px;color:var(--ink2);margin-top:6px}
+  .btnrow{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap}
+  .btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;padding:9px 12px;font-size:13px;font-weight:700}
+  .btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+  .hallhead{display:flex;align-items:center;gap:8px;margin:18px 2px 7px}
+  .hallhead .hb{font-size:12px;font-weight:800;color:#fff;border-radius:7px;padding:3px 8px}
+  .hallhead .hs{font-size:12px;color:var(--ink3)}
+  .step{display:flex;gap:10px;background:#fff;border:1px solid var(--line);border-radius:13px;padding:10px 11px;margin-bottom:8px}
+  .step .no{flex:0 0 26px;height:26px;border-radius:50%;background:var(--ink);color:#fff;font-size:12.5px;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .step.isdone{background:#f0fdf4;border-color:#bbf7d0}
+  .step.isdone .no{background:#16a34a}
+  .step .body{flex:1;min-width:0}
+  .step .t{font-weight:700;font-size:14.5px;word-break:keep-all}
+  .step .m{font-size:11.5px;color:var(--ink3);margin-top:1px}
+  .step .e{font-size:12px;color:#444;margin-top:5px;word-break:keep-all}
+  .step .acts{display:flex;gap:6px;margin-top:8px}
+  .tick{border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 9px;font-size:12px;font-weight:700;color:#444}
+  .tick[data-done="1"]{background:#16a34a;border-color:#16a34a;color:#fff}
+  .empty{text-align:center;color:var(--ink3);font-size:13.5px;padding:40px 20px;line-height:1.7}
+
+  /* map */
+  .mapwrap{padding:12px}
+  .mapwrap img{width:100%;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .legend{font-size:12px;color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px;margin-top:10px}
+  .legend b{color:var(--ink)}
+
+  /* info */
+  .info-page{padding:12px}
+  .box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px;margin-bottom:10px}
+  .box h3{margin:0 0 7px;font-size:14.5px}
+  .box dl{margin:0;font-size:13px;color:var(--ink2)}
+  .box dl div{display:flex;gap:10px;padding:4px 0;border-top:1px solid #f4f4f0}
+  .box dl div:first-child{border-top:0}
+  .box dt{flex:0 0 82px;color:var(--ink3);font-size:12.5px}
+  .box dd{margin:0;flex:1}
+  .box ul{margin:0;padding-left:18px;font-size:12.8px;color:var(--ink2)}
+  .box li{margin:3px 0}
+  .box a{color:#2563eb}
+
+  /* bottom nav */
+  nav{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(255,255,255,.97);
+    border-top:1px solid var(--line);backdrop-filter:blur(8px);padding-bottom:env(safe-area-inset-bottom)}
+  nav .inner{max-width:520px;margin:0 auto;display:flex}
+  nav button{flex:1;border:0;background:transparent;padding:9px 2px 8px;font-size:11.5px;color:var(--ink3);font-weight:700;position:relative}
+  nav button .ic{display:block;font-size:19px;line-height:1.15}
+  nav button[data-on="1"]{color:var(--brand)}
+  nav .badge{position:absolute;top:5px;right:50%;transform:translateX(20px);background:var(--brand);color:#fff;
+    font-size:10px;border-radius:99px;padding:0 5px;min-width:16px;line-height:16px;font-weight:800}
+  .toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:#191919;color:#fff;
+    font-size:13px;padding:9px 14px;border-radius:10px;opacity:0;transition:.25s;pointer-events:none;z-index:60;max-width:90%;text-align:center}
+  .toast.on{opacity:.95}
+  .note{font-size:12px;color:var(--ink3);padding:0 12px 10px;line-height:1.6}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>메가주 <span>2026 시즌2</span> 부스 가이드</h1>
+    <div class="sub">11.20(금)~22(일) · 킨텍스 제1전시장 2~5홀 · 09:30~18:00</div>
+    <div class="stat">
+      <span class="pill">부스 <b id="stBooth">-</b></span>
+      <span class="pill">참가브랜드 <b id="stBrand">-</b></span>
+      <span class="pill">현장이벤트 <b id="stEv">-</b></span>
+      <span class="pill">내 즐겨찾기 <b id="stFav">0</b></span>
+    </div>
+  </header>
+
+  <main id="view"></main>
+
+  <nav><div class="inner">
+    <button data-tab="booth" data-on="1"><span class="ic">🔍</span>부스</button>
+    <button data-tab="event"><span class="ic">🎁</span>이벤트</button>
+    <button data-tab="course"><span class="ic">🗺️</span>내 코스<span class="badge" id="navFav" style="display:none">0</span></button>
+    <button data-tab="map"><span class="ic">📐</span>배치도</button>
+    <button data-tab="info"><span class="ic">ℹ️</span>안내</button>
+  </div></nav>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script src="data.js"></script>
+<script>
+(function(){
+  const MZ = window.MZ;
+  const BOOTHS = MZ.booths;
+  const BY = {};
+  BOOTHS.forEach(b => BY[b.id] = b);
+  const HALLS = [
+    {k:'2', name:'2홀', cls:'h2'},
+    {k:'3', name:'3홀', cls:'h3'},
+    {k:'4', name:'4홀', cls:'h4'},
+    {k:'5', name:'5홀', cls:'h5'},
+    {k:'G', name:'경기도 공동관', cls:'hg'},
+    {k:'ART', name:'ART존', cls:'ha'}
+  ];
+  const HALLNAME = Object.fromEntries(HALLS.map(h=>[h.k,h.name]));
+  const HALLCLS = Object.fromEntries(HALLS.map(h=>[h.k,h.cls]));
+  const HALLIDX = Object.fromEntries(HALLS.map((h,i)=>[h.k,i]));
+  const CATS = ['펫푸드','펫용품','펫의료&헬스케어','펫테크','펫서비스','유관기관/협단체/매체','기타 반려'];
+  const EVFILTERS = [
+    {k:'ev', label:'이벤트 있음'},
+    {k:'openRun', label:'오픈런'},
+    {k:'firstCome', label:'선착순'},
+    {k:'coupon', label:'쿠폰'},
+    {k:'fav', label:'즐겨찾기만'}
+  ];
+
+  const LS_FAV = 'mz26.fav.v1';
+  const LS_DONE = 'mz26.done.v1';
+  let favs = new Set(loadJSON(LS_FAV, []));
+  let done = new Set(loadJSON(LS_DONE, []));
+  let tab = 'booth';
+  let q = '';
+  let hall = 'all';
+  let cat = 'all';
+  let evFilter = new Set();
+  let sortMode = 'route';
+
+  function loadJSON(k, d){ try{ const v = JSON.parse(localStorage.getItem(k)); return v==null?d:v; }catch(e){ return d; } }
+  function save(){ try{ localStorage.setItem(LS_FAV, JSON.stringify([...favs])); localStorage.setItem(LS_DONE, JSON.stringify([...done])); }catch(e){} updateFavBadge(); }
+  function toast(msg){ const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('on'), 1800); }
+
+  // ---------- share link ----------
+  function readHash(){
+    const h = location.hash.replace(/^#/,'');
+    if(!h) return;
+    const p = new URLSearchParams(h);
+    const f = p.get('f');
+    if(f){
+      const ids = f.split(',').map(s=>s.trim()).filter(s=>BY[s]);
+      if(ids.length){ favs = new Set(ids); save(); toast(ids.length + '개 즐겨찾기를 불러왔어요'); }
+    }
+  }
+  function shareLink(){
+    const url = location.origin + location.pathname + '#f=' + encodeURIComponent([...favs].join(','));
+    if(navigator.share){ navigator.share({title:'메가주 2026 내 코스', url}).catch(()=>{}); return; }
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(function(){toast('공유 링크를 복사했어요')}).catch(function(){toast(url)}); } else { toast(url); }
+  }
+
+  // ---------- route ----------
+  function dist(a,b){ return Math.hypot(a.x-b.x, (a.y-b.y)*0.75); }
+  function nnSort(list, startPt){
+    const rest = list.slice();
+    const out = [];
+    let cur = startPt || rest.reduce((m,b)=> (b.x + b.y*0.3) < (m.x + m.y*0.3) ? b : m, rest[0]);
+    // start node = leftmost/topmost, then greedy nearest neighbour
+    const start = rest.reduce((m,b)=> (b.x*1.0 + b.y*0.35) < (m.x*1.0 + m.y*0.35) ? b : m, rest[0]);
+    out.push(start); rest.splice(rest.indexOf(start),1);
+    let last = start;
+    while(rest.length){
+      let bi = 0, bd = Infinity;
+      for(let i=0;i<rest.length;i++){ const d = dist(last, rest[i]); if(d<bd){bd=d;bi=i;} }
+      last = rest[bi]; out.push(last); rest.splice(bi,1);
+    }
+    return out;
+  }
+  function routeOrder(ids, prioritize){
+    const list = ids.map(id=>BY[id]).filter(Boolean);
+    const groups = {};
+    list.forEach(b=>{ (groups[b.hall] = groups[b.hall] || []).push(b); });
+    const out = [];
+    if(prioritize){
+      const tiers = [[],[]];
+      list.forEach(b=>{ const t = b.openRun ? 0 : (b.firstCome ? 1 : 2); (tiers[t] = tiers[t] || []).push(b); });
+      for(let t=0;t<3;t++){
+        const arr = tiers[t] || [];
+        if(!arr.length) continue;
+        const byHall = {};
+        arr.forEach(b=>{ (byHall[b.hall] = byHall[b.hall] || []).push(b); });
+        HALLS.forEach(h=>{ if(byHall[h.k]) out.push(...nnSort(byHall[h.k])); });
+      }
+      return out;
+    }
+    HALLS.forEach(h=>{ if(groups[h.k]) out.push(...nnSort(groups[h.k])); });
+    return out;
+  }
+  function timeHint(b){
+    const txt = (b.ev||[]).join(' ');
+    const m = txt.match(/(오전|오후)\s?\d{1,2}\s?시(\s?\d{1,2}\s?분)?/g);
+    if(m) return [...new Set(m)].slice(0,3).join(' · ');
+    if(/매일\s?선착순/.test(txt)) return '매일 선착순';
+    if(/선착순/.test(txt)) return '선착순';
+    if(/소진 시|조기 ?마감/.test(txt)) return '소진 시 마감';
+    return '';
+  }
+
+  // ---------- filtering ----------
+  function match(b){
+    if(hall !== 'all' && b.hall !== hall) return false;
+    if(cat !== 'all'){
+      const cs = b.cats && b.cats.length ? b.cats : [b.cat];
+      if(!cs.includes(cat)) return false;
+    }
+    if(evFilter.has('ev') && !(b.ev && b.ev.length)) return false;
+    if(evFilter.has('openRun') && !b.openRun) return false;
+    if(evFilter.has('firstCome') && !b.firstCome) return false;
+    if(evFilter.has('coupon') && !b.coupon) return false;
+    if(evFilter.has('fav') && !favs.has(b.id)) return false;
+    if(q){
+      const hay = [b.id, b.label, b.cat, (b.cats||[]).join(' '), (b.ev||[]).join(' ')]
+        .concat((b.brands||[]).flatMap(x=>[x.n, x.e, x.c, x.cat, x.sub, x.i]))
+        .join(' ').toLowerCase();
+      if(!hay.includes(q.toLowerCase())) return false;
+    }
+    return true;
+  }
+  function sortedList(){
+    const arr = BOOTHS.filter(match);
+    if(sortMode === 'route') return routeOrder(arr.map(b=>b.id), true);
+    if(sortMode === 'booth'){
+      return arr.slice().sort((a,b)=>{
+        const h = HALLIDX[a.hall] - HALLIDX[b.hall];
+        if(h) return h;
+        const na = parseInt(a.id.replace(/\D/g,''))||0, nb = parseInt(b.id.replace(/\D/g,''))||0;
+        return na-nb || a.id.localeCompare(b.id);
+      });
+    }
+    // event first: 부스 중 이벤트 있는 곳 먼저, 그 다음 나머지
+    return arr.slice().sort((a,b)=>{
+      const ea = (a.ev&&a.ev.length)?0:1, eb = (b.ev&&b.ev.length)?0:1;
+      if(ea!==eb) return ea-eb;
+      return (HALLIDX[a.hall]-HALLIDX[b.hall]) || ((parseInt(a.id.replace(/\D/g,''))||0)-(parseInt(b.id.replace(/\D/g,''))||0));
+    });
+  }
+
+  // ---------- render ----------
+  const view = document.getElementById('view');
+  function imgSrc(name){ return (window.MZIMG && window.MZIMG[name]) || name; }
+  const esc = s => (s==null?'':String(s)).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+  function tagRow(b, max){
+    const t = [];
+    if(b.openRun) t.push('<span class="tag run">오픈런</span>');
+    if(b.firstCome) t.push('<span class="tag first">선착순</span>');
+    if(b.coupon) t.push('<span class="tag coupon">쿠폰</span>');
+    (b.t||[]).filter(x=>!['오픈런','선착순','쿠폰'].includes(x)).slice(0, max||3)
+      .forEach(x=>t.push('<span class="tag ev">'+esc(x)+'</span>'));
+    if(!t.length && b.cats && b.cats.length) t.push('<span class="tag">'+esc(b.cat||'')+'</span>');
+    return t.join('');
+  }
+  function card(b){
+    const br = (b.brands||[]).find(x=>x.i) || (b.brands||[])[0] || {};
+    const nm = b.label || ('부스 '+b.id);
+    const meta = [b.id, HALLNAME[b.hall], b.cat || (br.cat||'')].filter(Boolean).join(' · ');
+    const first = (b.ev&&b.ev.length) ? b.ev[0] : '';
+    const more = (b.ev&&b.ev.length>1) ? ('이벤트 ' + b.ev.length + '개 전체 보기') : '이벤트 자세히';
+    return '<div class="card'+(favs.has(b.id)?' fav':'')+'" data-id="'+esc(b.id)+'">'
+      + '<div class="top">'
+      +   '<span class="bnum '+HALLCLS[b.hall]+'">'+esc(b.id)+'</span>'
+      +   '<div class="name"><div class="t">'+esc(nm)+'</div><div class="m">'+esc(meta)+(b.approx?' · 위치 근사값':'')+'</div></div>'
+      +   '<button class="star" data-star="'+esc(b.id)+'" data-fav="'+(favs.has(b.id)?'1':'0')+'" aria-label="즐겨찾기">'+(favs.has(b.id)?'★':'☆')+'</button>'
+      + '</div>'
+      + (br.i ? '<div class="info">'+esc(br.i)+'</div>' : '')
+      + ((br.p&&br.p.length)? '<div class="prods">대표 제품 · '+esc(br.p.join(' / '))+'</div>' : '')
+      + (b.ev&&b.ev.length ? ('<div class="evwrap"><div class="evsummary"><span class="lab">현장 이벤트</span>'+esc(first)+'</div>'
+          + '<button class="more" data-more="'+esc(b.id)+'">'+more+'</button>'
+          + '<div class="evfull" id="ev-'+esc(b.id)+'">'+b.ev.map(e=>'<div class="item">'+esc(e)+'</div>').join('')+'</div>'
+          + '</div>') : '')
+      + '<div class="tags">'+tagRow(b)+'</div>'
+      + '</div>';
+  }
+
+  function renderBooth(){
+    const arr = sortedList();
+    const evCount = arr.filter(b=>b.ev&&b.ev.length).length;
+    let html = '<div class="controls">'
+      + '<div class="search"><input id="q" placeholder="브랜드·부스번호·품목 검색 (예: 라포그, 3238)" value="'+esc(q)+'">'
+      + '<button class="clr" id="clr" style="display:'+(q?'block':'none')+'">×</button></div>'
+      + '<div class="scroll">'
+      + '<button class="chip acc" data-hall="all" data-on="'+(hall==='all'?1:0)+'">전체</button>'
+      + HALLS.map(h=>'<button class="chip '+h.cls+'" data-hall="'+h.k+'" data-on="'+(hall===h.k?1:0)+'">'+h.name+'</button>').join('')
+      + '</div>'
+      + '<div class="row2"><div class="scroll" style="padding-top:4px">'
+      + EVFILTERS.map(f=>'<button class="chip acc" data-ev="'+f.k+'" data-on="'+(evFilter.has(f.k)?1:0)+'">'+f.label+'</button>').join('')
+      + '</div></div>'
+      + '<div class="row2" style="padding:6px 0 2px">'
+      + '<select class="sel" id="cat"><option value="all">카테고리 전체</option>'
+      + CATS.map(c=>'<option value="'+esc(c)+'" '+(cat===c?'selected':'')+'>'+esc(c)+'</option>').join('')+'</select>'
+      + '<select class="sel" id="sort"><option value="route" '+(sortMode==='route'?'selected':'')+'>동선순</option>'
+      + '<option value="booth" '+(sortMode==='booth'?'selected':'')+'>부스번호순</option>'
+      + '<option value="event" '+(sortMode==='event'?'selected':'')+'>이벤트 우선</option></select></div>'
+      + '<div class="count">'+arr.length+'개 부스 · 이벤트 있는 부스 '+evCount+'개</div>'
+      + '</div>'
+      + '<div class="list">'+ (arr.length? arr.map(card).join('') : '<div class="empty">조건에 맞는 부스가 없어요.<br>검색어나 필터를 풀어보세요.</div>') +'</div>';
+    view.innerHTML = html;
+    const qi = document.getElementById('q');
+    qi.addEventListener('input', e=>{ q = e.target.value; debounce(()=>renderBooth(), 180); });
+    document.getElementById('clr').onclick = ()=>{ q=''; renderBooth(); };
+    view.querySelectorAll('[data-hall]').forEach(el=>el.onclick=()=>{ hall = el.dataset.hall; renderBooth(); });
+    view.querySelectorAll('[data-ev]').forEach(el=>el.onclick=()=>{ const k=el.dataset.ev; evFilter.has(k)?evFilter.delete(k):evFilter.add(k); renderBooth(); });
+    document.getElementById('cat').onchange = e=>{ cat = e.target.value; renderBooth(); };
+    document.getElementById('sort').onchange = e=>{ sortMode = e.target.value; renderBooth(); };
+  }
+
+  function renderEvent(){
+    const evBooths = BOOTHS.filter(b=>b.ev&&b.ev.length);
+    let arr;
+    if(hall==='all' && cat==='all' && !q) arr = evBooths.slice().sort((a,b)=> (HALLIDX[a.hall]-HALLIDX[b.hall]) || ((parseInt(a.id.replace(/\D/g,''))||0)-(parseInt(b.id.replace(/\D/g,''))||0)));
+    else arr = evBooths.filter(match);
+    const un = MZ.unplaced || [];
+    let html = '<div class="controls">'
+      + '<div class="search"><input id="q" placeholder="이벤트 검색 (예: 뽑기, 샘플, 쿠폰)" value="'+esc(q)+'">'
+      + '<button class="clr" id="clr" style="display:'+(q?'block':'none')+'">×</button></div>'
+      + '<div class="scroll">'
+      + '<button class="chip acc" data-hall="all" data-on="'+(hall==='all'?1:0)+'">전체</button>'
+      + HALLS.map(h=>'<button class="chip '+h.cls+'" data-hall="'+h.k+'" data-on="'+(hall===h.k?1:0)+'">'+h.name+'</button>').join('')
+      + '</div>'
+      + '<div class="scroll">'
+      + EVFILTERS.filter(f=>f.k!=='ev').map(f=>'<button class="chip acc" data-ev="'+f.k+'" data-on="'+(evFilter.has(f.k)?1:0)+'">'+f.label+'</button>').join('')
+      + '</div>'
+      + '<div class="count">주최측 공개 현장이벤트 · 부스 '+arr.length+'곳'+(un.length?' + 부스 미확인 '+un.length+'곳':'')+'</div>'
+      + '</div><div class="list">'
+      + arr.map(card).join('')
+      + (un.length? ('<div class="hallhead"><span class="hb ha">?</span><span class="hs">부스 번호가 공개 자료에 없는 브랜드</span></div>'
+          + un.map(u=>'<div class="card"><div class="top"><span class="bnum ha">?</span><div class="name"><div class="t">'+esc(u.n)+'</div>'
+            + '<div class="m">부스 번호 미확인 · 현장 안내데스크/앱에서 검색</div></div></div>'
+            + '<div class="evwrap"><div class="evsummary"><span class="lab">현장 이벤트</span>'+esc(u.ev[0]||'')+'</div>'
+            + (u.ev.length>1? '<div class="evfull open">'+u.ev.slice(1).map(e=>'<div class="item">'+esc(e)+'</div>').join('')+'</div>':'')
+            + '</div></div>').join('')) : '')
+      + '</div>';
+    view.innerHTML = html;
+    const qi = document.getElementById('q');
+    qi.addEventListener('input', e=>{ q = e.target.value; debounce(()=>renderEvent(), 180); });
+    document.getElementById('clr').onclick = ()=>{ q=''; renderEvent(); };
+    view.querySelectorAll('[data-hall]').forEach(el=>el.onclick=()=>{ hall = el.dataset.hall; renderEvent(); });
+    view.querySelectorAll('[data-ev]').forEach(el=>el.onclick=()=>{ const k=el.dataset.ev; evFilter.has(k)?evFilter.delete(k):evFilter.add(k); renderEvent(); });
+  }
+
+  function renderCourse(){
+    const ids = [...favs];
+    const ordered = routeOrder(ids, true);
+    const total = ordered.length;
+    const dn = ordered.filter(b=>done.has(b.id)).length;
+    const pctv = total? Math.round(dn/total*100) : 0;
+    let html = '<div class="course">';
+    html += '<div class="hero"><h2>내 즐겨찾기 최적 동선</h2>'
+      + '<p>'+(total? '오픈런·선착순 부스를 먼저, 그다음 2홀 → 3홀 → 4홀 → 5홀 순서로 도면상 가까운 부스부터 이어 붙였어요.' : '부스 목록에서 ☆를 눌러 가고 싶은 곳을 담으면, 도면 좌표로 최적 순서를 만들어 드려요.')+'</p>'
+      + '<div class="prog"><i style="width:'+pctv+'%"></i></div>'
+      + '<div class="nums"><span>방문 완료 '+dn+' / '+total+'</span><span>'+pctv+'%</span></div>'
+      + '<div class="btnrow">'
+      + '<button class="btn primary" id="share">공유 링크</button>'
+      + '<button class="btn" id="tobo">부스 더 담기</button>'
+      + (dn? '<button class="btn" id="resetdone">방문 기록 초기화</button>':'')
+      + '</div></div>';
+
+    if(!total){
+      html += '<div class="empty">아직 담은 부스가 없어요.<br><br>🔍 <b>부스</b> 탭에서 ☆를 누르면<br>여기에 최적 순서로 정리됩니다.</div></div>';
+      view.innerHTML = html;
+      bindCourse(); return;
+    }
+    let stepNo = 0, curHall = null;
+    ordered.forEach(b=>{
+      if(b.hall !== curHall){
+        curHall = b.hall;
+        const inHall = ordered.filter(x=>x.hall===curHall).length;
+        html += '<div class="hallhead"><span class="hb '+HALLCLS[b.hall]+'">'+HALLNAME[b.hall]+'</span><span class="hs">'+inHall+'곳</span></div>';
+      }
+      stepNo++;
+      const isDone = done.has(b.id);
+      const first = (b.ev&&b.ev.length)? b.ev[0] : '';
+      const th = timeHint(b);
+      const thTxt = th ? (/시/.test(th) ? ' · ⏰ '+th : ' · '+th) : '';
+      html += '<div class="step'+(isDone?' isdone':'')+'">'
+        + '<div class="no">'+(isDone?'✓':stepNo)+'</div>'
+        + '<div class="body"><div class="t">'+esc(b.label||('부스 '+b.id))+'</div>'
+        + '<div class="m">'+esc(b.id)+' · '+esc(HALLNAME[b.hall])+(b.cat?' · '+esc(b.cat):'')+esc(thTxt)+'</div>'
+        + (first? '<div class="e">'+esc(first)+'</div>' : '')
+        + '<div class="acts"><button class="tick" data-done="'+(isDone?1:0)+'" data-tick="'+esc(b.id)+'">'+(isDone?'방문 완료':'방문 체크')+'</button>'
+        + '<button class="tick" data-star2="'+esc(b.id)+'">★ 빼기</button></div>'
+        + '</div></div>';
+    });
+    html += '<div class="note">※ 순서는 공개된 부스배치도 좌표를 기준으로 계산한 참고용 동선입니다. 현장 통로 사정에 따라 조정하세요.</div>';
+    html += '</div>';
+    view.innerHTML = html;
+    bindCourse();
+  }
+  function bindCourse(){
+    document.querySelectorAll('[data-tick]').forEach(el=>el.onclick=()=>{
+      const id = el.dataset.tick; done.has(id)?done.delete(id):done.add(id); save(); renderCourse();
+    });
+    document.querySelectorAll('[data-star2]').forEach(el=>el.onclick=()=>{
+      const id = el.dataset.star2; favs.delete(id); done.delete(id); save(); renderCourse();
+    });
+    const s = document.getElementById('share'); if(s) s.onclick = shareLink;
+    const tb = document.getElementById('tobo'); if(tb) tb.onclick = ()=> switchTab('booth');
+    const rd = document.getElementById('resetdone'); if(rd) rd.onclick = ()=>{ done.clear(); save(); renderCourse(); };
+  }
+
+  function renderMap(){
+    let html = '<div class="mapwrap">'
+      + '<div class="scroll" style="padding-bottom:10px">'
+      + '<button class="chip acc" data-map="all" data-on="1">전체 배치도</button>'
+      + HALLS.slice(0,4).map(h=>'<button class="chip '+h.cls+'" data-map="'+h.k+'">'+h.name+'</button>').join('')
+      + '</div>'
+      + '<div id="mapbox"><img src="'+imgSrc('map_full.jpg')+'" alt="2026 메가주 시즌2 부스배치도 전체"></div>'
+      + '<div class="legend"><b>보는 법</b><br>· 부스 안 숫자가 부스 번호예요. 홀별로 <b>2홀(앞자리 2)</b>, <b>3홀(3)</b>, <b>4홀(4)</b>, <b>5홀(5)</b> 로 구분됩니다.<br>'
+      + '· 빨간 <b>쭈쭈쭈 아이콘</b>이 붙은 부스는 쭈쭈쭈 쿠폰 사용 가능 업체예요.<br>'
+      + '· G-01~G-26은 <b>경기도 공동관</b>, ART-01~04는 <b>ART존</b>입니다.<br>'
+      + '· 원본: 주최측 공개 부스배치도 PDF (2026.11.13 기준) — <a href="https://k-pet.co.kr/visitor/megazoos2_floormap/" target="_blank" rel="noopener">원본 보기</a></div>'
+      + '</div>';
+    view.innerHTML = html;
+    view.querySelectorAll('[data-map]').forEach(el=>el.onclick=()=>{
+      view.querySelectorAll('[data-map]').forEach(x=>x.dataset.on='0');
+      el.dataset.on='1';
+      const k = el.dataset.map;
+      const box = document.getElementById('mapbox');
+      if(k==='all'){ box.innerHTML = '<img src="'+imgSrc('map_full.jpg')+'" alt="전체 배치도">'; return; }
+      var up = imgSrc('map_' + k.toLowerCase() + 'a.jpg'), dn = imgSrc('map_' + k.toLowerCase() + 'b.jpg');
+      box.innerHTML = '<img src="'+up+'" alt="'+HALLNAME[k]+' 배치도 상단"><img src="'+dn+'" alt="'+HALLNAME[k]+' 배치도 하단" style="margin-top:8px">';
+    });
+  }
+
+  function renderInfo(){
+    const m = MZ.meta;
+    view.innerHTML = '<div class="info-page">'
+      + '<div class="box"><h3>행사 정보</h3><dl>'
+      + '<div><dt>행사</dt><dd>'+esc(m.fair)+'</dd></div>'
+      + '<div><dt>기간</dt><dd>'+esc(m.dates)+'</dd></div>'
+      + '<div><dt>장소</dt><dd>'+esc(m.venue)+'</dd></div>'
+      + '<div><dt>관람시간</dt><dd>'+esc(m.hours)+'</dd></div>'
+      + '<div><dt>입장료</dt><dd>2차 사전등록 6,000원(1일권) · 현장 12,000원</dd></div>'
+      + '</dl></div>'
+      + '<div class="box"><h3>이 가이드의 데이터</h3><ul>'
+      + '<li>부스 <b>'+m.boothCount+'</b>곳 · 참가 브랜드 <b>'+m.brandCount+'</b>개 — 주최측 부스배치도&amp;리스트 PDF(2026.11.13)와 공식 참가브랜드 목록 기준</li>'
+      + '<li>현장이벤트 <b>'+m.eventItemCount+'</b>건 · 부스 <b>'+m.eventBoothCount+'</b>곳 — 주최측 공개 「참가브랜드 현장이벤트 모아보기」 원문을 그대로 옮겼습니다</li>'
+      + '<li>이벤트가 공개되지 않은 부스는 카드에 이벤트 칸이 비어 있습니다(정보 없음이지, 이벤트가 없다는 뜻은 아닙니다)</li>'
+      + '<li>부스 번호가 공개 자료에 없는 브랜드 <b>'+m.unplacedCount+'</b>곳은 이벤트 탭 맨 아래에 따로 모았습니다</li>'
+      + '</ul></div>'
+      + '<div class="box"><h3>현장에서 바로 쓸 것</h3><ul>'
+      + '<li>입장 마감 <b>17:30</b>, 폐장 18:00. 대기줄이 길면 입장 시간이 앞당겨질 수 있다고 공지돼 있어요.</li>'
+      + '<li>쭈쭈쭈 쿠폰번호 등록 기한은 <b>11.18(수) 23:59</b>, 홈페이지 사전등록 바코드는 <b>11.19(목) 18:00부터</b> 카카오 알림톡 발송.</li>'
+      + '<li>선착순 이벤트는 대부분 <b>매일</b> 수량이 리셋됩니다. 오전 회차를 노리면 개장 직후가 유리해요.</li>'
+      + '<li>반려견 동반 시 목줄·인식표 필수, 이동장·유모차·슬링백 권장.</li>'
+      + '</ul></div>'
+      + '<div class="box"><h3>참고 링크</h3><ul>'
+      + '<li><a href="https://k-pet.co.kr/portfolio-items/26pet_k2_brandevent/" target="_blank" rel="noopener">주최측 현장이벤트 원문</a></li>'
+      + '<li><a href="https://k-pet.co.kr/visitor/megazoos2_floormap/" target="_blank" rel="noopener">부스배치도 PDF</a></li>'
+      + '<li><a href="https://megazoo.co.kr/2026-2-exhibitor-gallery/" target="_blank" rel="noopener">참가브랜드 목록</a></li>'
+      + '</ul></div>'
+      + '</div>';
+  }
+
+  let _dt;
+  function debounce(fn, ms){ clearTimeout(_dt); _dt = setTimeout(fn, ms); }
+
+  function updateFavBadge(){
+    const n = favs.size;
+    document.getElementById('stFav').textContent = n;
+    const b = document.getElementById('navFav');
+    b.style.display = n? 'block':'none'; b.textContent = n;
+  }
+  function switchTab(t){
+    tab = t;
+    document.querySelectorAll('nav button').forEach(b=>b.dataset.on = (b.dataset.tab===t?1:0));
+    if(t==='booth') renderBooth();
+    else if(t==='event') renderEvent();
+    else if(t==='course') renderCourse();
+    else if(t==='map') renderMap();
+    else renderInfo();
+    window.scrollTo({top:0});
+  }
+  document.querySelectorAll('nav button').forEach(b=> b.onclick = ()=> switchTab(b.dataset.tab));
+
+  // global card interactions (delegated)
+  document.addEventListener('click', e=>{
+    const s = e.target.closest('[data-star]');
+    if(s){
+      const id = s.dataset.star;
+      favs.has(id)? favs.delete(id) : favs.add(id);
+      if(!favs.has(id)) done.delete(id);
+      save();
+      s.dataset.fav = favs.has(id)?'1':'0';
+      s.textContent = favs.has(id)?'★':'☆';
+      var cc = s.closest('.card'); if(cc) cc.classList.toggle('fav', favs.has(id));
+      if(tab==='course') renderCourse();
+      if(evFilter.has('fav')) { tab==='booth'?renderBooth():renderEvent(); }
+      return;
+    }
+    const mo = e.target.closest('[data-more]');
+    if(mo){
+      const el = document.getElementById('ev-'+mo.dataset.more);
+      if(el){ el.classList.toggle('open'); var op=el.classList.contains('open'); var lbl=mo.getAttribute('data-label')||mo.textContent; if(!mo.getAttribute('data-label')) mo.setAttribute('data-label',lbl); mo.textContent = op? '접기' : lbl; }
+      return;
+    }
+  });
+
+  // init
+  readHash();
+  updateFavBadge();
+  document.getElementById('stBooth').textContent = MZ.meta.boothCount;
+  document.getElementById('stBrand').textContent = MZ.meta.brandCount;
+  document.getElementById('stEv').textContent = MZ.meta.eventBoothCount;
+  const hashTab = (location.hash.match(/tab=(\w+)/)||[])[1];
+  switchTab(hashTab && ['booth','event','course','map','info'].includes(hashTab) ? hashTab : 'booth');
+})();
+</script>
+</body>
+</html>
