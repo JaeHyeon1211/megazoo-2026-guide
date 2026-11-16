@@ -78,6 +78,14 @@
   .evfull .item{font-size:12.5px;color:#333;padding:7px 0;border-top:1px solid #f0f0ec;word-break:keep-all}
   .evfull .item:first-child{border-top:0}
 
+  .tt{margin:10px 12px 0;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px}
+  .tth{font-size:13px;font-weight:800;margin-bottom:7px}
+  .ttr{display:flex;gap:8px;font-size:12.5px;padding:5px 0;border-top:1px solid #f4f4f0}
+  .ttr:first-of-type{border-top:0}
+  .ttt{flex:0 0 62px;font-weight:800;color:var(--brand)}
+  .ttb{flex:1;color:#333;word-break:keep-all}
+  .ttn{font-size:11.5px;color:var(--ink3);margin-top:7px}
+
   /* course */
   .course{padding:10px 12px 24px}
   .hero{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px}
@@ -378,6 +386,25 @@
     document.getElementById('sort').onchange = e=>{ sortMode = e.target.value; renderBooth(); };
   }
 
+  function timeGroups(){
+    const map = {};
+    BOOTHS.forEach(b=>{
+      (b.ev||[]).forEach(txt=>{
+        const mm = txt.match(/(오전|오후)\s?\d{1,2}\s?시/g);
+        if(!mm) return;
+        mm.forEach(t=>{
+          const k = t.replace(/\s/g,'');
+          (map[k] = map[k] || []).push(b);
+        });
+      });
+    });
+    const order = k => { const m = k.match(/(오전|오후)(\d+)/); let h = parseInt(m[2]); if(m[1]==='오후' && h!==12) h+=12; if(m[1]==='오전' && h===12) h=0; return h; };
+    return Object.keys(map).sort((a,b)=>order(a)-order(b)).map(k=>{
+      const seen = {}; const list = [];
+      map[k].forEach(b=>{ if(!seen[b.id]){ seen[b.id]=1; list.push(b); } });
+      return {time:k, booths:list};
+    });
+  }
   function renderEvent(){
     const evBooths = BOOTHS.filter(b=>b.ev&&b.ev.length);
     let arr;
@@ -395,7 +422,17 @@
       + EVFILTERS.filter(f=>f.k!=='ev').map(f=>'<button class="chip acc" data-ev="'+f.k+'" data-on="'+(evFilter.has(f.k)?1:0)+'">'+f.label+'</button>').join('')
       + '</div>'
       + '<div class="count">주최측 공개 현장이벤트 · 부스 '+arr.length+'곳'+(un.length?' + 부스 미확인 '+un.length+'곳':'')+'</div>'
-      + '</div><div class="list">'
+      + '</div>'
+      + (function(){
+          const tg = timeGroups();
+          if(!tg.length) return '';
+          return '<div class="tt">' + '<div class="tth">⏰ 시간 정해진 현장 이벤트</div>'
+            + tg.map(g=>'<div class="ttr"><span class="ttt">'+esc(g.time)+'</span><span class="ttb">'
+              + g.booths.slice(0,8).map(b=>esc(b.label.split(' · ')[0])+'('+esc(b.id)+')').join(', ')
+              + (g.booths.length>8? ' 외 '+(g.booths.length-8)+'곳' : '') + '</span></div>').join('')
+            + '<div class="ttn">※ 주최측 공개 문구에 시간이 적힌 이벤트만 모았습니다. 요일별로 시간이 다를 수 있으니(예: 슈퍼벳 금·토 11/2/4시, 일 10/12/2시) 아래 카드의 원문을 확인하세요.</div></div>';
+        }())
+      + '<div class="list">'
       + arr.map(card).join('')
       + (un.length? ('<div class="hallhead"><span class="hb ha">?</span><span class="hs">부스 번호가 공개 자료에 없는 브랜드</span></div>'
           + un.map(u=>'<div class="card"><div class="top"><span class="bnum ha">?</span><div class="name"><div class="t">'+esc(u.n)+'</div>'
