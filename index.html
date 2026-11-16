@@ -577,10 +577,21 @@
     paintEventList();
   }
   // 이벤트 탭: 기본 화면에서도 hall·cat·q·이벤트 필터를 항상 거친 뒤 정렬한다
+  // 부스 번호 미확인 브랜드도 같은 필터를 적용한다(홀·카테고리 정보가 없으면 지정 시 숨김)
+  function unplacedMatch(u){
+    if(evFilter.has('fav')) return false;
+    const txt = [u.n].concat(u.ev||[]).join(' ');
+    if(evFilter.has('openRun') && !/오픈런/.test(txt)) return false;
+    if(evFilter.has('firstCome') && !/선착순/.test(txt)) return false;
+    if(evFilter.has('coupon') && !/쿠폰/.test(txt)) return false;
+    if(hall !== 'all' || cat !== 'all') return false;
+    if(q && !txt.toLowerCase().includes(q.toLowerCase())) return false;
+    return true;
+  }
   function paintEventList(){
     const evBooths = BOOTHS.filter(b=>b.ev&&b.ev.length);
     const arr = evBooths.filter(match).sort((a,b)=> (HALLIDX[a.hall]-HALLIDX[b.hall]) || ((parseInt(a.id.replace(/\D/g,''))||0)-(parseInt(b.id.replace(/\D/g,''))||0)));
-    const un = MZ.unplaced || [];
+    const un = (MZ.unplaced || []).filter(unplacedMatch);
     const cnt = document.getElementById('cnt');
     if(cnt) cnt.textContent = '주최측 공개 현장이벤트 · 부스 '+arr.length+'곳'+(un.length?' + 부스 미확인 '+un.length+'곳':'');
     const list = document.getElementById('list');
@@ -601,6 +612,8 @@
     const dn = steps.filter(s=>done.has(s.b.id)).length;
     const pctv = total? Math.round(dn/total*100) : 0;
     const anchorN = steps.filter(s=>s.anchor!=null).length;
+    const anchorCount = {};
+    steps.forEach(s=>{ if(s.anchor != null) anchorCount[s.anchor] = (anchorCount[s.anchor]||0)+1; });
     const dayLabel = (VISITS.find(v=>v.k===course.day) || VISITS[0]).label;
     const entryName = (ENTRIES[course.entry] || ENTRIES['2']).name;
     let html = '<div class="course">';
@@ -652,6 +665,7 @@
         tTxt = '⏰ '+fmtMin(s.anchor)+' 이벤트 · '+fmtMin(s.arrive)+' 도착';
         if(s.late){ tCls += ' warn'; tTxt += ' (늦을 수 있어요)'; }
         else if(s.anchor - s.arrive >= 3) tTxt += ' · ' + Math.round(s.anchor - s.arrive) + '분 여유';
+        if(anchorCount[s.anchor] > 1) tTxt += ' · 같은 시각 ' + anchorCount[s.anchor] + '곳 중 하나';
       } else {
         tTxt = '예상 '+fmtMin(s.arrive)+' 도착'+(s.arrive > 18*60 ? ' · 폐장 후' : '');
       }
