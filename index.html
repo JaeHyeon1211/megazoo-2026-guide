@@ -95,6 +95,18 @@
   .crset label{display:block;font-size:10.5px;color:var(--ink3);font-weight:800;margin-bottom:3px}
   .crset select{width:100%;font-size:12.5px;border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 4px;color:var(--ink);font-weight:700}
   .crsum{font-size:12px;color:var(--ink2);margin-top:9px;background:#fafaf7;border:1px solid var(--line);border-radius:10px;padding:8px 10px;word-break:keep-all}
+  /* 핵심 코스 프리셋 */
+  .core{margin-top:10px;border:1px solid #f3d47a;background:#fffdf5;border-radius:12px;padding:10px 11px}
+  .core .ch{font-size:12.5px;font-weight:800;color:#92620a}
+  .core .ch em{font-style:normal;font-weight:600;color:#a98a4b;font-size:11.5px;margin-left:5px}
+  .core .cl{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+  .core .ci{border:1px solid var(--line);background:#fff;color:#333;border-radius:8px;padding:5px 7px;font-size:11.5px;font-weight:700}
+  .core .ci b{font-weight:800;color:var(--ink3);margin-left:4px;font-size:11px}
+  .core .ci[data-fav="1"]{background:#fef3c7;border-color:#eab308;color:#7c4a03}
+  .core .ci[data-fav="1"] b{color:#a16207}
+  .core .cbtn{margin-top:9px;width:100%;border:1px solid var(--brand);background:var(--brand);color:#fff;border-radius:9px;padding:8px;font-size:12.5px;font-weight:800}
+  .core .calt{font-size:11px;color:var(--ink3);margin-top:7px;line-height:1.55;word-break:keep-all}
+  .tag.core{background:#fde68a;color:#92400e}
   .step .time{font-size:11.5px;color:#2563eb;font-weight:800;margin-top:2px}
   .step .time.anchor{color:var(--brand)}
   .step .time.warn{color:#b91c1c}
@@ -205,6 +217,19 @@
     {k:'coupon', label:'쿠폰'},
     {k:'fav', label:'즐겨찾기만'}
   ];
+  // 재현 님이 #메가주에 꼽은 핵심 7개 항목 (2026-11-17 확정) — 부스 번호는 data.js 기준
+  const CORE = [
+    {id:'5347', item:'눈영양제', brand:'바이오핏 아이즈핏'},
+    {id:'3136', item:'방수리드줄', brand:'와우펫 방수 리드줄'},
+    {id:'5523', item:'우신', brand:'라보타치(우신라보타치)'},
+    {id:'5601', item:'목우촌 사료', brand:'목우촌 멍수무강'},
+    {id:'3106', item:'유산균', brand:'드시모네펫'},
+    {id:'5732', item:'오메가3', brand:'에코-펫 오메가3+물범오일'},
+    {id:'5316', item:'XXL 옷', brand:'큰강아지 XL~8XL'}
+  ];
+  const CORE_IDS = CORE.map(c=>c.id);
+  const CORE_SET = new Set(CORE_IDS);
+  const CORE_ALT = '대안 부스 · 눈영양제 5732 에코-펫(루테인 함유) · 방수리드줄 5713 리또리 · 유산균 4524 리와일드 프로바이오틱스 · 오메가3 5214 뉴트롤린 · XXL 옷 4149 하이위드';
 
   const LS_FAV = 'mz26.fav.v1';
   const LS_DONE = 'mz26.done.v1';
@@ -217,7 +242,7 @@
   const START_TIMES = [570,600,630,660,690,720,750,780,810,840,870];
   let favs = new Set(loadJSON(LS_FAV, []));
   let done = new Set(loadJSON(LS_DONE, []));
-  let course = Object.assign({day:'1120', start:570, entry:'2'}, loadJSON(LS_COURSE, {}));
+  let course = Object.assign({day:'1122', start:570, entry:'2'}, loadJSON(LS_COURSE, {}));
   let tab = 'booth';
   let q = '';
   let hall = 'all';
@@ -252,6 +277,7 @@
   function dist(a,b){ return Math.hypot(a.x-b.x, (a.y-b.y)*0.75); }
   const WALK_MIN = 0.006;   // 도면 좌표 1,000 ≈ 350m · 4km/h 보행 가정(추정)
   const DWELL_MIN = 4;      // 부스당 체류 시간 추정
+  const isRush = b => !!(b.openRun || b.firstCome);
   const ENTRY_Y = 960;      // 배치도 하단 출입구 라인
   // 홀별 출입구 좌표: 배치도 하단(출입구 쪽) 부스들의 가운데 x를 출발점으로 사용
   const ENTRIES = (function(){
@@ -263,48 +289,58 @@
     return out;
   })();
 
-  // ---------- 통로(aisle) 지그재그 ----------
-  // 배치도에서 좌우 두 열의 부스가 마주 보면 그것이 하나의 통로입니다.
-  // 부스 열은 공통 뒷면을 맞대어 '섬'을 이루고, 통로는 섬과 섬 사이에 있습니다.
-  // 아래 섬 x구간은 주최 부스배치도 PDF의 부스 사각형에서 추출한 것(도면 좌표 0~1000)이며,
-  // 각 섬은 왼쪽 열(왼쪽 통로를 바라봄) + 오른쪽 열(오른쪽 통로를 바라봄)입니다.
-  const ISLANDS = [
-    [21.1,32.7],[51.9,75.0],[92.3,115.4],[132.7,155.8],[171.2,194.3],[209.7,232.8],
-    [248.2,271.3],[288.6,311.7],[327.0,350.1],[367.5,390.5],[407.9,430.9],[446.3,469.4],
-    [484.8,507.9],[523.3,546.4],[565.6,588.7],[606.0,629.1],[644.5,667.6],[684.9,708.0],
-    [723.4,746.5],[761.9,785.0],[800.4,823.4],[838.8,861.9],[879.2,902.3],[919.6,942.7],[963.9,975.4]
-  ];
-  // 부스 → 통로 번호(왼쪽 끝이 0). 예: 21xx 열과 22xx 홀수 열이 통로 1의 좌우, 22xx 짝수 열과 23xx 홀수 열이 통로 2의 좌우.
-  const AISLE_OF = (function(){
+  // ---------- 가로 훑기(③) ----------
+  // 배치도에서 부스 y좌표는 안쪽(위)부터 입구(아래)까지 같은 '가로 줄'로 반복됩니다.
+  // 같은 줄의 부스는 앞면이 같은 가로 통로를 향하므로, 한 줄을 왼쪽에서 오른쪽으로 훑은 뒤
+  // 다음 줄로 내려가 반대 방향으로 훑으면 되짚는 구간 없이 전시장을 가로로 지나갈 수 있습니다.
+  // (아래 줄 묶음은 주최 부스배치도 PDF의 부스 y좌표에서 이웃 줄 간격 30·묶음 폭 70 이내로 묶은 것)
+  const ROW_BANDS = (function(){
+    const ys = [...new Set(BOOTHS.map(b=>Math.round(b.y*10)/10))].sort((a,b)=>a-b);
+    const out = [];
+    ys.forEach(y=>{
+      const last = out[out.length-1];
+      if(last && (y-last.max)<=30 && (y-last.min)<=70){ last.max = y; }
+      else out.push({min:y, max:y});
+    });
+    return out.map((r,i)=>({i:i, min:r.min, max:r.max, c:(r.min+r.max)/2}));
+  })();
+  const ROW_OF = (function(){
     const m = {};
     BOOTHS.forEach(b=>{
       let bi = 0, bd = Infinity;
-      ISLANDS.forEach((r,i)=>{
-        const d = b.x<r[0] ? r[0]-b.x : (b.x>r[1] ? b.x-r[1] : 0);
+      ROW_BANDS.forEach((r,i)=>{
+        const d = b.y<r.min ? r.min-b.y : (b.y>r.max ? b.y-r.max : 0);
         if(d<bd){ bd=d; bi=i; }
       });
-      const r = ISLANDS[bi], half = (r[0]+r[1])/2;
-      m[b.id] = (r[1]-r[0] < 17) ? (bi===0 ? 1 : bi)   // 한 열뿐인 맨 끝 섬은 안쪽 통로와 한 줄
-              : (b.x < half ? bi : bi+1);
+      m[b.id] = bi;
     });
     return m;
   })();
-  // 2·3·4홀 입구: 왼쪽 끝 통로부터 오른쪽 끝까지, 5홀 입구: 오른쪽 끝 통로부터 왼쪽 끝까지
-  // 한 방향으로 쭉 훑으면서 통로마다 방향을 번갈아 타는 지그재그(boustrophedon) 순서
-  function zigzagSort(list, entry){
-    const byA = {};
-    list.forEach(b=>{ (byA[AISLE_OF[b.id]] = byA[AISLE_OF[b.id]] || []).push(b); });
-    const keys = Object.keys(byA).map(Number).sort((a,b)=> entry==='5' ? b-a : a-b);
+  // 안쪽(작은 y) 줄 → 입구 쪽(큰 y) 줄 순서로 내려오면서, 줄마다 좌→우·우→좌를 번갈아 훑습니다.
+  // 2·3·4홀 입구는 2홀 쪽 끝(왼쪽)에서 오른쪽으로, 5홀 입구는 반대로 시작합니다.
+  function sweepSort(list, entry, rushFirst){
+    const mirror = (entry === '5');
+    const by = {};
+    list.forEach(b=>{ const k = ROW_OF[b.id]; (by[k] = by[k] || []).push(b); });
+    const keys = Object.keys(by).map(Number).sort((a,b)=>a-b);
     const out = [];
     keys.forEach((k,n)=>{
-      const inward = (n%2===0);   // 첫 통로는 입구쪽→안쪽, 다음 통로는 안쪽→입구쪽
-      const arr = byA[k];
-      arr.sort((a,b)=> inward ? (b.y-a.y)||(a.x-b.x) : (a.y-b.y)||(a.x-b.x));
+      const ltr = ((n%2===0) !== mirror);   // 줄을 지날 때마다 방향을 바꾼다
+      const arr = by[k];
+      // 줄 안에서는 진행 방향(x) 순서 그대로 가되, 같은 자리에 붙어 있으면 오픈런·선착순 부스를 먼저 봅니다
+      const key = b => {
+        const x = ltr ? b.x : -b.x;
+        return [Math.round(x/45), rushFirst && isRush(b) ? 0 : 1, x];
+      };
+      arr.sort((a,b)=>{
+        const ka = key(a), kb = key(b);
+        return (ka[0]-kb[0]) || (ka[1]-kb[1]) || (ka[2]-kb[2]);
+      });
       out.push(...arr);
     });
     return out;
   }
-  function orderByHall(list){ return zigzagSort(list, course.entry); }
+  function orderByHall(list){ return sweepSort(list, course.entry); }
 
   // 이벤트 문구의 요일 표기(금·토 / 일 / 매일)를 시간 앞에서 찾아 묶는다
   function daySetBefore(txt, idx){
@@ -377,19 +413,18 @@
     list.forEach(b=>{
       const ts = evTimesFor(b, dow).filter(t=> t >= startMin && t <= 18*60);
       if(ts.length){ b._anchor = ts[0]; timed.push(b); }
+      else if(b.openRun){ b._anchor = startMin; timed.push(b); }   // 오픈런은 개장 시각에 먼저
       else { (b.openRun || b.firstCome) ? rush.push(b) : rest.push(b); }
     });
     timed.sort((a,b)=> (a._anchor-b._anchor) || (dist(startPt,a)-dist(startPt,b)));
-    let pool = zigzagSort(rush.concat(rest), course.entry);   // 대기열도 통로 지그재그 순서
+    let pool = sweepSort(rush.concat(rest), course.entry, true);   // 대기열도 가로 훑기 순서
     const anchors = timed.slice();
     const steps = [];
     let cur = startPt, curT = startMin, guard = 0;
-    const isRush = b => !!(b.openRun || b.firstCome);
     while((anchors.length || pool.length) && guard++ < 5000){
       const anchor = anchors[0] || null;
       let chosen = null;
-      const pref = pool.filter(isRush);
-      const cands = pref.length ? pref : pool;
+      const cands = pool;
       if(anchor){
         const slack = anchor._anchor - curT;          // 이벤트 전까지 남은 시간(분)
         for(let i=0;i<cands.length;i++){
@@ -398,12 +433,12 @@
           const extra = (toB + bToA - toA)*WALK_MIN + DWELL_MIN;   // 우회 추가 비용(분)
           const arriveA = curT + (toB + bToA)*WALK_MIN + DWELL_MIN;
           if(arriveA <= anchor._anchor - 5 && extra <= Math.max(0, slack-5)*0.7){
-            chosen = b;   // 정시 이벤트를 놓치지 않는 범위에서 지그재그 순서대로 우회
+            chosen = b;   // 정시 이벤트를 놓치지 않는 범위에서 가로 훑기 순서대로 우회
             break;
           }
         }
       } else {
-        chosen = cands[0];   // 지그재그 순서 그대로
+        chosen = cands[0];   // 가로 훑기 순서 그대로
       }
       if(!chosen){
         const proj = curT + dist(cur,anchor)*WALK_MIN;
@@ -477,6 +512,7 @@
 
   function tagRow(b, max){
     const t = [];
+    if(CORE_SET.has(b.id)) t.push('<span class="tag core">핵심</span>');
     if(b.openRun) t.push('<span class="tag run">오픈런</span>');
     if(b.firstCome) t.push('<span class="tag first">선착순</span>');
     if(b.coupon) t.push('<span class="tag coupon">쿠폰</span>');
@@ -622,6 +658,20 @@
             + '</div></div>').join('')) : '');
   }
 
+  // 핵심 코스 프리셋 — 재현 님이 꼽은 7개 항목을 한 번에 즐겨찾기에 담는다
+  function coreBox(){
+    const on = CORE_IDS.filter(id=>favs.has(id)).length;
+    const chips = CORE.map(c=>{
+      const b = BY[c.id];
+      const where = b ? (HALLNAME[b.hall]+' '+(b.label||c.brand)) : c.brand;
+      return '<button class="ci" data-core="'+esc(c.id)+'" data-fav="'+(favs.has(c.id)?1:0)+'" title="'+esc(where)+'">'
+        + esc(c.item)+'<b>'+esc(c.id)+'</b></button>';
+    }).join('');
+    return '<div class="core"><div class="ch">🎯 재현 핵심 코스<em>'+on+'/'+CORE.length+' 담김</em></div>'
+      + '<div class="cl">'+chips+'</div>'
+      + '<button class="cbtn" id="cadd">'+(on===CORE.length?'핵심 7곳 빼기':'핵심 7곳 한 번에 담기')+'</button>'
+      + '<div class="calt">'+esc(CORE_ALT)+'</div></div>';
+  }
   function renderCourse(){
     const opt = courseOpt();
     const steps = buildRoute([...favs], opt);
@@ -636,7 +686,7 @@
     let html = '<div class="course">';
     html += '<div class="hero"><h2>내 즐겨찾기 추천 방문 순서</h2>'
       + '<p>'+(total
-          ? '통로를 사이에 둔 <b>양옆 부스를 함께</b> 보면서 입구 쪽에서 안쪽으로 들어가고, 다음 통로에서는 다시 입구 쪽으로 나오는 <b>지그재그(Z자) 동선</b>으로 정리했어요. 정시 이벤트 시각은 먼저 고정되고, 정시 이벤트 전 여유에 맞는 부스만 그 사이에 들어갑니다.'
+          ? '세로 통로를 오르내리는 대신 <b>가로 줄 단위로 왼쪽에서 오른쪽</b>으로 훑는 동선으로 정리했어요. 입구 반대쪽(안쪽) 줄에서 시작해 입구 쪽 줄로 내려오고, 한 줄은 왼쪽→오른쪽, 다음 줄은 오른쪽→왼쪽으로 번갈아 지나갑니다. 정시 이벤트 시각은 먼저 고정되고, 그 사이에 이 순서대로 부스를 넣습니다.'
           : '부스 목록에서 ☆를 눌러 가고 싶은 곳을 담으면, 방문일·시작 시간·출발 입구에 맞춰 추천 순서를 만들어 드려요.')+'</p>'
       + '<div class="crset">'
       + '<div><label for="cday">방문일</label><select id="cday">'
@@ -649,17 +699,19 @@
       + ['2','3','4','5'].map(k=>'<option value="'+k+'" '+(course.entry===k?'selected':'')+'>'+HALLNAME[k]+' 입구</option>').join('')
       + '</select></div>'
       + '</div>'
-      + (total? '<div class="crsum">'+esc(dayLabel)+' '+fmtMin(+course.start)+' · '+esc(entryName)+' 출발 · '+(course.entry==='5'?'오른쪽 끝':'왼쪽 끝')+' 통로부터 지그재그<br>정시 이벤트 '+anchorN+'곳 고정 · 즐겨찾기 '+total+'곳</div>' : '')
+      + (total? '<div class="crsum">'+esc(dayLabel)+' '+fmtMin(+course.start)+' · '+esc(entryName)+' 출발<br>'+(course.entry==='5'?'5홀 쪽 끝(오른쪽)에서 왼쪽으로':'2홀 쪽 끝(왼쪽)에서 오른쪽으로')+' 가로 훑기 · 정시 이벤트 '+anchorN+'곳 고정 · 즐겨찾기 '+total+'곳</div>' : '')
       + '<div class="prog"><i style="width:'+pctv+'%"></i></div>'
       + '<div class="nums"><span>방문 완료 '+dn+' / '+total+'</span><span>'+pctv+'%</span></div>'
       + '<div class="btnrow">'
       + '<button class="btn primary" id="share">공유 링크</button>'
       + '<button class="btn" id="tobo">부스 더 담기</button>'
       + (dn? '<button class="btn" id="resetdone">방문 기록 초기화</button>':'')
-      + '</div></div>';
+      + '</div>'
+      + coreBox()
+      + '</div>';
 
     if(!total){
-      html += '<div class="empty">아직 담은 부스가 없어요.<br><br>🔍 <b>부스</b> 탭에서 ☆를 누르면<br>여기에 방문일·시간에 맞춘 추천 순서로 정리됩니다.</div></div>';
+      html += '<div class="empty">아직 담은 부스가 없어요.<br><br>🔍 <b>부스</b> 탭에서 ☆를 누르거나<br>위의 <b>핵심 7곳 담기</b>를 누르면<br>여기에 방문일·시간에 맞춘 추천 순서로 정리됩니다.</div></div>';
       view.innerHTML = html;
       bindCourse(); return;
     }
@@ -696,7 +748,7 @@
         + '<button class="tick" data-star2="'+esc(b.id)+'">★ 빼기</button></div>'
         + '</div></div>';
     });
-    html += '<div class="note">※ 순서는 공개된 부스배치도 좌표로 계산한 참고용 추천 순서입니다. 2·3·4홀 입구는 <b>왼쪽 끝 통로부터</b>, 5홀 입구는 <b>오른쪽 끝 통로부터</b> 한 방향으로 쭉 훑고, 통로 안에서는 양옆 부스를 함께 보며 옆 통로로 지그재그 이동합니다. 오픈런·선착순 부스는 가급적 앞서 배치했어요(이동 350m당 약 5분·부스당 4분 체류 가정). 정시 이벤트는 공개 문구에 시각이 적힌 것만 반영했고, 현장 대기줄과 통로 사정에 따라 달라질 수 있어요.</div>';
+    html += '<div class="note">※ 순서는 공개된 부스배치도 좌표로 계산한 참고용 추천 순서입니다. 세로 통로 대신 <b>가로 줄</b> 단위로 훑습니다 — 입구 반대쪽(안쪽) 줄에서 시작해 입구 쪽 줄로 내려오고, 한 줄은 왼쪽→오른쪽, 다음 줄은 오른쪽→왼쪽으로 번갈아 지나가므로 2홀에서 시작해 5홀 쪽으로 진행하며, 마지막 줄은 출입구 쪽입니다(5홀 입구로 출발하면 반대로 5홀에서 2홀 방향). 오픈런·선착순 부스는 가급적 앞서 배치했어요(이동 350m당 약 5분·부스당 4분 체류 가정). 정시 이벤트는 공개 문구에 시각이 적힌 것만 반영했고, 현장 대기줄과 통로 사정에 따라 달라질 수 있어요.</div>';
     html += '</div>';
     view.innerHTML = html;
     bindCourse();
@@ -711,6 +763,24 @@
     const s = document.getElementById('share'); if(s) s.onclick = shareLink;
     const tb = document.getElementById('tobo'); if(tb) tb.onclick = ()=> switchTab('booth');
     const rd = document.getElementById('resetdone'); if(rd) rd.onclick = ()=>{ done.clear(); save(); renderCourse(); };
+    view.querySelectorAll('[data-core]').forEach(el=>el.onclick=()=>{
+      const id = el.dataset.core;
+      favs.has(id)? favs.delete(id) : favs.add(id);
+      if(!favs.has(id)) done.delete(id);
+      save(); renderCourse();
+    });
+    const ca = document.getElementById('cadd');
+    if(ca) ca.onclick = ()=>{
+      if(CORE_IDS.every(id=>favs.has(id))){
+        CORE_IDS.forEach(id=>{ favs.delete(id); done.delete(id); });
+        toast('핵심 7곳을 즐겨찾기에서 뺈어요');
+      } else {
+        let n = 0;
+        CORE_IDS.forEach(id=>{ if(BY[id] && !favs.has(id)){ favs.add(id); n++; } });
+        toast(n? '핵심 부스 '+n+'곳을 담았어요' : '이미 다 담겨 있어요');
+      }
+      save(); renderCourse();
+    };
     const cd = document.getElementById('cday'); if(cd) cd.onchange = e=>{ course.day = e.target.value; saveCourse(); renderCourse(); };
     const cs = document.getElementById('cstart'); if(cs) cs.onchange = e=>{ course.start = +e.target.value; saveCourse(); renderCourse(); };
     const ce = document.getElementById('centry'); if(ce) ce.onchange = e=>{ course.entry = e.target.value; saveCourse(); renderCourse(); };
@@ -735,7 +805,7 @@
       + '</div>'
       + '<div id="mapbox"'+(line?' style="position:relative"':'')+'><img src="'+imgSrc('map_full.jpg')+'" alt="2026 메가주 시즌2 부스배치도 전체">'+line+'</div>'
       + '<div class="legend"><b>보는 법</b><br>· 부스 안 숫자가 부스 번호예요. 홀별로 <b>2홀(앞자리 2)</b>, <b>3홀(3)</b>, <b>4홀(4)</b>, <b>5홀(5)</b> 로 구분됩니다.<br>'
-      + (line? '· 주황 선·점이 <b>내 코스</b> 지그재그 동선이에요(초록 점이 출발 부스).<br>' : '')
+      + (line? '· 주황 선·점이 <b>내 코스</b>의 가로 훑기 동선이에요(초록 점이 출발 부스).<br>' : '')
       + '· 빨간 <b>쭈쭈쭈 아이콘</b>이 붙은 부스는 쭈쭈쭈 쿠폰 사용 가능 업체예요.<br>'
       + '· G-01~G-26은 <b>경기도 공동관</b>, ART-01~04는 <b>ART존</b>입니다.<br>'
       + '· 원본: 주최측 공개 부스배치도 PDF (2026.11.13 기준) — <a href="https://k-pet.co.kr/visitor/megazoos2_floormap/" target="_blank" rel="noopener">원본 보기</a></div>'
@@ -850,6 +920,9 @@
   document.getElementById('stEv').textContent = MZ.meta.eventBoothCount;
   const hashTab = (location.hash.match(/tab=(\w+)/)||[])[1];
   switchTab(hashTab && ['booth','event','course','map','info'].includes(hashTab) ? hashTab : 'booth');
+
+  // 계산 로직을 검증에 그대로 쓸 수 있게 노출 (화면 동작에는 영향 없음)
+  window.MZROUTE = {buildRoute: buildRoute, sweepSort: sweepSort, orderByHall: orderByHall, evTimesFor: evTimesFor, ROW_BANDS: ROW_BANDS, ROW_OF: ROW_OF, ENTRIES: ENTRIES, CORE: CORE, courseOpt: courseOpt};
 })();
 </script>
 </body>
