@@ -159,6 +159,7 @@
   .pl .v{font-weight:800;color:#111}
   .pl .s{color:var(--ink3);font-size:10.5px;min-width:0}
   .pl .tip{font-size:10.5px;color:var(--ink3);margin-top:2px;word-break:keep-all}
+  .pl .tip .purl{color:#1d4ed8;font-weight:700;text-decoration:none;border-bottom:1px solid #bfdbfe}
   .price-page{padding:12px}
   .price-page .ph{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px;margin-bottom:10px}
   .price-page .ph h2{margin:0 0 5px;font-size:16px;letter-spacing:-.3px}
@@ -174,6 +175,15 @@
   .pcard .ps{flex:1;min-width:0;word-break:keep-all}
   .pcard .prow b{font-size:13.5px;color:#111;white-space:nowrap}
   .pcard .pnote{margin-top:6px;font-size:11px;color:var(--ink3);word-break:keep-all;line-height:1.5}
+  .pcard .pkind{display:inline-block;margin-top:5px;border:1px solid #dbeafe;background:#eff6ff;color:#1d4ed8;border-radius:6px;padding:1px 6px;font-size:10.5px;font-weight:800}
+  .pcard .pmeta{margin-top:7px;border-top:1px dashed var(--line);padding-top:6px;font-size:11.5px;color:var(--ink2);line-height:1.5}
+  .pcard .pmeta>div{display:flex;gap:6px;margin-top:3px;word-break:keep-all}
+  .pcard .pmeta>div>span{flex:0 0 52px;font-size:10.5px;font-weight:800;color:var(--ink3)}
+  .pcard .pmeta p{margin:0;flex:1;min-width:0}
+  .pcard .purl{display:inline-block;margin-top:7px;font-size:11.5px;font-weight:700;color:#1d4ed8;text-decoration:none;border-bottom:1px solid #bfdbfe}
+  .pcheck{background:#fff;border:1px solid var(--line);border-radius:14px;padding:11px 14px 11px 12px;margin-bottom:10px}
+  .pcheck-h{font-size:12.5px;font-weight:800;margin-bottom:4px}
+  .pcheck ol{margin:0;padding-left:18px;font-size:11.5px;color:var(--ink2);line-height:1.6;word-break:keep-all}
   .pfoot{font-size:11.5px;color:var(--ink3);line-height:1.6;padding:4px 2px 20px;word-break:keep-all}
 
   /* bottom nav */
@@ -256,58 +266,159 @@
     {id:'5316', item:'XXL 옷', brand:'큰강아지 XL~9XL'},
     {id:'2331', item:'트래킹 하네스', brand:'테일하이 하이브리드 하네스 3.0'}
   ];
-  // ---------- 온라인 가격 비교 (2026-11-17 조회) ----------
-  // 공식몰·네이버 스마트스토어 가격과 확인된 인터넷 최저가(쿠팡·오픈마켓)를 부스 단위로 모았다. 현장 부스 가격과 비교용.
+  // ---------- 온라인 가격 비교 (2026-11-17 재조회 · 판매처 URL·옵션·배송비·조건 포함) ----------
+  // 공식몰·네이버 스마트스토어·자사몰 가격과 확인된 인터넷 최저가를 부스 단위로 모았다. 현장 부스 가격과 비교용.
+  // kind: 그 행이 어떤 구매조건의 가격인지(단품/쿠폰가/정기구독/묶음) — 조건이 다른 가격을 같은 줄에 섞지 않는다.
   const PRICES = [
-    {cat:'방수 리드줄', id:'3136', name:'와우 ICON 안티쇼크+방수 리드줄', spec:'1.25M·1.8M / XS·S',
-      shop:'와우펫 공식몰', shopP:'82,000', lowShop:'공식몰(무료배송)', lowP:'82,000',
+    {cat:'방수 리드줄', id:'3136', name:'와우 ICON 안티쇼크+방수 리드줄', spec:'1.25M·1.8M / XS·S', kind:'단품',
+      shop:'와우펫 공식몰', shopP:'82,000', lowShop:'공식몰(5만원↑ 무료배송)', lowP:'82,000',
+      url:'https://www.wawpet.kr/shop_view/?idx=182',
+      opt:'길이 1.25M·1.8M / 사이즈 XS·S / 색상 5종(RED·PINK·BLACK·LIGHT BLUE·WHITE)',
+      ship:'택배 3,000원 · 50,000원 이상 무료 → 이 상품은 무료',
+      cond:'쿠폰 없음(정가 판매)',
       note:'쿠팡·네이버 판매처 확인 안 됨 · 방수 코팅 · 안티쇼크 일체형'},
-    {cat:'방수 리드줄', id:'2331', name:'테일하이 하이크-엔드 방수 리쉬', spec:'단품 1개',
-      shop:'테일하이 공식몰', shopP:'38,000', lowShop:'공식몰 쿠폰가(미들 리쉬 29,260)', lowP:'29,260',
-      note:'리쉬+목줄 세트 57,600원(정가 64,000) · 5만원 이상 무료배송 · 배송비 3,000'},
-    {cat:'트래킹 하네스', id:'2331', name:'테일하이 하이브리드 하네스 3.0', spec:'3색 · S~XL',
-      shop:'테일하이 공식몰', shopP:'98,000', lowShop:'공식몰 회원 쿠폰가 93,000', lowP:'93,000',
+    {cat:'방수 리드줄', id:'2331', name:'테일하이 하이크-엔드 방수 리쉬(1.5M)', spec:'Ultra Light·20mm·25mm', kind:'단품',
+      shop:'테일하이 공식몰', shopP:'38,000', lowShop:'공식몰 쿠폰가', lowP:'29,260',
+      url:'https://tailhigh.com/Leash/?idx=219',
+      opt:'길이 고정 1.5M / 폭 Ultra Light 1.1mm·20mm·25mm 중 택1 / 색상 선택',
+      ship:'택배 3,000원 · 50,000원 이상 무료 → 단품은 3,000원, 리쉬+목줄 세트는 무료',
+      cond:'상품 페이지 “쿠폰받기” 쿠폰 적용 시 29,260원(정가 대비 23%) · 회원가입·뉴스레터 쿠폰 별도',
+      note:'리쉬+목줄 세트 57,600원(정가 64,000) · 아래 미들 리쉬와는 다른 제품'},
+    {cat:'방수 리드줄', id:'2331', name:'테일하이 하이크-엔드 방수 미들 리쉬(숏리쉬)', spec:'20mm / 35~43cm 조절', kind:'단품',
+      shop:'테일하이 공식몰', shopP:'38,000', lowShop:'공식몰 쿠폰가', lowP:'29,260',
+      url:'https://tailhigh.com/Leash/?idx=220',
+      opt:'폭 20mm / 길이 35~43cm 조절 / 색상 3종',
+      ship:'택배 3,000원 · 50,000원 이상 무료 → 단품은 3,000원',
+      cond:'상품 페이지 “쿠폰받기” 쿠폰 적용 시 29,260원',
+      note:'10~20kg 중형견용 숏리쉬(무게 57g) · 하이브리드 하네스와 같이 쓰기 좋은 길이 · 미들 리쉬 세트 57,600원'},
+    {cat:'트래킹 하네스', id:'2331', name:'테일하이 하이브리드 하네스 3.0', spec:'3색 · S~XL', kind:'단품',
+      shop:'테일하이 공식몰', shopP:'98,000', lowShop:'공식몰 회원 쿠폰가', lowP:'93,000',
+      url:'https://tailhigh.com/harness/?idx=301',
+      opt:'색상 호라이즌 퍼플·레이븐 화이트·세이지 오렌지(각 98,000) / 사이즈 선택',
+      ship:'택배 3,000원 · 50,000원 이상 무료 → 이 상품은 무료',
+      cond:'회원 쿠폰 적용 시 93,000원(약 5%)',
       note:'하네스+리쉬 세트 110,700원(정가 123,000) · 데얼스아웃도어 98,000+배송 3,000'},
-    {cat:'눈영양제', id:'2457', name:'펫생각 데일리케얼 리포좀 루테인(리얼루테인 3.0)', spec:'60정·120g',
-      shop:'펫생각 공식몰', shopP:'22,800', lowShop:'쿠팡 로켓배송 18,380~21,800', lowP:'18,380~21,800',
-      note:'정가 29,900 · 공식몰 배송 3,500 · 핏펫 22,900+3,000 · 3박스 59,800'},
-    {cat:'눈영양제', id:'5347', name:'바이오핏 아이즈핏(강아지 눈 영양제)', spec:'30포·30회분',
-      shop:'바이오핏 공식몰', shopP:'27,400', lowShop:'쿠팡 로켓배송', lowP:'27,160',
-      note:'정가 45,900 · 공식몰은 정기배송가 27,400 · 2세트 52,600'},
-    {cat:'눈영양제', id:'2411', name:'퍼센트퍼센트 오큐유스30', spec:'130정·100g',
-      shop:'네이버 스마트스토어', shopP:'25,350', lowShop:'쿠팡(2개 45,930 → 1개 약 22,965)', lowP:'22,965',
-      note:'정가 39,000 · 네이버 35% 25,350+배송 3,000 · 루테인프로바이틱스20 30포 네이버 27,500/쿠팡 26,120'},
-    {cat:'유산균', id:'3106', name:'드시모네 펫 유산균', spec:'30포·30일분',
-      shop:'드시모네 공식몰', shopP:'48,000', lowShop:'공식몰 정기구독 40%', lowP:'28,800',
-      note:'1포 300억 CFU · 정기구독 28,800원/월'},
-    {cat:'오메가3', id:'5732', name:'에코-펫 하프 물범 오메가3+오일', spec:'150ml / 300ml',
-      shop:'에코-펫 공식몰', shopP:'28,000 / 48,000', lowShop:'공식몰이 최저(쿠팡 31,500~31,900 / 50,900)', lowP:'28,000',
-      note:'30,000원 이상 무료배송 · 300ml는 5만원 이상 무료 · 펫페어 현장 할인 이력 있음'},
-    {cat:'오메가3', id:'5214', name:'뉴트롤린 오메가3(스킨앤코트·센시티브)', spec:'150ml / 260ml',
+    {cat:'눈영양제', id:'2457', name:'펫생각 데일리케얼 리포좀 루테인(리얼루테인 3.0)', spec:'60정·120g', kind:'단품',
+      shop:'펫생각 공식몰', shopP:'22,800', lowShop:'쿠팡 로켓배송', lowP:'18,380~21,800',
+      url:'https://thinkpets.co.kr/product/%EB%8D%B0%EC%9D%BC%EB%A6%AC%EC%BC%80%EC%96%BC-%EB%A6%AC%ED%8F%AC%EC%A2%80-%EB%A3%A8%ED%85%8C%EC%9D%B8-%EA%B0%95%EC%95%84%EC%A7%80-%EB%88%88-%EC%98%81%EC%96%91%EC%A0%9C-120g-60%EC%A0%95/39/',
+      opt:'1박스 60정 22,800 / 2박스 120정 +19,000(13% 할인) / 3박스 180정 +37,000(19% 할인)',
+      ship:'공식몰 배송 3,500원(무료 조건 미표기) · 핏펫 22,900+3,000',
+      cond:'다량 옵션 할인만 적용(정기구독 아님)',
+      note:'정가 29,900 · 쿠팡 값은 로우차트 관측 범위라 단일 최저가가 아님'},
+    {cat:'눈영양제', id:'5347', name:'바이오핏 아이즈 (일반 단품 1회 구매)', spec:'30포·30회분', kind:'일반 단품',
+      shop:'바이오핏 공식몰', shopP:'28,900', lowShop:'쿠팡 로켓배송', lowP:'27,160',
+      url:'https://biofit.kr/shop_view/?idx=27',
+      opt:'1박스 30포 / 2·3박스 묶음 옵션(특가) / 리뷰약속 이벤트(브레스핏 샘플 3개) 선택',
+      ship:'4만원 이상 무료배송 → 단품 28,900원은 배송비 별도(금액은 결제창 표기)',
+      cond:'카카오톡 채널 추가 시 3,000원 쿠폰 · 정기배송 아님',
+      note:'정가 45,900 · 쿠팡 로켓배송 27,160원(역대최저, 11.17) — 1회 구매 기준 최저'},
+    {cat:'눈영양제', id:'5347', name:'바이오핏 아이즈 (정기배송)', spec:'30포·매월 배송', kind:'정기배송',
+      shop:'바이오핏 공식몰 정기배송', shopP:'27,400', lowShop:'정기배송 전용가', lowP:'27,400',
+      url:'https://biofit.kr/shop_view/?idx=39',
+      opt:'수량 선택 후 “정기구독 신청”으로만 구매',
+      ship:'4만원 이상 무료배송 · 정기배송 결제 시 배송비는 신청 화면에서 확인',
+      cond:'매월 자동결제(정기구독) · 한 번만 사려면 일반 단품 28,900원 이용',
+      note:'정가 45,900 · 정기배송 특별할인가 27,400원 · 해지·배송주기 조건은 신청 화면 확인'},
+    {cat:'눈영양제', id:'2411', name:'퍼센트퍼센트 오큐유스30 (130정 1개)', spec:'130정·100g', kind:'1개 단품',
+      shop:'퍼센트퍼센트 스마트스토어(공식)', shopP:'25,350', lowShop:'공식 스마트스토어 · 무료배송', lowP:'25,350',
+      url:'https://smartstore.naver.com/percentpercent/products/13435579961',
+      opt:'100g·130정 1개 / 제주 3,000·도서산간 5,000 추가',
+      ship:'무료배송(제주 3,000·도서산간 5,000 추가)',
+      cond:'정가 39,000 → 35% 할인가 · 쿠폰 조건 없음',
+      note:'1개 실제 결제액 = 25,350원(배송비 0원) · 2개·3개 묶음은 아래 행'},
+    {cat:'눈영양제', id:'2411', name:'퍼센트퍼센트 오큐유스30 (2개 묶음)', spec:'130정×2', kind:'2개 묶음',
+      shop:'퍼센트퍼센트 스마트스토어', shopP:'48,350', lowShop:'쿠팡 로켓배송(2개)', lowP:'45,930',
+      url:'https://smartstore.naver.com/percentpercent/products/13437468076',
+      opt:'2개 묶음(개당 24,175) / 3개 묶음 69,050(개당 23,017)',
+      ship:'스마트스토어 무료배송 · 쿠팡 로켓배송 무료',
+      cond:'묶음 할인(2개 38%·3개 40%) · 구독 아님',
+      note:'쿠팡 2개 45,930원 = 개당 22,965원(41% 할인) · 개당 단가만 보면 쿠팡이 저렴'},
+    {cat:'유산균', id:'3106', name:'드시모네 펫 유산균 (단품 30포)', spec:'30포·30일분', kind:'일반 단품',
+      shop:'드시모네 공식몰', shopP:'48,000', lowShop:'공식몰 단품가', lowP:'48,000',
+      url:'https://www.desimone.co.kr/goods/view?no=3613',
+      opt:'30포 1박스 · 소비기한 2028.08.19 표기',
+      ship:'4만원 이상 무료배송 → 48,000원 단품은 무료',
+      cond:'회원 등급 할인·쿠폰 별도(비회원은 정가) · 정기구독 아님',
+      note:'1포 300억 CFU · 28,800원은 정기구독가(아래 행)'},
+    {cat:'유산균', id:'3106', name:'드시모네 펫 유산균 (정기구독)', spec:'30포·매월 배송', kind:'정기구독',
+      shop:'드시모네 공식몰 정기구독', shopP:'28,800', lowShop:'정기구독 40% 할인가', lowP:'28,800',
+      url:'https://www.desimone.co.kr/goods/view?no=3653',
+      opt:'매월 같은 날 배송 · 1회차 40%, 2회차부터 최대 50% 할인 · 핀란드 야생빌베리 NFC 100 2BOX 증정',
+      ship:'정기구독 무료배송(단품을 함께 받으면 단품 배송비도 0원)',
+      cond:'매월 자동결제 · 중도 해지 시 할인반환금(위약금) 발생 · 1회만 사려면 단품 48,000원',
+      note:'정기구독 전용 상품이라 1회 구매 불가 · 1포 300억 CFU'},
+    {cat:'오메가3', id:'5732', name:'에코-펫 하프 물범 오메가3+오일', spec:'150ml / 300ml', kind:'단품',
+      shop:'에코-펫 공식몰', shopP:'28,000 / 48,000', lowShop:'공식몰이 최저', lowP:'28,000',
+      url:'https://ecopet20.imweb.me/shop_view/?idx=220',
+      opt:'150ml 28,000 / 300ml 48,000(용량별 페이지 분리)',
+      ship:'택배 3,500원 · 30,000원 이상 무료 → 150ml은 3,500원, 300ml은 무료',
+      cond:'쿠폰·구독 조건 없음',
+      note:'쿠팡 31,500~31,900(150ml)·50,900(300ml)보다 공식몰이 저렴 · 펫페어 현장 할인 이력 있음'},
+    {cat:'오메가3', id:'5214', name:'뉴트롤린 스킨앤코트 오메가3', spec:'150ml / 260ml', kind:'단품',
       shop:'뉴트롤린 공식몰', shopP:'36,000 / 51,000', lowShop:'에누리 최저(150ml)', lowP:'33,192',
-      note:'정가 39,600 / 56,100 · 6만원 이상 무료배송 · 네이버 최저 33,192(2026.11.17 갱신)'},
-    {cat:'우신 간식', id:'2122', name:'멍멍하누 한우스틱', spec:'소 10cm+ / 중 20cm+',
+      url:'https://nutrolin.co.kr/product/%EB%89%B4%ED%8A%B8%EB%A1%A4%EB%A6%B0-%EC%8A%A4%ED%82%A8-%EC%95%A4-%EC%BD%94%ED%8A%B8-150ml/60/',
+      opt:'150ml 36,000(정가 39,600) / 260ml 51,000(정가 56,100) / 센시티브 150ml 36,000',
+      ship:'택배 3,000원 · 60,000원 이상 무료',
+      cond:'정기배송 할인 선택 가능(1회 구매와 분리)',
+      note:'네이버 최저 33,192원(2026.11.17 갱신) · 6만원 미만이면 배송비 3,000원'},
+    {cat:'우신 간식', id:'2122', name:'멍멍하누 한우스틱', spec:'소 10cm+ / 중 20cm+', kind:'단품',
       shop:'멍멍하누 자사몰', shopP:'3,900 / 6,900', lowShop:'퍼피즈 등 동일가', lowP:'3,900',
-      note:'정가 5,900 / 10,900 · 45,000원 이상 무료배송(기본 4,000) · 소 사이즈 일부 품절 · 못난이 3pcs 5,500'},
-    {cat:'우신 간식', id:'2542', name:'오래오래프로젝트 줄줄이스틱 실속형', spec:'8종 골라담기 / 소고기 24개입 144g',
-      shop:'오래오래프로젝트 자사몰', shopP:'14,000', lowShop:'컬리 14,000(소고기 24개입)', lowP:'14,000',
-      note:'정가 16,000 · 트위스트 불리츄 2P 12,000 · 불리스틱 홀더 12,900 · 못난이 소우신 50g 9,900'},
-    {cat:'우신 간식', id:'4506', name:'해피랑 한우우신스틱', spec:'스틱 / 링',
+      url:'https://meongmeonghanu.com/home/?idx=25',
+      opt:'소 10cm+ 3,900 / 중 20cm+ 6,900 · 소 15개 세트 46,800(20% 할인) · 중 7개 세트 38,640',
+      ship:'택배 4,000원 · 45,000원 이상 무료',
+      cond:'5,000원 할인 구매감사 쿠폰(자사몰) · 못난이 3pcs 5,500원은 자사몰 전용',
+      note:'소 사이즈는 품절 표기(재입고 대기) — 현장 재고 확인 필요 · 정가 5,900/10,900'},
+    {cat:'우신 간식', id:'2542', name:'오래오래프로젝트 줄줄이스틱 실속형', spec:'소고기 24개입 144g', kind:'단품',
+      shop:'컬리(제조사 직공급)', shopP:'14,000', lowShop:'컬리 14,000', lowP:'14,000',
+      url:'https://www.kurly.com/goods/1002482492',
+      opt:'소고기 24개입 144g / 양고기 24개입 13,600(DtoC몰) / 초대용량 24개입 408g 24,000',
+      ship:'컬리 3,000원 · 4만원 이상 무료(샛별배송)',
+      cond:'정가 16,000 → 12% 할인 · 쿠폰 조건 없음',
+      note:'트위스트 불리츄 2P 12,000 · 불리스틱 홀더 12,900 · 못난이 소우신 50g 9,900'},
+    {cat:'우신 간식', id:'4506', name:'해피랑 한우우신스틱', spec:'스틱 / 링', kind:'단품',
       shop:'해피랑 자사몰', shopP:'13,000 / 15,000', lowShop:'자사몰', lowP:'13,000',
-      note:'배송 3,300 · 30,000원 이상 무료배송'},
-    {cat:'우신 간식', id:'3552', name:'알파펫 비프츄 숏(뉴질랜드산 소 우신)', spec:'70g',
+      url:'https://happyrang.co.kr/product/%ED%95%9C%EC%9A%B0%EC%9A%B0%EC%8B%A0%EC%8A%A4%ED%8B%B1/107/',
+      opt:'스틱 13,000 / 링 15,000',
+      ship:'택배 3,300원 · 30,000원 이상 무료',
+      cond:'쿠폰·구독 조건 없음',
+      note:'3만원 미만 1개만 사면 배송비 포함 16,300원'},
+    {cat:'우신 간식', id:'3552', name:'알파펫 비프츄 숏(뉴질랜드산 소 우신)', spec:'70g', kind:'단품',
       shop:'미키펫코리아 DtoC몰', shopP:'24,500', lowShop:'쿠팡 로켓배송', lowP:'19,500',
-      note:'권장소비자가 23,000 · 멍냥보감 18,000 · 로켓배송 실시간 18,020 표기'},
-    {cat:'사료', id:'5601', name:'목우촌 멍수무강 기능성 소프트 사료', spec:'1kg(소·황태·오리·연어 등)',
-      shop:'목우촌 공식몰', shopP:'19,700', lowShop:'쿠팡 로켓배송', lowP:'19,900',
-      note:'정가 26,000(24% 할인) · 무료배송 · 정기배송 2개입 34,900 / 3개입 52,000 · 푸들·포메 전용 1.8kg 15,000'},
-    {cat:'XXL 옷', id:'5316', name:'큰강아지 대형견 옷(XL~9XL 동일가)', spec:'9,900~27,900',
-      shop:'네이버 스마트스토어', shopP:'9,900~27,900', lowShop:'자사몰 동일가', lowP:'9,900',
-      note:'국민내복 9,900 · 경량패딩조끼 9,800 · 기모맨투맨 27,900 · 배송 3,000(5만원↑무료)'},
-    {cat:'XXL 옷', id:'2231', name:'오키도키 OKTK(L~6XL 동일가)', spec:'18,900~62,900',
-      shop:'OKTK 공식몰', shopP:'18,900~62,900', lowShop:'공식몰(네이버 브랜드스토어 동일)', lowP:'18,900',
-      note:'Vibe Pocket Tee 26,800 · Brooklyn Sweatshirt 42,900 · Sports Windbreaker 62,900 · 3~50kg'}
+      url:'https://dtoc-daisytococo.com/product/%EC%95%8C%ED%8C%8C%ED%8E%AB-%EB%B9%84%ED%94%84%EC%B8%84-%EC%88%8F-70g/1702/',
+      opt:'70g 1개 · 공급사(미키펫코리아) 직배송',
+      ship:'DtoC 3,000원 · 50,000원 이상 무료 / 쿠팡 로켓배송 무료',
+      cond:'쿠폰 조건 없음',
+      note:'권장소비자가 23,000 · 쿠팡 값은 로우차트 관측(2월 19,500, 역대최저 18,000) — 현재가 재확인 필요'},
+    {cat:'사료', id:'5601', name:'목우촌 멍수무강 기능성 소프트 사료', spec:'1kg(소·황태·오리·연어·인섹트)', kind:'단품',
+      shop:'목우촌 공식몰', shopP:'19,700', lowShop:'공식몰(배송 무료)', lowP:'19,700',
+      url:'https://www.moguchonforpet.co.kr/feedstuff/?idx=146',
+      opt:'1kg 단품(맛별 페이지 분리) · 푸들·포메 전용 1.8kg 15,000 · 정기배송 3개입 52,000',
+      ship:'택배 기본 무료',
+      cond:'정가 26,000 → 24% 할인가 · 정기배송은 별도 상품',
+      note:'쿠팡 로켓배송 19,900원으로 공식몰이 200원 저렴'},
+    {cat:'XXL 옷', id:'5316', name:'큰강아지 대형견 옷(XL~9XL)', spec:'9,800~27,900', kind:'단품',
+      shop:'큰강아지 자사몰', shopP:'9,800~27,900', lowShop:'자사몰 최저 = 경량패딩조끼', lowP:'9,800',
+      url:'https://bigdoggy.co.kr/product/%EA%B0%95%EC%95%84%EC%A7%80-%EA%B2%BD%EB%9F%89-%ED%8C%A8%EB%94%A9-%EC%A1%B0%EB%81%BC-%EA%B2%A8%EC%9A%B8%EC%98%B7-%EC%A4%91%ED%98%95%EA%B2%AC-%EB%8C%80%ED%98%95%EA%B2%AC/115/',
+      opt:'경량패딩조끼 9,800(정가 18,900) / 기모나시 9,900(12,900) / 김장조끼 19,900 / 기모맨투맨 27,900(31,900)',
+      ship:'택배 3,000원 · 50,000원 이상 무료',
+      cond:'상시 할인가 · 구매방법 1회구매/정기배송 선택',
+      note:'최저 9,800원은 경량패딩조끼 — 9,900원 기모나시·국민나시와 다른 상품이라 “9,900원 균일가”가 아님'},
+    {cat:'XXL 옷', id:'2231', name:'오키도키 OKTK(L~6XL)', spec:'12,900~98,000', kind:'단품',
+      shop:'OKTK 공식몰', shopP:'12,900~98,000', lowShop:'공식몰 할인가', lowP:'12,900',
+      url:'https://www.oktk.kr/?idx=108',
+      opt:'Vibe Pocket Tee 26,800(29,800) · Brooklyn Sweatshirt 42,900(48,900) · Sports Windbreaker 62,900(69,800) · Air-like Puffer 78,400(98,000) · Bubble Summer Cami 12,900(24,000)',
+      ship:'택배 3,000원 · 70,000원 이상 무료',
+      cond:'상시 5~46% 할인가 표기 · 보호자(PARENTS) 라인은 별도 상품',
+      note:'강아지 3~50kg · L~6XL · 옷 종류별 가격 차가 큼(12,900~78,400원)'}
   ];
+  const CHECKLIST = [
+    '같은 상품·용량·수량인지 먼저 확인 (예: 오큐유스30 1개 vs 2개 묶음, 리쉬 vs 미들 리쉬)',
+    '배송비를 더한 온라인 총액으로 비교 (예: 해피랑 13,000 + 3,300 = 16,300원)',
+    '정기구독·쿠폰 조건은 따로 떼어 보기 (드시모네 구독 28,800원·바이오핏 정기배송 27,400원은 1회 구매가 아님)',
+    '현장 부스 가격과 사은품은 온라인 가격과 별도 칸에 기록',
+    '선착순 수량·구매 조건·SNS 참여 조건을 현장에서 확인'
+  ];
+
   const PRICE_BY = {};
   PRICES.forEach(p=>{ (PRICE_BY[p.id] = PRICE_BY[p.id] || []).push(p); });
 
@@ -926,15 +1037,19 @@
     const rows = PRICE_BY[b.id];
     if(!rows) return '';
     return '<div class="pl">' + rows.map(p=>
-        '<div class="pr"><span class="k">공식몰</span><span class="v">'+esc(p.shopP)+'원</span><span class="s">'+esc(p.shop)+'</span></div>'
+        '<div class="pr"><span class="k">'+(p.kind? esc(p.kind) : '공식몰')+'</span><span class="v">'+esc(p.shopP)+'원</span><span class="s">'+esc(p.shop)+'</span></div>'
       + '<div class="pr"><span class="k low">최저</span><span class="v">'+esc(p.lowP)+'원</span><span class="s">'+esc(p.lowShop)+'</span></div>'
+      + (p.url? '<div class="tip"><a class="purl" href="'+esc(p.url)+'" target="_blank" rel="noopener">판매처 열기 · '+esc(p.shop)+'</a></div>' : '')
       + (p.note? '<div class="tip">'+esc(p.note)+'</div>':'') ).join('') + '</div>';
   }
   function renderPrice(){
     const cats = [];
     PRICES.forEach(p=>{ if(cats.indexOf(p.cat)<0) cats.push(p.cat); });
     let html = '<div class="price-page"><div class="ph"><h2>💰 핵심 품목 온라인 가격</h2>'
-      + '<p>2026-11-17 조회 기준입니다. 공식몰·네이버 스마트스토어 가격과 확인된 인터넷 최저가를 나란히 놓았으니, 부스에서 부르는 값과 비교해 보세요. 부스 번호를 누르면 그 부스로 이동합니다.</p></div>';
+      + '<p>2026-11-17 다시 조회한 값입니다. 행마다 판매처 URL·옵션/수량·배송비·쿠폰/구독 조건을 함께 적었고, <b>같은 상품이라도 구매 조건이 다르면 행을 나눠</b> 적었습니다(1개 단품 / 2개 묶음 / 정기구독·정기배송). 부스 번호를 누르면 그 부스로 이동합니다.</p></div>'
+      + '<div class="pcheck"><div class="pcheck-h">🧾 현장 비교 체크리스트</div><ol>'
+      + CHECKLIST.map(c=>'<li>'+esc(c)+'</li>').join('')
+      + '</ol></div>';
     cats.forEach(c=>{
       html += '<div class="pcat-h">'+esc(c)+'</div>';
       PRICES.filter(p=>p.cat===c).forEach(p=>{
@@ -942,14 +1057,21 @@
         const where = b ? (HALLNAME[b.hall]+' '+p.id+' · '+(b.label||'')) : p.id;
         html += '<div class="pcard">'
           + '<div class="pname">'+esc(p.name)+'<em>'+esc(p.spec)+'</em></div>'
+          + (p.kind? '<span class="pkind">'+esc(p.kind)+'</span>' : '')
           + '<button class="pbooth" data-goto="'+esc(p.id)+'">'+esc(where)+'</button>'
           + '<div class="prow"><span class="pk">공식몰</span><span class="ps">'+esc(p.shop)+'</span><b>'+esc(p.shopP)+'원</b></div>'
           + '<div class="prow low"><span class="pk">최저가</span><span class="ps">'+esc(p.lowShop)+'</span><b>'+esc(p.lowP)+'원</b></div>'
+          + '<div class="pmeta">'
+          + (p.opt? '<div><span>옵션·수량</span><p>'+esc(p.opt)+'</p></div>' : '')
+          + (p.ship? '<div><span>배송비</span><p>'+esc(p.ship)+'</p></div>' : '')
+          + (p.cond? '<div><span>조건</span><p>'+esc(p.cond)+'</p></div>' : '')
+          + '</div>'
+          + (p.url? '<a class="purl" href="'+esc(p.url)+'" target="_blank" rel="noopener">판매처 열기 · '+esc(p.shop)+'</a>' : '<div class="pnote">판매처 URL 미확인</div>')
           + (p.note? '<div class="pnote">'+esc(p.note)+'</div>' : '')
           + '</div>';
       });
     });
-    html += '<div class="pfoot">※ 쿠팡·오픈마켓 값은 가격추적 사이트(로우차트·폴센트·에누리) 관측값이라 수시로 바뀝니다. 정기구독·쿠폰·묶음 조건이 다르니 결제 화면에서 최종 금액을 확인하세요. 현장 이벤트(사은품·룰렛·쿠폰)는 이벤트 탭과 각 부스 카드에 따로 정리해 두었습니다.</div>'
+    html += '<div class="pfoot">※ 쿠팡·오픈마켓 값은 가격추적 사이트(로우차트·폴센트·에누리) 관측값이라 수시로 바뀌고, 페이지에 표시되는 값과 결제 금액이 다를 수 있습니다. 정기구독·정기배송은 해지 조건(위약금·할인반환금)을 확인하고, 묶음 상품은 개당 단가로만 비교하지 마세요. 현장 이벤트(사은품·룰렛·쿠폰)는 이벤트 탭과 각 부스 카드에 따로 정리해 두었습니다.</div>'
       + '</div>';
     view.innerHTML = html;
     view.querySelectorAll('[data-goto]').forEach(el=>{ el.onclick = ()=>{ q = el.dataset.goto; hall='all'; cat='all'; evFilter.clear(); switchTab('booth'); }; });
@@ -979,6 +1101,7 @@
       + '<div class="box"><h3>온라인 가격 비교</h3><ul>'
       + '<li>가격 탭의 온라인 가격은 <b>2026.11.17 조회</b> 기준입니다. 공식몰·네이버 스마트스토어 판매가와 확인된 인터넷 최저가(쿠팡·오픈마켓)를 함께 적었습니다</li>'
       + '<li>최저가는 가격추적 사이트(로우차트·폴센트·에누리) 관측값과 판매처 표시가를 대조해 적었고, 관측일이 다른 항목은 카드 비고에 날짜를 적었습니다. 결제 화면의 최종 금액과 다를 수 있습니다</li>'
+      + '<li>가격 탭 각 행에는 판매처 URL·옵션/수량·배송비·쿠폰/구독 조건을 함께 적었습니다(2026.11.17 재확인). 구매 조건이 다른 가격은 행을 나눠 적었으니 같은 줄끼리 비교하세요</li>'
       + '<li>정기구독가·쿠폰가·묶음 구매는 조건이 다릅니다. 부스 현장 가격과 비교할 땐 같은 용량·같은 구성인지 먼저 확인하세요</li>'
       + '</ul></div>'
       + '<div class="box"><h3>참고 링크</h3><ul>'
