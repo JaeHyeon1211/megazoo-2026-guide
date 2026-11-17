@@ -413,7 +413,7 @@
     list.forEach(b=>{
       const ts = evTimesFor(b, dow).filter(t=> t >= startMin && t <= 18*60);
       if(ts.length){ b._anchor = ts[0]; timed.push(b); }
-      else if(b.openRun){ b._anchor = startMin; timed.push(b); }   // 오픈런은 개장 시각에 먼저
+      else if(b.openRun && startMin <= 576){ b._anchor = 570; timed.push(b); }   // 오픈런은 개장 09:30에 먼저(그 뒤 출발이면 일반 순서)
       else { (b.openRun || b.firstCome) ? rush.push(b) : rest.push(b); }
     });
     timed.sort((a,b)=> (a._anchor-b._anchor) || (dist(startPt,a)-dist(startPt,b)));
