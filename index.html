@@ -151,6 +151,31 @@
   .box li{margin:3px 0}
   .box a{color:#2563eb}
 
+  /* price compare */
+  .pl{margin-top:8px;border-top:1px dashed #e8e8e2;padding-top:6px}
+  .pl .pr{display:flex;gap:6px;align-items:baseline;font-size:11.5px;color:#374151;padding:1px 0;word-break:keep-all}
+  .pl .k{font-size:10px;font-weight:800;color:#065f46;background:#ecfdf5;border-radius:5px;padding:1px 5px;flex:0 0 auto}
+  .pl .k.low{color:#9a3412;background:#fff7ed}
+  .pl .v{font-weight:800;color:#111}
+  .pl .s{color:var(--ink3);font-size:10.5px;min-width:0}
+  .pl .tip{font-size:10.5px;color:var(--ink3);margin-top:2px;word-break:keep-all}
+  .price-page{padding:12px}
+  .price-page .ph{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px;margin-bottom:10px}
+  .price-page .ph h2{margin:0 0 5px;font-size:16px;letter-spacing:-.3px}
+  .price-page .ph p{margin:0;font-size:12.5px;color:var(--ink2);word-break:keep-all}
+  .pcat-h{font-size:12px;font-weight:800;color:var(--ink3);margin:14px 2px 6px}
+  .pcard{background:#fff;border:1px solid var(--line);border-radius:13px;padding:11px 12px;margin-bottom:8px}
+  .pcard .pname{font-size:14px;font-weight:700;word-break:keep-all;line-height:1.4}
+  .pcard .pname em{font-style:normal;font-size:11.5px;color:var(--ink3);font-weight:600;margin-left:5px}
+  .pcard .pbooth{margin-top:4px;border:0;background:#f3f4f6;color:#374151;border-radius:7px;padding:3px 7px;font-size:11px;font-weight:700}
+  .pcard .prow{display:flex;gap:7px;align-items:baseline;margin-top:6px;font-size:12.5px;color:var(--ink2)}
+  .pcard .pk{flex:0 0 46px;font-size:10.5px;font-weight:800;color:#065f46;background:#ecfdf5;border-radius:5px;padding:1px 5px;text-align:center}
+  .pcard .prow.low .pk{color:#9a3412;background:#fff7ed}
+  .pcard .ps{flex:1;min-width:0;word-break:keep-all}
+  .pcard .prow b{font-size:13.5px;color:#111;white-space:nowrap}
+  .pcard .pnote{margin-top:6px;font-size:11px;color:var(--ink3);word-break:keep-all;line-height:1.5}
+  .pfoot{font-size:11.5px;color:var(--ink3);line-height:1.6;padding:4px 2px 20px;word-break:keep-all}
+
   /* bottom nav */
   nav{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(255,255,255,.97);
     border-top:1px solid var(--line);backdrop-filter:blur(8px);padding-bottom:env(safe-area-inset-bottom)}
@@ -184,6 +209,7 @@
   <nav><div class="inner">
     <button data-tab="booth" data-on="1"><span class="ic">🔍</span>부스</button>
     <button data-tab="event"><span class="ic">🎁</span>이벤트</button>
+    <button data-tab="price"><span class="ic">💰</span>가격</button>
     <button data-tab="course"><span class="ic">🗺️</span>내 코스<span class="badge" id="navFav" style="display:none">0</span></button>
     <button data-tab="map"><span class="ic">📐</span>배치도</button>
     <button data-tab="info"><span class="ic">ℹ️</span>안내</button>
@@ -230,6 +256,61 @@
     {id:'5316', item:'XXL 옷', brand:'큰강아지 XL~9XL'},
     {id:'2331', item:'트래킹 하네스', brand:'테일하이 하이브리드 하네스 3.0'}
   ];
+  // ---------- 온라인 가격 비교 (2026-11-17 조회) ----------
+  // 공식몰·네이버 스마트스토어 가격과 확인된 인터넷 최저가(쿠팡·오픈마켓)를 부스 단위로 모았다. 현장 부스 가격과 비교용.
+  const PRICES = [
+    {cat:'방수 리드줄', id:'3136', name:'와우 ICON 안티쇼크+방수 리드줄', spec:'1.25M·1.8M / XS·S',
+      shop:'와우펫 공식몰', shopP:'82,000', lowShop:'공식몰(무료배송)', lowP:'82,000',
+      note:'쿠팡·네이버 판매처 확인 안 됨 · 방수 코팅 · 안티쇼크 일체형'},
+    {cat:'방수 리드줄', id:'2331', name:'테일하이 하이크-엔드 방수 리쉬', spec:'단품 1개',
+      shop:'테일하이 공식몰', shopP:'38,000', lowShop:'공식몰 쿠폰가(미들 리쉬 29,260)', lowP:'29,260',
+      note:'리쉬+목줄 세트 57,600원(정가 64,000) · 5만원 이상 무료배송 · 배송비 3,000'},
+    {cat:'트래킹 하네스', id:'2331', name:'테일하이 하이브리드 하네스 3.0', spec:'3색 · S~XL',
+      shop:'테일하이 공식몰', shopP:'98,000', lowShop:'공식몰 회원 쿠폰가 93,000', lowP:'93,000',
+      note:'하네스+리쉬 세트 110,700원(정가 123,000) · 데얼스아웃도어 98,000+배송 3,000'},
+    {cat:'눈영양제', id:'2457', name:'펫생각 데일리케얼 리포좀 루테인(리얼루테인 3.0)', spec:'60정·120g',
+      shop:'펫생각 공식몰', shopP:'22,800', lowShop:'쿠팡 로켓배송 18,380~21,800', lowP:'18,380',
+      note:'정가 29,900 · 공식몰 배송 3,500 · 핏펫 22,900+3,000 · 3박스 59,800'},
+    {cat:'눈영양제', id:'5347', name:'바이오핏 아이즈핏(강아지 눈 영양제)', spec:'30포·30회분',
+      shop:'바이오핏 공식몰', shopP:'27,400', lowShop:'쿠팡 로켓배송', lowP:'27,160',
+      note:'정가 45,900 · 공식몰은 정기배송가 27,400 · 2세트 52,600'},
+    {cat:'눈영양제', id:'2411', name:'퍼센트퍼센트 오큐유스30', spec:'130정·100g',
+      shop:'네이버 스마트스토어', shopP:'25,350', lowShop:'쿠팡(2개 45,930 → 1개 약 22,965)', lowP:'22,965',
+      note:'정가 39,000 · 네이버 35% 25,350+배송 3,000 · 루테인프로바이틱스20 30포 네이버 27,500/쿠팡 26,120'},
+    {cat:'유산균', id:'3106', name:'드시모네 펫 유산균', spec:'30포·30일분',
+      shop:'드시모네 공식몰', shopP:'48,000', lowShop:'공식몰 정기구독 40%', lowP:'28,800',
+      note:'1포 300억 CFU · 정기구독 28,800원/월'},
+    {cat:'오메가3', id:'5732', name:'에코-펫 하프 물범 오메가3+오일', spec:'150ml / 300ml',
+      shop:'에코-펫 공식몰', shopP:'28,000 / 48,000', lowShop:'공식몰이 최저(쿠팡 31,500~31,900 / 50,900)', lowP:'28,000',
+      note:'30,000원 이상 무료배송 · 300ml는 5만원 이상 무료 · 펫페어 현장 할인 이력 있음'},
+    {cat:'오메가3', id:'5214', name:'뉴트롤린 오메가3(스킨앤코트·센시티브)', spec:'150ml / 260ml',
+      shop:'뉴트롤린 공식몰', shopP:'36,000 / 51,000', lowShop:'에누리 최저(150ml)', lowP:'33,192',
+      note:'정가 39,600 / 56,100 · 6만원 이상 무료배송 · 네이버 최저 33,192(2026.11.17 갱신)'},
+    {cat:'우신 간식', id:'2122', name:'멍멍하누 한우스틱', spec:'소 10cm+ / 중 20cm+',
+      shop:'멍멍하누 자사몰', shopP:'3,900 / 6,900', lowShop:'퍼피즈 등 동일가', lowP:'3,900',
+      note:'정가 5,900 / 10,900 · 45,000원 이상 무료배송(기본 4,000) · 소 사이즈 일부 품절 · 못난이 3pcs 5,500'},
+    {cat:'우신 간식', id:'2542', name:'오래오래프로젝트 줄줄이스틱 실속형', spec:'8종 골라담기 / 소고기 24개입 144g',
+      shop:'오래오래프로젝트 자사몰', shopP:'14,000', lowShop:'컬리 14,000(소고기 24개입)', lowP:'14,000',
+      note:'정가 16,000 · 트위스트 불리츄 2P 12,000 · 불리스틱 홀더 12,900 · 못난이 소우신 50g 9,900'},
+    {cat:'우신 간식', id:'4506', name:'해피랑 한우우신스틱', spec:'스틱 / 링',
+      shop:'해피랑 자사몰', shopP:'13,000 / 15,000', lowShop:'자사몰', lowP:'13,000',
+      note:'배송 3,300 · 30,000원 이상 무료배송'},
+    {cat:'우신 간식', id:'3552', name:'알파펫 비프츄 숏(뉴질랜드산 소 우신)', spec:'70g',
+      shop:'미키펫코리아 DtoC몰', shopP:'24,500', lowShop:'쿠팡 로켓배송', lowP:'19,500',
+      note:'권장소비자가 23,000 · 멍냥보감 18,000 · 로켓배송 실시간 18,020 표기'},
+    {cat:'사료', id:'5601', name:'목우촌 멍수무강 기능성 소프트 사료', spec:'1kg(소·황태·오리·연어 등)',
+      shop:'목우촌 공식몰', shopP:'19,700', lowShop:'쿠팡 로켓배송', lowP:'19,900',
+      note:'정가 26,000(24% 할인) · 무료배송 · 정기배송 2개입 34,900 / 3개입 52,000 · 푸들·포메 전용 1.8kg 15,000'},
+    {cat:'XXL 옷', id:'5316', name:'큰강아지 대형견 옷(XL~9XL 동일가)', spec:'9,900~27,900',
+      shop:'네이버 스마트스토어', shopP:'9,900~27,900', lowShop:'자사몰 동일가', lowP:'9,900',
+      note:'국민내복 9,900 · 경량패딩조끼 9,800 · 기모맨투맨 27,900 · 배송 3,000(5만원↑무료)'},
+    {cat:'XXL 옷', id:'2231', name:'오키도키 OKTK(L~6XL 동일가)', spec:'18,900~62,900',
+      shop:'OKTK 공식몰', shopP:'18,900~62,900', lowShop:'공식몰(네이버 브랜드스토어 동일)', lowP:'18,900',
+      note:'Vibe Pocket Tee 26,800 · Brooklyn Sweatshirt 42,900 · Sports Windbreaker 62,900 · 3~50kg'}
+  ];
+  const PRICE_BY = {};
+  PRICES.forEach(p=>{ (PRICE_BY[p.id] = PRICE_BY[p.id] || []).push(p); });
+
   const CORE_IDS = CORE.map(c=>c.id);
   const CORE_SET = new Set(CORE_IDS);
   const CORE_N = String(CORE.length);
@@ -553,6 +634,7 @@
       + '</div>'
       + (br.i ? '<div class="info">'+esc(br.i)+'</div>' : '')
       + ((br.p&&br.p.length)? '<div class="prods">대표 제품 · '+esc(br.p.join(' / '))+'</div>' : '')
+      + priceBlock(b)
       + (b.ev&&b.ev.length ? ('<div class="evwrap"><div class="evsummary"><span class="lab">현장 이벤트</span>'+esc(first)+'</div>'
           + '<button class="more" data-more="'+esc(b.id)+'">'+more+'</button>'
           + '<div class="evfull" id="ev-'+esc(b.id)+'">'+b.ev.map(e=>'<div class="item">'+esc(e)+'</div>').join('')+'</div>'
@@ -840,6 +922,38 @@
     });
   }
 
+  function priceBlock(b){
+    const rows = PRICE_BY[b.id];
+    if(!rows) return '';
+    return '<div class="pl">' + rows.map(p=>
+        '<div class="pr"><span class="k">공식몰</span><span class="v">'+esc(p.shopP)+'원</span><span class="s">'+esc(p.shop)+'</span></div>'
+      + '<div class="pr"><span class="k low">최저</span><span class="v">'+esc(p.lowP)+'원</span><span class="s">'+esc(p.lowShop)+'</span></div>'
+      + (p.note? '<div class="tip">'+esc(p.note)+'</div>':'') ).join('') + '</div>';
+  }
+  function renderPrice(){
+    const cats = [];
+    PRICES.forEach(p=>{ if(cats.indexOf(p.cat)<0) cats.push(p.cat); });
+    let html = '<div class="price-page"><div class="ph"><h2>💰 핵심 품목 온라인 가격</h2>'
+      + '<p>2026-11-17 조회 기준입니다. 공식몰·네이버 스마트스토어 가격과 확인된 인터넷 최저가를 나란히 놓았으니, 부스에서 부르는 값과 비교해 보세요. 부스 번호를 누르면 그 부스로 이동합니다.</p></div>';
+    cats.forEach(c=>{
+      html += '<div class="pcat-h">'+esc(c)+'</div>';
+      PRICES.filter(p=>p.cat===c).forEach(p=>{
+        const b = BY[p.id];
+        const where = b ? (HALLNAME[b.hall]+' '+p.id+' · '+(b.label||'')) : p.id;
+        html += '<div class="pcard">'
+          + '<div class="pname">'+esc(p.name)+'<em>'+esc(p.spec)+'</em></div>'
+          + '<button class="pbooth" data-goto="'+esc(p.id)+'">'+esc(where)+'</button>'
+          + '<div class="prow"><span class="pk">공식몰</span><span class="ps">'+esc(p.shop)+'</span><b>'+esc(p.shopP)+'원</b></div>'
+          + '<div class="prow low"><span class="pk">최저가</span><span class="ps">'+esc(p.lowShop)+'</span><b>'+esc(p.lowP)+'원</b></div>'
+          + (p.note? '<div class="pnote">'+esc(p.note)+'</div>' : '')
+          + '</div>';
+      });
+    });
+    html += '<div class="pfoot">※ 쿠팡·오픈마켓 값은 가격추적 사이트(로우차트·폴센트·에누리) 관측값이라 수시로 바뀝니다. 정기구독·쿠폰·묶음 조건이 다르니 결제 화면에서 최종 금액을 확인하세요. 현장 이벤트(사은품·룰렛·쿠폰)는 이벤트 탭과 각 부스 카드에 따로 정리해 두었습니다.</div>'
+      + '</div>';
+    view.innerHTML = html;
+    view.querySelectorAll('[data-goto]').forEach(el=>{ el.onclick = ()=>{ q = el.dataset.goto; hall='all'; cat='all'; evFilter.clear(); switchTab('booth'); }; });
+  }
   function renderInfo(){
     const m = MZ.meta;
     view.innerHTML = '<div class="info-page">'
@@ -861,6 +975,11 @@
       + '<li>쭈쭈쭈 쿠폰번호 등록 기한은 <b>11.18(수) 23:59</b>, 홈페이지 사전등록 바코드는 <b>11.19(목) 18:00부터</b> 카카오 알림톡 발송.</li>'
       + '<li>선착순 이벤트는 대부분 <b>매일</b> 수량이 리셋됩니다. 오전 회차를 노리면 개장 직후가 유리해요.</li>'
       + '<li>반려견 동반 시 목줄·인식표 필수, 이동장·유모차·슬링백 권장.</li>'
+      + '</ul></div>'
+      + '<div class="box"><h3>온라인 가격 비교</h3><ul>'
+      + '<li>가격 탭의 온라인 가격은 <b>2026.11.17 조회</b> 기준입니다. 공식몰·네이버 스마트스토어 판매가와 확인된 인터넷 최저가(쿠팡·오픈마켓)를 함께 적었습니다</li>'
+      + '<li>최저가는 가격추적 사이트(로우차트·폴센트·에누리) 관측값과 판매처 표시가를 대조해 적었고, 관측일이 다른 항목은 카드 비고에 날짜를 적었습니다. 결제 화면의 최종 금액과 다를 수 있습니다</li>'
+      + '<li>정기구독가·쿠폰가·묶음 구매는 조건이 다릅니다. 부스 현장 가격과 비교할 땐 같은 용량·같은 구성인지 먼저 확인하세요</li>'
       + '</ul></div>'
       + '<div class="box"><h3>참고 링크</h3><ul>'
       + '<li><a href="https://k-pet.co.kr/portfolio-items/26pet_k2_brandevent/" target="_blank" rel="noopener">주최측 현장이벤트 원문</a></li>'
@@ -900,6 +1019,7 @@
     document.querySelectorAll('nav button').forEach(b=>b.dataset.on = (b.dataset.tab===t?1:0));
     if(t==='booth') renderBooth();
     else if(t==='event') renderEvent();
+    else if(t==='price') renderPrice();
     else if(t==='course') renderCourse();
     else if(t==='map') renderMap();
     else renderInfo();
@@ -937,7 +1057,7 @@
   document.getElementById('stBrand').textContent = MZ.meta.brandCount;
   document.getElementById('stEv').textContent = MZ.meta.eventBoothCount;
   const hashTab = (location.hash.match(/tab=(\w+)/)||[])[1];
-  switchTab(hashTab && ['booth','event','course','map','info'].includes(hashTab) ? hashTab : 'booth');
+  switchTab(hashTab && ['booth','event','price','course','map','info'].includes(hashTab) ? hashTab : 'booth');
 
   // 계산 로직을 검증에 그대로 쓸 수 있게 노출 (화면 동작에는 영향 없음)
   window.MZROUTE = {buildRoute: buildRoute, sweepSort: sweepSort, orderByHall: orderByHall, evTimesFor: evTimesFor, ROW_BANDS: ROW_BANDS, ROW_OF: ROW_OF, ENTRIES: ENTRIES, CORE: CORE, courseOpt: courseOpt};
