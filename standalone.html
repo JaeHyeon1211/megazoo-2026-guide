@@ -217,7 +217,7 @@
     {k:'coupon', label:'쿠폰'},
     {k:'fav', label:'즐겨찾기만'}
   ];
-  // 재현 님이 #메가주에 꼽은 핵심 7개 항목 (2026-11-17 확정) — 부스 번호는 data.js 기준
+  // 재현 님이 #메가주에 꼽은 핵심 7개 항목 + 테일하이 트래킹 하네스 (2026-11-17 확정) — 부스 번호는 data.js 기준
   const CORE = [
     {id:'5347', item:'눈영양제', brand:'바이오핏 아이즈핏'},
     {id:'3136', item:'방수리드줄', brand:'와우펫 방수 리드줄'},
@@ -225,11 +225,13 @@
     {id:'5601', item:'목우촌 사료', brand:'목우촌 멍수무강'},
     {id:'3106', item:'유산균', brand:'드시모네펫'},
     {id:'5732', item:'오메가3', brand:'에코-펫 오메가3+물범오일'},
-    {id:'5316', item:'XXL 옷', brand:'큰강아지 XL~8XL'}
+    {id:'5316', item:'XXL 옷', brand:'큰강아지 XL~9XL'},
+    {id:'2331', item:'트래킹 하네스', brand:'테일하이 하이브리드 하네스 3.0'}
   ];
   const CORE_IDS = CORE.map(c=>c.id);
   const CORE_SET = new Set(CORE_IDS);
-  const CORE_ALT = '대안 부스 · 눈영양제 5732 에코-펫(루테인 함유) · 방수리드줄 5713 리또리 · 유산균 4524 리와일드·5631 빌리스벳 · 오메가3 5214 뉴트롤린·2457 펫생각 · XXL 옷 4149 하이위드·2512 가티';
+  const CORE_N = String(CORE.length);
+  const CORE_ALT = '더 볼 곳 · 눈영양제 2457 펫생각(리얼 루테인 3.0)·2411 퍼센트퍼센트·4501 닥터뉴토 · 방수리드줄 5713 리또리·3338 블랙도기·5111 지니하우스 · 유산균 5631 빌리스벳·5417 페피테일·4524 리와일드 · 오메가3 5214 뉴트롤린·3454 스푼풀 · XXL 옷 2231 오키도키(L~6XL)·2505 아루마루(5XL)·5251 플럼피 · 2홀 한우간식 2122 멍멍하누·2542/2544 오래오래프로젝트';
 
   const LS_FAV = 'mz26.fav.v1';
   const LS_DONE = 'mz26.done.v1';
@@ -672,7 +674,7 @@
             + '</div></div>').join('')) : '');
   }
 
-  // 핵심 코스 프리셋 — 재현 님이 꼽은 7개 항목을 한 번에 즐겨찾기에 담는다
+  // 핵심 코스 프리셋 — 재현 님이 꼽은 핵심 항목을 한 번에 즐겨찾기에 담는다
   function coreBox(){
     const on = CORE_IDS.filter(id=>favs.has(id)).length;
     const chips = CORE.map(c=>{
@@ -683,7 +685,7 @@
     }).join('');
     return '<div class="core"><div class="ch">🎯 재현 핵심 코스<em>'+on+'/'+CORE.length+' 담김</em></div>'
       + '<div class="cl">'+chips+'</div>'
-      + '<button class="cbtn" id="cadd">'+(on===CORE.length?'핵심 7곳 빼기':'핵심 7곳 한 번에 담기')+'</button>'
+      + '<button class="cbtn" id="cadd">'+(on===CORE.length?'핵심 '+CORE_N+'곳 빼기':'핵심 '+CORE_N+'곳 한 번에 담기')+'</button>'
       + '<div class="calt">'+esc(CORE_ALT)+'</div></div>';
   }
   function renderCourse(){
@@ -725,7 +727,7 @@
       + '</div>';
 
     if(!total){
-      html += '<div class="empty">아직 담은 부스가 없어요.<br><br>🔍 <b>부스</b> 탭에서 ☆를 누르거나<br>위의 <b>핵심 7곳 담기</b>를 누르면<br>여기에 방문일·시간에 맞춘 추천 순서로 정리됩니다.</div></div>';
+      html += '<div class="empty">아직 담은 부스가 없어요.<br><br>🔍 <b>부스</b> 탭에서 ☆를 누르거나<br>위의 <b>핵심 '+CORE_N+'곳 담기</b>를 누르면<br>여기에 방문일·시간에 맞춘 추천 순서로 정리됩니다.</div></div>';
       view.innerHTML = html;
       bindCourse(); return;
     }
@@ -787,7 +789,7 @@
     if(ca) ca.onclick = ()=>{
       if(CORE_IDS.every(id=>favs.has(id))){
         CORE_IDS.forEach(id=>{ favs.delete(id); done.delete(id); });
-        toast('핵심 7곳을 즐겨찾기에서 뺈어요');
+        toast('핵심 '+CORE_N+'곳을 즐겨찾기에서 뺈어요');
       } else {
         let n = 0;
         CORE_IDS.forEach(id=>{ if(BY[id] && !favs.has(id)){ favs.add(id); n++; } });
