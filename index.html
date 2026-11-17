@@ -263,31 +263,48 @@
     return out;
   })();
 
-  function nnSort(list, startPt){
-    const rest = list.slice();
-    if(!rest.length) return [];
-    const out = [];
-    let last;
-    if(startPt){
-      last = startPt;                      // 출발점에서 가장 가까운 부스가 첫 노드
-    } else {
-      last = rest.reduce((m,b)=> (b.x + b.y*0.35) < (m.x + m.y*0.35) ? b : m, rest[0]);
-      out.push(last); rest.splice(rest.indexOf(last),1);
-    }
-    while(rest.length){
+  // ---------- 통로(aisle) 지그재그 ----------
+  // 배치도에서 좌우 두 열의 부스가 마주 보면 그것이 하나의 통로입니다.
+  // 부스 열은 공통 뒷면을 맞대어 '섬'을 이루고, 통로는 섬과 섬 사이에 있습니다.
+  // 아래 섬 x구간은 주최 부스배치도 PDF의 부스 사각형에서 추출한 것(도면 좌표 0~1000)이며,
+  // 각 섬은 왼쪽 열(왼쪽 통로를 바라봄) + 오른쪽 열(오른쪽 통로를 바라봄)입니다.
+  const ISLANDS = [
+    [21.1,32.7],[51.9,75.0],[92.3,115.4],[132.7,155.8],[171.2,194.3],[209.7,232.8],
+    [248.2,271.3],[288.6,311.7],[327.0,350.1],[367.5,390.5],[407.9,430.9],[446.3,469.4],
+    [484.8,507.9],[523.3,546.4],[565.6,588.7],[606.0,629.1],[644.5,667.6],[684.9,708.0],
+    [723.4,746.5],[761.9,785.0],[800.4,823.4],[838.8,861.9],[879.2,902.3],[919.6,942.7],[963.9,975.4]
+  ];
+  // 부스 → 통로 번호(왼쪽 끝이 0). 예: 21xx 열과 22xx 홀수 열이 통로 1의 좌우, 22xx 짝수 열과 23xx 홀수 열이 통로 2의 좌우.
+  const AISLE_OF = (function(){
+    const m = {};
+    BOOTHS.forEach(b=>{
       let bi = 0, bd = Infinity;
-      for(let i=0;i<rest.length;i++){ const d = dist(last, rest[i]); if(d<bd){bd=d;bi=i;} }
-      last = rest[bi]; out.push(last); rest.splice(bi,1);
-    }
-    return out;
-  }
-  function orderByHall(list){
-    const byHall = {};
-    list.forEach(b=>{ (byHall[b.hall] = byHall[b.hall] || []).push(b); });
+      ISLANDS.forEach((r,i)=>{
+        const d = b.x<r[0] ? r[0]-b.x : (b.x>r[1] ? b.x-r[1] : 0);
+        if(d<bd){ bd=d; bi=i; }
+      });
+      const r = ISLANDS[bi], half = (r[0]+r[1])/2;
+      m[b.id] = (r[1]-r[0] < 17) ? (bi===0 ? 1 : bi)   // 한 열뿐인 맨 끝 섬은 안쪽 통로와 한 줄
+              : (b.x < half ? bi : bi+1);
+    });
+    return m;
+  })();
+  // 2·3·4홀 입구: 왼쪽 끝 통로부터 오른쪽 끝까지, 5홀 입구: 오른쪽 끝 통로부터 왼쪽 끝까지
+  // 한 방향으로 쭉 훑으면서 통로마다 방향을 번갈아 타는 지그재그(boustrophedon) 순서
+  function zigzagSort(list, entry){
+    const byA = {};
+    list.forEach(b=>{ (byA[AISLE_OF[b.id]] = byA[AISLE_OF[b.id]] || []).push(b); });
+    const keys = Object.keys(byA).map(Number).sort((a,b)=> entry==='5' ? b-a : a-b);
     const out = [];
-    HALLS.forEach(h=>{ if(byHall[h.k]) out.push(...nnSort(byHall[h.k])); });
+    keys.forEach((k,n)=>{
+      const inward = (n%2===0);   // 첫 통로는 입구쪽→안쪽, 다음 통로는 안쪽→입구쪽
+      const arr = byA[k];
+      arr.sort((a,b)=> inward ? (b.y-a.y)||(a.x-b.x) : (a.y-b.y)||(a.x-b.x));
+      out.push(...arr);
+    });
     return out;
   }
+  function orderByHall(list){ return zigzagSort(list, course.entry); }
 
   // 이벤트 문구의 요일 표기(금·토 / 일 / 매일)를 시간 앞에서 찾아 묶는다
   function daySetBefore(txt, idx){
@@ -352,7 +369,7 @@
     return {dow: day.dow, startMin: +course.start || 570, startPt: ENTRIES[course.entry] || ENTRIES['2']};
   }
 
-  // 정시 이벤트를 시간표로 고정하고, 그 사이에 출발 입구에서 가까운 부스를 끼워 넣는다
+  // 정시 이벤트를 시간표로 고정하고, 그 사이에 통로 지그재그 순서의 부스를 끼워 넣는다
   function buildRoute(ids, opt){
     const list = ids.map(id=>BY[id]).filter(Boolean);
     const startPt = opt.startPt, dow = opt.dow, startMin = opt.startMin;
@@ -363,7 +380,7 @@
       else { (b.openRun || b.firstCome) ? rush.push(b) : rest.push(b); }
     });
     timed.sort((a,b)=> (a._anchor-b._anchor) || (dist(startPt,a)-dist(startPt,b)));
-    let pool = rush.concat(rest);
+    let pool = zigzagSort(rush.concat(rest), course.entry);   // 대기열도 통로 지그재그 순서
     const anchors = timed.slice();
     const steps = [];
     let cur = startPt, curT = startMin, guard = 0;
@@ -371,25 +388,22 @@
     while((anchors.length || pool.length) && guard++ < 5000){
       const anchor = anchors[0] || null;
       let chosen = null;
+      const pref = pool.filter(isRush);
+      const cands = pref.length ? pref : pool;
       if(anchor){
-        const pref = pool.filter(isRush);
-        const cands = pref.length ? pref : pool;
         const slack = anchor._anchor - curT;          // 이벤트 전까지 남은 시간(분)
-        let best = null, bestCost = Infinity;
         for(let i=0;i<cands.length;i++){
           const b = cands[i];
           const toB = dist(cur,b), bToA = dist(b,anchor), toA = dist(cur,anchor);
           const extra = (toB + bToA - toA)*WALK_MIN + DWELL_MIN;   // 우회 추가 비용(분)
           const arriveA = curT + (toB + bToA)*WALK_MIN + DWELL_MIN;
-          if(arriveA <= anchor._anchor - 5 && extra <= Math.max(0, slack-5)*0.7 && extra < bestCost){
-            best = b; bestCost = extra;
+          if(arriveA <= anchor._anchor - 5 && extra <= Math.max(0, slack-5)*0.7){
+            chosen = b;   // 정시 이벤트를 놓치지 않는 범위에서 지그재그 순서대로 우회
+            break;
           }
         }
-        if(best) chosen = best;    // 정시 이벤트를 놓치지 않는 범위에서만 우회
       } else {
-        const pref = pool.filter(isRush);
-        const cands = pref.length ? pref : pool;
-        chosen = cands.reduce((m,b)=> dist(cur,b) < dist(cur,m) ? b : m, cands[0]);
+        chosen = cands[0];   // 지그재그 순서 그대로
       }
       if(!chosen){
         const proj = curT + dist(cur,anchor)*WALK_MIN;
@@ -622,7 +636,7 @@
     let html = '<div class="course">';
     html += '<div class="hero"><h2>내 즐겨찾기 추천 방문 순서</h2>'
       + '<p>'+(total
-          ? '선택한 방문일·시작 시간에 맞는 <b>정시 이벤트 시각을 먼저 고정</b>하고, 그 사이에 출발 입구에서 가까운 부스를 차례로 넣었어요. 최단 경로 보장은 아니고 <b>우선순위 기반 추천 순서</b>입니다.'
+          ? '통로를 사이에 둔 <b>양옆 부스를 함께</b> 보면서 입구 쪽에서 안쪽으로 들어가고, 다음 통로에서는 다시 입구 쪽으로 나오는 <b>지그재그(Z자) 동선</b>으로 정리했어요. 정시 이벤트 시각은 먼저 고정되고, 정시 이벤트 전 여유에 맞는 부스만 그 사이에 들어갑니다.'
           : '부스 목록에서 ☆를 눌러 가고 싶은 곳을 담으면, 방문일·시작 시간·출발 입구에 맞춰 추천 순서를 만들어 드려요.')+'</p>'
       + '<div class="crset">'
       + '<div><label for="cday">방문일</label><select id="cday">'
@@ -635,7 +649,7 @@
       + ['2','3','4','5'].map(k=>'<option value="'+k+'" '+(course.entry===k?'selected':'')+'>'+HALLNAME[k]+' 입구</option>').join('')
       + '</select></div>'
       + '</div>'
-      + (total? '<div class="crsum">'+esc(dayLabel)+' '+fmtMin(+course.start)+' · '+esc(entryName)+' 출발<br>정시 이벤트 '+anchorN+'곳 고정 · 즐겨찾기 '+total+'곳</div>' : '')
+      + (total? '<div class="crsum">'+esc(dayLabel)+' '+fmtMin(+course.start)+' · '+esc(entryName)+' 출발 · '+(course.entry==='5'?'오른쪽 끝':'왼쪽 끝')+' 통로부터 지그재그<br>정시 이벤트 '+anchorN+'곳 고정 · 즐겨찾기 '+total+'곳</div>' : '')
       + '<div class="prog"><i style="width:'+pctv+'%"></i></div>'
       + '<div class="nums"><span>방문 완료 '+dn+' / '+total+'</span><span>'+pctv+'%</span></div>'
       + '<div class="btnrow">'
@@ -682,7 +696,7 @@
         + '<button class="tick" data-star2="'+esc(b.id)+'">★ 빼기</button></div>'
         + '</div></div>';
     });
-    html += '<div class="note">※ 순서는 공개된 부스배치도 좌표로 계산한 참고용 추천 순서입니다(이동 350m당 약 5분·부스당 4분 체류 가정). 정시 이벤트는 공개 문구에 시각이 적힌 것만 반영했고, 현장 대기줄과 통로 사정에 따라 달라질 수 있어요.</div>';
+    html += '<div class="note">※ 순서는 공개된 부스배치도 좌표로 계산한 참고용 추천 순서입니다. 2·3·4홀 입구는 <b>왼쪽 끝 통로부터</b>, 5홀 입구는 <b>오른쪽 끝 통로부터</b> 한 방향으로 쭉 훑고, 통로 안에서는 양옆 부스를 함께 보며 옆 통로로 지그재그 이동합니다. 오픈런·선착순 부스는 가급적 앞서 배치했어요(이동 350m당 약 5분·부스당 4분 체류 가정). 정시 이벤트는 공개 문구에 시각이 적힌 것만 반영했고, 현장 대기줄과 통로 사정에 따라 달라질 수 있어요.</div>';
     html += '</div>';
     view.innerHTML = html;
     bindCourse();
@@ -702,14 +716,26 @@
     const ce = document.getElementById('centry'); if(ce) ce.onchange = e=>{ course.entry = e.target.value; saveCourse(); renderCourse(); };
   }
 
+  // 내 코스 동선을 배치도 위에 그리기
+  function courseSvg(steps){
+    const pts = steps.map(s=>s.b.x.toFixed(1)+','+s.b.y.toFixed(1)).join(' ');
+    const dots = steps.map((s,i)=>'<circle cx="'+s.b.x+'" cy="'+s.b.y+'" r="'+(i===0?9:6)+'" fill="'+(i===0?'#16a34a':'#f05322')+'" fill-opacity="0.9"/>').join('');
+    return '<svg viewBox="0 0 1000 1000" preserveAspectRatio="none" style="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none">'
+      + '<polyline points="'+pts+'" fill="none" stroke="#f05322" stroke-width="5" stroke-opacity="0.7" stroke-linejoin="round" stroke-linecap="round"/>'
+      + dots + '</svg>';
+  }
+
   function renderMap(){
+    const steps = buildRoute([...favs], courseOpt());
+    const line = steps.length>1 ? courseSvg(steps) : '';
     let html = '<div class="mapwrap">'
       + '<div class="scroll" style="padding-bottom:10px">'
       + '<button class="chip acc" data-map="all" data-on="1">전체 배치도</button>'
       + HALLS.slice(0,4).map(h=>'<button class="chip '+h.cls+'" data-map="'+h.k+'">'+h.name+'</button>').join('')
       + '</div>'
-      + '<div id="mapbox"><img src="'+imgSrc('map_full.jpg')+'" alt="2026 메가주 시즌2 부스배치도 전체"></div>'
+      + '<div id="mapbox"'+(line?' style="position:relative"':'')+'><img src="'+imgSrc('map_full.jpg')+'" alt="2026 메가주 시즌2 부스배치도 전체">'+line+'</div>'
       + '<div class="legend"><b>보는 법</b><br>· 부스 안 숫자가 부스 번호예요. 홀별로 <b>2홀(앞자리 2)</b>, <b>3홀(3)</b>, <b>4홀(4)</b>, <b>5홀(5)</b> 로 구분됩니다.<br>'
+      + (line? '· 주황 선·점이 <b>내 코스</b> 지그재그 동선이에요(초록 점이 출발 부스).<br>' : '')
       + '· 빨간 <b>쭈쭈쭈 아이콘</b>이 붙은 부스는 쭈쭈쭈 쿠폰 사용 가능 업체예요.<br>'
       + '· G-01~G-26은 <b>경기도 공동관</b>, ART-01~04는 <b>ART존</b>입니다.<br>'
       + '· 원본: 주최측 공개 부스배치도 PDF (2026.11.13 기준) — <a href="https://k-pet.co.kr/visitor/megazoos2_floormap/" target="_blank" rel="noopener">원본 보기</a></div>'
