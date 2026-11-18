@@ -106,6 +106,14 @@
   .core .ci[data-fav="1"] b{color:#a16207}
   .core .cbtn{margin-top:9px;width:100%;border:1px solid var(--brand);background:var(--brand);color:#fff;border-radius:9px;padding:8px;font-size:12.5px;font-weight:800}
   .core .calt{font-size:11px;color:var(--ink3);margin-top:7px;line-height:1.55;word-break:keep-all}
+  .core .csub{font-size:10.5px;color:#8a6d2f;margin-top:4px;line-height:1.5;word-break:keep-all}
+  .core .cgrp{margin-top:10px;border-top:1px dashed #e8d79a;padding-top:8px}
+  .core .cgh{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:800;color:#7c4a03}
+  .core .cgh em{font-style:normal;font-weight:600;color:#a98a4b;font-size:10.5px}
+  .core .cgadd{margin-left:auto;border:1px solid #e8c86a;background:#fff;color:#92620a;border-radius:7px;padding:3px 8px;font-size:10.5px;font-weight:800}
+  .core .cgadd[data-on="1"]{background:#fde68a;border-color:#eab308}
+  .citem{margin-top:7px;font-size:11px;font-weight:700;color:#92620a;background:#fffbeb;border:1px solid #f3d47a;border-radius:8px;padding:5px 8px;line-height:1.5;word-break:keep-all}
+  .step .citem.in{margin-top:3px;font-size:10.5px;padding:4px 7px}
   .tag.core{background:#fde68a;color:#92400e}
   .ckpt{margin-top:9px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9px;padding:7px 9px}
   .ckpt .ckh{font-size:11px;font-weight:800;color:#166534}
@@ -263,42 +271,94 @@
     {k:'coupon', label:'쿠폰'},
     {k:'fav', label:'즐겨찾기만'}
   ];
-  // 재현 님이 #메가주에 꼽은 핵심 항목 + 테일하이 트래킹 하네스 (2026-11-17 확정) — 부스 번호는 data.js 기준
-  // '우신'은 브랜드가 아니라 소의 말린 간식 이름 — 멍멍하누(2122)·오래오래프로젝트(2542)에서 팔며, 라보타치 5523(우신라보타치)은 회사명일 뿐이라 뺐다
+  // 재현 님이 꼭 사야 하는 필수 품목 10가지 + 유모차 방석·매트 — 품목별 전수 부스 (2026-11-18)
+  // 근거: 주최 공식 참가브랜드 711곳·부스 692곳 등록 제품 원문 + 브랜드 공식몰 확인. 부스 번호는 data.js 기준으로만 넣었다.
+  // 우신은 브랜드가 아니라 소의 말린 간식 이름 — 5523 라보타치(회사명 우신라보타치)는 우신 간식 업체가 아니다.
+  // items = 그 부스에서 볼 수 있는 품목(한 부스가 여러 품목이면 모두). grps = 칩을 놓는 품목 칸.
+  // ck = 현장에서 확인할 점. 확인되지 않은 것을 확정처럼 쓰지 않는다.
+  const CORE_GROUPS = [
+    {key:'eye', label:'눈영양제', note:'눈가 케어 제품(영양제 아님)도 같은 눈 고민이라 따로 적습니다: 2251 유어벳 눈 전용 안약 · 3501 캐니퓨어 눈가 세정 · 2252 아이엔비 눈물자국 키트 · 4253 정글몬스터 퓨어아이 눈물패드 · 2551 퍼피즈 눈 케어 간식 · 4512 펫츠릴리즈 눈 케어 캔.'},
+    {key:'leash', label:'방수리드줄', note:'테일하이 2331·2240의 하이크-엔드 방수 리쉬(38,000원·방수 목줄 26,000원)도 방수 리드줄입니다(테일하이 칸에 따로 있음). 방수 하네스는 5154 노라독 · 3242 마이니(레인코트 하네스). 3338 블랙도기는 방수 우비·올인원만 확인돼 리드줄에서 뺐습니다.'},
+    {key:'wosin', label:'우신 간식', note:'우신(소 말린 간식) 표기가 공식 자료에 확인된 곳만 넣었습니다. 2551 퍼피즈 우피 롱츄는 우피(가죽)라 다른 부위입니다. 4357 로렌츠는 판매가 아니라 5만원 이상 구매 시 한우우신 2p 증정이라 간식 살 계획이 없으면 생략해도 됩니다.'},
+    {key:'mokuchon', label:'목우촌 멍수무강', note:'주최 등록 제품에 목우촌이 적힌 곳은 5601 한 곳입니다. 다른 사료 부스가 목우촌을 취급하는지는 공개 자료로 확인되지 않았습니다.'},
+    {key:'probio', label:'유산균', note:'유산균이 성분으로 든 간식·치즈는 따로 적습니다: 2452 그릭바이츠 유산균 요거트 · 3631 팡드미 유산균 트릿 · 5548 간식삼촌 야채유산균 스틱 · 2350 리프릿 유산균 크리미스틱 · 5305 펫터링 유산균 요거트 큐브 · 5255 펫인러브 야크치즈 · 5623 닥터 뉴트리코어 다이제스티브200 · 5716 파미데이즈 유산균 스프 · G-01 제로츄 특허 유산균 스틱. 사료·샴푸·치약에 든 유산균 성분 표기는 뺐습니다.'},
+    {key:'omega', label:'오메가3', note:'오메가3가 풍부하다고 적은 사료·간식은 뺐습니다: 2325 포틀랜드·2208 내추로·2408 바우스앤로·2337 내추럴그레이트니스(사료), 4512 펫츠릴리즈 과메기, 3657 슈퍼포우·5150 차:오르(오메가3 사슴고기 간식). 3237 라이펫(연어·크릴오일이 든 CBD 보조제)과 2427 닥터아나 3-6-9 오일은 성격이 달라 뺐습니다.'},
+    {key:'xxl', label:'XXL 옷', note:'의류 부스 176곳 중 브랜드 공식 사이즈표나 등록 제품에서 XXL(2XL) 이상이 확인된 7곳만 넣었습니다. 나머지는 XS~XL(소형견) 위주이거나 사이즈표를 확인하지 못해 현장 실측이 필요합니다. 원두 가슴둘레·등길이를 재서 가면 비교가 빠릅니다.'},
+    {key:'tailhigh', label:'테일하이 트래킹 하네스', note:'\'트래킹 하네스\'라는 제품명은 테일하이 공식 라인업에 없습니다. 트레킹용은 하이브리드 하네스 3.0(리드줄 일체)입니다. 같은 브랜드가 2331·2240 두 부스에 나옵니다.'},
+    {key:'strollerbag', label:'유모차 가방', note:'유모차 오거나이저·가방을 등록 제품이나 브랜드 라인업에 내건 부스는 이비야야 한 곳입니다. 펫테나는 주최 공식 참가 목록에서 확인되지 않았습니다.'},
+    {key:'heat', label:'온열 매트·방석', note:'전원이 필요한 온열(2310·3241·G-03)과 전원 없이 데우는 발열(5505 엔젤도그)을 구분해 보세요. 3241 보듬은 등록 제품이 전기매트뿐이라 USB·보조배터리형이 있는지 현장에서 먼저 확인해야 합니다.'},
+    {key:'cushion', label:'유모차 방석·매트', note:'온열이 아닌 유모차 방석·매트입니다. 2211 베베원펫은 유모차 방석 제조로 알려졌지만 등록 제품과 공식 사이트가 확인되지 않아 넣지 않았고, 2356 독토리·2401 코코리에또펫·5457 리토가토·5624 안트미미펫도 유모차 가드·쿠션을 팝니다.'},
+  ];
   const CORE = [
-    {id:'5347', item:'눈영양제', brand:'바이오핏 아이즈핏'},
-    {id:'3136', item:'방수리드줄', brand:'와우펫 방수 리드줄'},
-    {id:'2122', item:'우신 간식(멍멍하누)', brand:'멍멍하누 한우스틱'},
-    {id:'2542', item:'우신 간식(오래오래)', brand:'오래오래프로젝트 불리스틱'},
-    {id:'5601', item:'목우촌 사료', brand:'목우촌 멍수무강'},
-    {id:'3106', item:'유산균', brand:'드시모네펫'},
-    {id:'5732', item:'오메가3', brand:'에코-펫 오메가3+물범오일'},
-    {id:'5316', item:'XXL 옷', brand:'큰강아지 XL~9XL'},
-    {id:'2331', item:'트래킹 하네스', brand:'테일하이 하이브리드 하네스 3.0'},
-    // 2026-11-18 추가 — 원두 유모차 가방(이비야야 FP0032)과 유모차용 온열매트·방석 관련 부스
-    // ck = 현장에서 확인할 점. 확인되지 않은 것을 확정처럼 쓰지 않는다.
-    {id:'5607', item:'유모차 가방', brand:'이비야야 FP0032', ck:[
-      'FP0032 2in1 오거나이저(블랙) 매대 진열·현장 판매 여부와 현장가 — 주최 등록 출품 품목은 유모차 3종과 로퍼 캐리어백팩뿐이라 FP0032 현장 판매는 공지로 확인되지 않음',
-      '온라인 기준가 공식몰 34,900원 · 스마트스토어 35,900원(알림동의 쿠폰 34,900원)과 비교',
-      '애자일2 핸들에 걸었을 때 간섭과 가방 걸이 허용 하중(유모차 설명서) 확인 — FP0032 내하중 5kg은 가방 자체 한도'
-    ]},
-    {id:'2310', item:'온열 매트·패드', brand:'시리어스펫 따땃패드', ck:[
-      '따땃패드(30×28cm)·따땃패드 프로(50×34.5cm) 실물 크기와 유모차 바닥에 접힘 없이 들어가는지',
-      '보조배터리 연결로 외부 사용이 된다는 공식 안내는 있으나 필요한 컨트롤러·전원 사양·연결 조건을 설명서로 확인',
-      '근적외선 찜질패드라 유모차 바닥에 계속 깔고 쓰는 온열방석과 용도가 다름 — 제조사 권장 사용시간·금지사항, 수의사 상담, 사용 중 피부 확인이 우선이고 사용 시간·표시 온도만으로 저온화상 안전을 보장할 수 없음. 원두가 스스로 피할 공간도 필요',
-      '온라인 기준가 148,000원 / 프로 288,000원 · 보조배터리 15,000원과 현장가·사은품 비교'
-    ]},
-    {id:'3241', item:'온열·탄소매트', brand:'한일의료기 보듬', ck:[
-      'USB 5V 보조배터리 연결형이 있는지, 아니면 220V 실내용 전기매트·전기요뿐인지 먼저 확인(실내 전원형이면 이동 중 사용 불가)',
-      '매트 실제 가로×세로, 가장 낮은 단계 온도와 자동 차단, 씹힘·습기 주의, 반려동물 사용 가능 여부',
-      '유모차용 소형 제품 재고와 현장가'
-    ]},
-    {id:'G-03', item:'온열·냉방 매트', brand:'개판(엑스콤스)', ck:[
-      '경기도 공동관 G-03 — 4·5홀 경계에 걸친 공동관의 4홀 쪽 묶음(제로츄 G-01·경기도 홍보관 G-04 바로 옆, DB손해보험 4531 오른편) — 반려동물 온열·냉방 매트·냉난방기. 전원 방식(220V 실내용인지)과 유모차에 쓸 소형 모델이 있는지 확인',
-      '체온조절·체중·수면 모니터링 모델의 앱·구독 조건과 현장가'
-    ]}
+    {id:'5347', grp:['eye','omega'], items:['눈영양제','오메가3'], brand:'바이오핏', ck:['아이즈핏(국내산 유기농 블루베리 8.5%) 현장가와 원두 몸무게 기준 급여량 확인 — 같은 부스 데일리 오메가3 랩(알래스카 연어)도 함께 비교']},
+    {id:'2457', grp:['eye','omega'], items:['눈영양제','오메가3'], brand:'펫생각', ck:['리얼 루테인 3.0(2026.10 리뉴얼, 리포좀 후코이단) 현장 판매·가격 — 주최 등록 출품목엔 루테인이 없어 매대 확인 필요. 3oval 초소형 오메가3도 함께']},
+    {id:'2411', grp:['eye','probio'], items:['눈영양제','유산균'], brand:'퍼센트퍼센트', ck:['오큐유스30(눈 건강·항산화)과 루테인 프로바이오틱스20(눈+장)의 차이와 현장가']},
+    {id:'2126', grp:['eye'], items:['눈영양제'], brand:'닥터뮨', ck:['바이오서포트 겔 타입 영양제가 눈·장·피부·관절·기관지 복합이라 눈 단일 제품이 아님 — 눈만 원하면 다른 부스와 비교']},
+    {id:'4501', grp:['eye','probio'], items:['눈영양제','유산균'], brand:'닥터뉴토', ck:['E케어 루테인 짜먹는 스틱(온라인 21,800원·정가 29,000원) 현장가 — 같은 라인 P케어 열처리유산균도 함께']},
+    {id:'4337', grp:['eye'], items:['눈영양제'], brand:'닥터바이', ck:['닥터바이 아이즈 — 같은 브랜드 부스가 4337·4341 두 곳이라 재고 있는 쪽에서 구매']},
+    {id:'4341', grp:['eye'], items:['눈영양제'], brand:'닥터바이', ck:['닥터바이 아이즈 — 4337과 같은 브랜드 두 번째 부스']},
+    {id:'3347', grp:['eye','probio'], items:['눈영양제','유산균'], brand:'인트라젠', ck:['눈 건강 트릿형 영양제와 장 건강 분말 유산균(SYNPET)을 같이 취급 — 눈·유산균 한 번에']},
+    {id:'5734', grp:['eye','omega'], items:['눈영양제','오메가3'], brand:'메이드인랩', ck:['알가트리움 오메가3 + 눈 건강원료 져키형 영양제 — 오메가3와 눈을 같이 챙기는 제품']},
+    {id:'5732', grp:['eye','omega'], items:['눈영양제','오메가3'], brand:'에코-펫', ck:['오메가3+물개오일(DHA/EPA/DPA)에 루테인 함유 — 눈·오메가3 겸용']},
+    {id:'2349', grp:['eye'], items:['눈영양제'], brand:'닥터웰릿', ck:['아이즈케어 영양간식(조인트·스킨·아이즈·하트 4종 중) — 영양제가 아닌 간식 형태']},
+    {id:'2117', grp:['eye','probio'], items:['눈영양제','유산균'], brand:'페노비스', ck:['페노비스 벳 눈 영양제(관절·심장·췌장·눈 라인) — 같은 부스 임상균주 유산균도 함께']},
+    {id:'3136', grp:['leash'], items:['방수리드줄'], brand:'와우펫', ck:['와우 방수 리드줄 실물·길이·손잡이 — 같은 부스 안티쇼크·초경량 하네스도 확인']},
+    {id:'5713', grp:['leash'], items:['방수리드줄'], brand:'리또리', ck:['워터릴리프 방수 목줄·리드줄 컬렉션 — 색상·길이 재고와 현장가']},
+    {id:'5111', grp:['leash'], items:['방수리드줄'], brand:'지니 하우스', ck:['PVC 방수 리쉬(390kg 내하중) 길이·카라비너 — 발광 하네스도 같은 부스']},
+    {id:'2625', grp:['leash'], items:['방수리드줄'], brand:'뮤니쿤트', ck:['워터블록 리쉬(온라인 34,000원)·워터블록 방수 목줄(27,000원) 현장가와 색상']},
+    {id:'3632', grp:['leash'], items:['방수리드줄'], brand:'분독', ck:['방수 조이리쉬 1.4(44,000원)·방수 조이 트래픽리쉬 35(34,000원) — 원두 9kg은 S/L 중 어느 쪽인지 확인']},
+    {id:'2122', grp:['wosin'], items:['우신 간식'], brand:'멍멍하누', ck:['한우 간·허파·말랭이·한우스틱(우신) — 종류별 중량과 가격, 한우스틱 고정용 피즐그립도']},
+    {id:'2542', grp:['wosin'], items:['우신 간식'], brand:'오래오래프로젝트', ck:['소우신 100% 줄줄이스틱·불리스틱 홀더 — 같은 브랜드 2544와 재고·구성 비교']},
+    {id:'2544', grp:['wosin'], items:['우신 간식'], brand:'오래오래프로젝트', ck:['2542와 같은 브랜드 옆 부스(알로키친 동반) — 야크치즈·칠면조스트립도']},
+    {id:'4506', grp:['wosin'], items:['우신 간식'], brand:'해피랑', ck:['한우우신스틱/링 — 덴탈 겸용, 다른 수제간식과 세트 구성']},
+    {id:'3552', grp:['wosin'], items:['우신 간식'], brand:'알파펫', ck:['비프츄(뉴질랜드 방목 소 우신 100%, 저온건조) 중량·가격']},
+    {id:'5553', grp:['wosin'], items:['우신 간식'], brand:'펫브로', ck:['언니우스틱(국내산 한우 100%, 특허 제조) — 토네이도·한우말이 구성']},
+    {id:'5331', grp:['wosin'], items:['우신 간식'], brand:'강아지 특공대', ck:['한우로 만든 오래먹는 한우스틱 — 개뻥과 함께']},
+    {id:'4357', grp:['wosin'], items:['우신 간식'], brand:'로렌츠', ck:['우신 간식 판매처가 아니라 5만원 이상 구매 시 한우우신 2p 증정 — 다른 간식도 볼 때만']},
+    {id:'5601', grp:['mokuchon'], items:['목우촌 멍수무강'], brand:'목우촌 멍수무강', ck:['멍수무강 소프트사료(원료육 40%)·영양스틱·소프트져키(1.1kg) — 원두 9kg 기준 급여량과 현장가, 다일 구성 여부']},
+    {id:'3106', grp:['probio'], items:['유산균'], brand:'드시모네펫', ck:['드시모네펫 유산균 — 균주·함량·급여량과 현장 판매 구성']},
+    {id:'5631', grp:['probio'], items:['유산균'], brand:'빌리스벳', ck:['빌리스벳 기능성 유산균(유산균 전문 브랜드) — 포스트바이오틱스 트릿 프로바이츄도']},
+    {id:'5417', grp:['probio'], items:['유산균'], brand:'페피테일', ck:['참 유산균(강아지·고양이)·참 포스트바이오틱스 — 파우더 타입']},
+    {id:'2332', grp:['probio'], items:['유산균'], brand:'알엑스 비타민', ck:['Rx Vitamins 수의사 처방 유산균·소화효소']},
+    {id:'2510', grp:['probio'], items:['유산균'], brand:'펫아이', ck:['펫아이1000(포스트바이오틱스 1000억/포)과 펫아이 츄(500억) 차이·가격']},
+    {id:'2631', grp:['probio'], items:['유산균'], brand:'아나포유 코리아', ck:['프리미엄 유산균(특허 균주 2종·뉴클레오타이드)']},
+    {id:'3541', grp:['probio'], items:['유산균'], brand:'펫에그', ck:['비니백 유산균 — 같은 부스 질(ZEAL)·터키츄·분유도']},
+    {id:'4257', grp:['probio'], items:['유산균'], brand:'포앤츄', ck:['발효 산양유 유산균 — 산양유 제품과 함께']},
+    {id:'4307', grp:['probio','omega'], items:['유산균','오메가3'], brand:'닥터레이', ck:['프로키온 유산균과 오메가-3를 같이 취급']},
+    {id:'4401', grp:['probio'], items:['유산균'], brand:'페라', ck:['페라 프로바이오틱스+프리바이오틱스·포스트바이오틱스 플러스']},
+    {id:'4524', grp:['probio'], items:['유산균'], brand:'리와일드 프로바이오틱스', ck:['리와일드 프로바이오틱스 포 케이나인/필라인']},
+    {id:'5427', grp:['probio'], items:['유산균'], brand:'프롬한라', ck:['프롬한라 골드 유산균(제주산 원물) — 스틱 영양제와 함께']},
+    {id:'5512', grp:['probio'], items:['유산균'], brand:'덴탈바이오', ck:['구강 유산균(Streptococcus salivarius) — 장 유산균이 아니라 입 냄새·치석용']},
+    {id:'5523', grp:['probio'], items:['유산균'], brand:'라보타치', ck:['포피펫필름(강아지 유산균 덴탈 필름)·캐피펫필름 — 회사명이 우신라보타치지만 우신 간식과 무관한 영양제 업체']},
+    {id:'2106', grp:['probio'], items:['유산균'], brand:'시그니처바이', ck:['엑스트라 스트렝스 프로바이오틱스(위산·항생제·열에 강한 균주)']},
+    {id:'2601', grp:['probio'], items:['유산균'], brand:'큐토펫·펫쿠르트', ck:['한국야쿠르트 큐토펫·펫쿠르트 유산균 — 주최 등록 제품이 비어 있어 현장 판매 품목 확인']},
+    {id:'5311', grp:['probio'], items:['유산균'], brand:'견체공학', ck:['펫피더스 엔자임(효소발효유산균) — 같은 부스 고글·이동가방도']},
+    {id:'5214', grp:['omega'], items:['오메가3'], brand:'뉴트롤린', ck:['오메가3 전문 브랜드(핀란드 NUTROLIN) — 피부·관절·소화용 라인별 차이와 올레오겔 제형']},
+    {id:'3454', grp:['omega'], items:['오메가3'], brand:'스푼풀코리아', ck:['알래스카 연어오일 오메가3 소프트캡슐(짜서 먹이는 타입)']},
+    {id:'5123', grp:['omega'], items:['오메가3'], brand:'제스티퍼스', ck:['알래스카 연어오일(피부·피모)과 8-in-1 멀티비타민']},
+    {id:'3623', grp:['omega'], items:['오메가3'], brand:'킨포라', ck:['킨포라 오메가3 — 같은 부스 트러스티푸드 동결건조']},
+    {id:'2241', grp:['omega'], items:['오메가3'], brand:'카이쿠라', ck:['100% 청어 오일 + 뉴질랜드산 그린홍합(관절)']},
+    {id:'2351', grp:['omega'], items:['오메가3'], brand:'펫트리언츠', ck:['오메가3 풍부 원료만 배합한 보조식품(동결건조 트릿 형태)']},
+    {id:'5316', grp:['xxl'], items:['XXL 옷'], brand:'큰강아지', ck:['XL~9XL, 10~50kg, 사이즈 추가금 없음 — 원두 9kg 실측으로 사이즈 확인']},
+    {id:'2231', grp:['xxl'], items:['XXL 옷'], brand:'오키도키', ck:['L~6XL 동일가 — 대형견 라인 실물과 소재']},
+    {id:'2505', grp:['xxl'], items:['XXL 옷'], brand:'아루마루', ck:['5XL까지(헬로키티 메쉬 등 일부 제품) — 전 품목이 아니라 제품별 확인']},
+    {id:'5251', grp:['xxl'], items:['XXL 옷'], brand:'플럼피', ck:['4XL·5XL — 소형견부터 대형견까지 라인']},
+    {id:'4149', grp:['xxl'], items:['XXL 옷'], brand:'하이위드', ck:['S~5XL 일부, 자체생산 커플룩(보호자 옷 포함)']},
+    {id:'5106', grp:['xxl'], items:['XXL 옷'], brand:'츄블리', ck:['XS~2XL(2XL=XXL) — 핸드메이드']},
+    {id:'2512', grp:['xxl'], items:['XXL 옷'], brand:'가티', ck:['대형견 전용 의류·리쉬·칼라 — 사이즈표가 공개되지 않아 현장 실측 필요']},
+    {id:'2331', grp:['tailhigh'], items:['테일하이 트래킹 하네스'], brand:'테일하이', ck:['하이브리드 하네스 3.0(1.4m 리드줄 일체, 98,000원 / 리쉬·매너핸들 세트 110,700원), 하이크-엔드 방수 리쉬 38,000원·방수 목줄 26,000원 — 원두 9kg 사이즈 착용과 핸들 그립 확인']},
+    {id:'2240', grp:['tailhigh'], items:['테일하이 트래킹 하네스'], brand:'테일하이', ck:['같은 브랜드 두 번째 부스(스푸트니크 공동) — 색상·재고 비교']},
+    {id:'5607', grp:['strollerbag'], items:['유모차 가방'], brand:'이비야야', ck:['FP0032 2in1 오거나이저(블랙) 매대 진열·현장 판매 여부와 현장가 — 주최 등록 출품 품목은 유모차 3종과 로퍼 캐리어백팩뿐이라 FP0032 현장 판매는 공지로 확인되지 않음', '온라인 기준가 공식몰 34,900원 · 스마트스토어 35,900원(알림동의 쿠폰 34,900원)과 비교', '애자일2 핸들에 걸었을 때 간섭과 가방 걸이 허용 하중(유모차 설명서) 확인 — FP0032 내하중 5kg은 가방 자체 한도']},
+    {id:'2310', grp:['heat'], items:['온열 매트·방석'], brand:'시리어스펫', ck:['따땃패드(30×28cm)·따땃패드 프로(50×34.5cm) 실물 크기와 유모차 바닥에 접힘 없이 들어가는지', '보조배터리 연결로 외부 사용이 된다는 공식 안내는 있으나 필요한 컨트롤러·전원 사양·연결 조건을 설명서로 확인', '근적외선 찜질패드라 유모차 바닥에 계속 깔고 쓰는 온열방석과 용도가 다름 — 제조사 권장 사용시간·금지사항, 수의사 상담, 사용 중 피부 확인이 우선이고 사용 시간·표시 온도만으로 저온화상 안전을 보장할 수 없음. 원두가 스스로 피할 공간도 필요', '온라인 기준가 148,000원 / 프로 288,000원 · 보조배터리 15,000원과 현장가·사은품 비교']},
+    {id:'3241', grp:['heat'], items:['온열 매트·방석'], brand:'한일의료기 보듬', ck:['USB 5V 보조배터리 연결형이 있는지, 아니면 220V 실내용 전기매트·전기요뿐인지 먼저 확인(실내 전원형이면 이동 중 사용 불가)', '매트 실제 가로×세로, 가장 낮은 단계 온도와 자동 차단, 씹힘·습기 주의, 반려동물 사용 가능 여부', '유모차용 소형 제품 재고와 현장가']},
+    {id:'G-03', grp:['heat'], items:['온열 매트·방석'], brand:'개판(엑스콤스)', ck:['경기도 공동관 G-03 — 4·5홀 경계에 걸친 공동관의 4홀 쪽 묶음(제로츄 G-01·경기도 홍보관 G-04 바로 옆, DB손해보험 4531 오른편) — 반려동물 온열·냉방 매트·냉난방기. 전원 방식(220V 실내용인지)과 유모차에 쓸 소형 모델이 있는지 확인', '체온조절·체중·수면 모니터링 모델의 앱·구독 조건과 현장가']},
+    {id:'5505', grp:['heat'], items:['온열 매트·방석'], brand:'엔젤도그', ck:['전자레인지 20초로 데우는 현미 스팀 발열(전원 불필요) — 한 번 데우면 몇 시간 가는지, 유모차에 깔았을 때 두께·씹힘 주의', '겨울 산책용 발열 제품이라 실내 온열매트와 용도가 다름']},
+    {id:'2306', grp:['cushion'], items:['유모차 방석·매트'], brand:'무아유', ck:['슬림 유모차 매트리스(내부까지 세척) — 애자일2 65cm 폭에 맞는 크기와 두께']},
+    {id:'3254', grp:['cushion'], items:['유모차 방석·매트'], brand:'펫퀸', ck:['개모차 가드·쿠션, 산책방석 — 애자일2 실장착 크기와 세척 방법']},
   ];
   const CORE_BY = Object.fromEntries(CORE.map(c=>[c.id, c]));
+  const CORE_GROUP_BY = Object.fromEntries(CORE_GROUPS.map(g=>[g.key, g]));
+  const CORE_IDS_OF = g => CORE.filter(c=>c.grp.includes(g)).map(c=>c.id);
   // ---------- 온라인 가격 비교 (2026-11-17 재조회 · 판매처 URL·옵션·배송비·조건 포함) ----------
   // 공식몰·네이버 스마트스토어·자사몰 가격과 확인된 인터넷 최저가를 부스 단위로 모았다. 현장 부스 가격과 비교용.
   // kind: 그 행이 어떤 구매조건의 가격인지(단품/쿠폰가/정기구독/묶음) — 조건이 다른 가격을 같은 줄에 섞지 않는다.
@@ -516,7 +576,8 @@
   const CORE_IDS = CORE.map(c=>c.id);
   const CORE_SET = new Set(CORE_IDS);
   const CORE_N = String(CORE.length);
-  const CORE_ALT = '더 볼 곳 · 눈영양제 2457 펫생각(리얼 루테인 3.0)·2411 퍼센트퍼센트·4501 닥터뉴토 · 방수리드줄 5713 리또리·3338 블랙도기·5111 지니하우스 · 유산균 5631 빌리스벳·5417 페피테일·4524 리와일드 · 오메가3 5214 뉴트롤린·3454 스푼풀 · XXL 옷 2231 오키도키(L~6XL)·2505 아루마루(5XL)·5251 플럼피 · 우신 간식을 더 보려면 2544 오래오래프로젝트(같은 브랜드 옆 부스)·4506 해피랑(한우우신스틱/링)·3552 알파펫(비프츄, 뉴질랜드산 소 우신)·5553 펫브로(언니우스틱)·4357 로렌츠(5만원 이상 구매 시 한우우신 증정) · 유모차 방석·매트 2306 무아유(유모차 매트리스)·3254 펫퀸(개모차 가드·산책방석)·2211 베베원펫(1999년부터 유모차방석 제조, 공식 사이트 접속 불가로 이번 품목 미확인)';
+  const CORE_GROUP_SUM = String(CORE_GROUPS.reduce((a,g)=>a+CORE_IDS_OF(g.key).length,0));
+  const CORE_OVERLAP = String(CORE_GROUPS.reduce((a,g)=>a+CORE_IDS_OF(g.key).length,0)-CORE.length);
 
   const LS_FAV = 'mz26.fav.v1';
   const LS_DONE = 'mz26.done.v1';
@@ -813,7 +874,8 @@
 
   function tagRow(b, max){
     const t = [];
-    if(CORE_SET.has(b.id)) t.push('<span class="tag core">핵심</span>');
+    const cc = CORE_BY[b.id];
+    if(cc) cc.items.forEach(x=>t.push('<span class="tag core">'+esc(x)+'</span>'));
     if(b.openRun) t.push('<span class="tag run">오픈런</span>');
     if(b.firstCome) t.push('<span class="tag first">선착순</span>');
     if(b.coupon) t.push('<span class="tag coupon">쿠폰</span>');
@@ -842,8 +904,15 @@
           + '<div class="evfull" id="ev-'+esc(b.id)+'">'+b.ev.map(e=>'<div class="item">'+esc(e)+'</div>').join('')+'</div>'
           + '</div>') : '')
       + '<div class="tags">'+tagRow(b)+'</div>'
+      + coreItemLine(b)
       + ckBlock(b)
       + '</div>';
+  }
+  // 핵심 코스 부스에만 붙는 '이 부스에서 볼 필수품목' 줄
+  function coreItemLine(b){
+    const c = CORE_BY[b.id];
+    if(!c) return '';
+    return '<div class="citem">🎯 재현 님 필수품목 · '+esc(c.items.join(' · '))+'</div>';
   }
   // 핵심 코스 부스에만 붙는 현장 확인 포인트
   function ckBlock(b){
@@ -968,20 +1037,29 @@
             + '</div></div>').join('')) : '');
   }
 
-  // 핵심 코스 프리셋 — 재현 님이 꼽은 핵심 항목을 한 번에 즐겨찾기에 담는다
+  // 핵심 코스 프리셋 — 재현 님 필수 품목의 전수 부스를 품목별로 묶어 한 번에 담는다
   function coreBox(){
     const on = CORE_IDS.filter(id=>favs.has(id)).length;
-    const chips = CORE.map(c=>{
-      const b = BY[c.id];
-      const where = b ? (HALLNAME[b.hall]+' '+(b.label||c.brand)) : c.brand;
-      return '<button class="ci" data-core="'+esc(c.id)+'" data-fav="'+(favs.has(c.id)?1:0)+'" title="'+esc(where)+'">'
-        + esc(c.item)+'<b>'+esc(c.id)+'</b></button>';
+    const groups = CORE_GROUPS.map(g=>{
+      const ids = CORE_IDS_OF(g.key).filter(id=>BY[id]);
+      const cnt = ids.filter(id=>favs.has(id)).length;
+      const chips = CORE.filter(c=>c.grp.includes(g.key)).map(c=>{
+        const b = BY[c.id];
+        const where = b ? (HALLNAME[b.hall]+' · '+(b.label||c.brand)) : c.brand;
+        const more = c.items.filter(x=>x!==g.label);
+        const tip = where + (more.length ? ' · '+more.join('·')+'도 있음' : '');
+        return '<button class="ci" data-core="'+esc(c.id)+'" data-fav="'+(favs.has(c.id)?1:0)+'" title="'+esc(tip)+'">'
+          + esc(c.brand)+'<b>'+esc(c.id)+'</b></button>';
+      }).join('');
+      return '<div class="cgrp"><div class="cgh"><span>'+esc(g.label)+'</span><em>'+ids.length+'곳 · '+cnt+' 담김</em>'
+        + '<button class="cgadd" data-grp="'+esc(g.key)+'" data-on="'+(cnt===ids.length?1:0)+'">'+(cnt===ids.length?'이 품목 빼기':'이 품목 담기')+'</button></div>'
+        + '<div class="cl">'+chips+'</div>'
+        + '<div class="calt">'+esc(g.note)+'</div></div>';
     }).join('');
-    return '<div class="core"><div class="ch">🎯 재현 핵심 코스<em>'+on+'/'+CORE.length+' 담김</em></div>'
-      + '<div class="cl">'+chips+'</div>'
-      + '<div class="cnote">유모차 가방·온열 관련 4곳은 부스 카드와 내 코스 순서에 ✅ 현장 확인 포인트를 같이 적었습니다. 보듬·개판은 확인된 온라인 가격이 없어 가격 탭에는 넣지 않았어요. 펫테나(4WAY 오거나이저·대용량 크로스백)는 주최 공식 참가 목록에서 확인되지 않아 이번 후보에 넣지 않았습니다.</div>'
+    return '<div class="core"><div class="ch">🎯 재현 필수품목 — 가야 될 곳<em>'+on+'/'+CORE.length+' 담김</em></div>'
+      + '<div class="csub">필수품목 '+CORE_GROUPS.length+'가지 · 부스 '+CORE_N+'곳 (품목 칸 합계 '+CORE_GROUP_SUM+'칸, 두 품목을 같이 파는 '+CORE_OVERLAP+'곳은 양쪽 칸에 표시)</div>'
       + '<button class="cbtn" id="cadd">'+(on===CORE.length?'핵심 '+CORE_N+'곳 빼기':'핵심 '+CORE_N+'곳 한 번에 담기')+'</button>'
-      + '<div class="calt">'+esc(CORE_ALT)+'</div></div>';
+      + groups + '</div>';
   }
   function renderCourse(){
     const opt = courseOpt();
@@ -1022,7 +1100,7 @@
       + '</div>';
 
     if(!total){
-      html += '<div class="empty">아직 담은 부스가 없어요.<br><br>🔍 <b>부스</b> 탭에서 ☆를 누르거나<br>위의 <b>핵심 '+CORE_N+'곳 담기</b>를 누르면<br>여기에 방문일·시간에 맞춘 추천 순서로 정리됩니다.</div></div>';
+      html += '<div class="empty">아직 담은 부스가 없어요.<br><br>🔍 <b>부스</b> 탭에서 ☆를 누르거나<br>위의 <b>핵심 '+CORE_N+'곳 담기</b>, 또는 <b>품목별 담기</b>를 누르면<br>여기에 방문일·시간에 맞춘 추천 순서로 정리됩니다.</div></div>';
       view.innerHTML = html;
       bindCourse(); return;
     }
@@ -1054,6 +1132,7 @@
         + '<div class="body"><div class="t">'+esc(b.label||('부스 '+b.id))+'</div>'
         + '<div class="m">'+esc(b.id)+' · '+esc(HALLNAME[b.hall])+(b.cat?' · '+esc(b.cat):'')+esc(thTxt)+'</div>'
         + '<div class="'+tCls+'">'+tTxt+'</div>'
+        + (CORE_BY[b.id]? '<div class="citem in">🎯 '+esc(CORE_BY[b.id].items.join(' · '))+'</div>' : '')
         + (first? '<div class="e">'+esc(first)+'</div>' : '')
         + ((CORE_BY[b.id] && CORE_BY[b.id].ck) ? '<div class="cks">'+CORE_BY[b.id].ck.map(x=>'✅ '+esc(x)).join('<br>')+'</div>' : '')
         + '<div class="acts"><button class="tick" data-done="'+(isDone?1:0)+'" data-tick="'+esc(b.id)+'">'+(isDone?'방문 완료':'방문 체크')+'</button>'
@@ -1079,6 +1158,19 @@
       const id = el.dataset.core;
       favs.has(id)? favs.delete(id) : favs.add(id);
       if(!favs.has(id)) done.delete(id);
+      save(); renderCourse();
+    });
+    view.querySelectorAll('[data-grp]').forEach(el=>el.onclick=()=>{
+      const g = el.dataset.grp;
+      const ids = CORE_IDS_OF(g).filter(id=>BY[id]);
+      if(ids.every(id=>favs.has(id))){
+        ids.forEach(id=>{ favs.delete(id); done.delete(id); });
+        toast(CORE_GROUP_BY[g].label+' '+ids.length+'곳을 즐겨찾기에서 뺐어요');
+      } else {
+        let n = 0;
+        ids.forEach(id=>{ if(!favs.has(id)){ favs.add(id); n++; } });
+        toast(CORE_GROUP_BY[g].label+' '+n+'곳을 담았어요');
+      }
       save(); renderCourse();
     });
     const ca = document.getElementById('cadd');
