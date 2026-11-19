@@ -1489,7 +1489,7 @@
       + (here? '<button class="chip" id="pinclear">핀 지우기</button>' : '')
       + '</div>'
       + '<div class="stage'+(pinMode? ' pinmode':'')+'" id="stage"><div class="canvas" id="zoomer">'
-      + '<img id="mapimg" src="'+imgSrc(v.src)+'" alt="메가주 2026 부스배치도 '+esc(v.name)+'" style="aspect-ratio:'+(0.705*(v.y1-v.y0)/(v.x1-v.x0)).toFixed(4)+'">'
+      + '<img id="mapimg" src="'+imgSrc(v.src)+'" alt="메가주 2026 부스배치도 '+esc(v.name)+'" style="aspect-ratio:'+((v.x1-v.x0)/(0.705*(v.y1-v.y0))).toFixed(4)+'">'
       + '<svg id="mapsvg" preserveAspectRatio="none"></svg>'
       + '</div></div>'
       + '<div class="maptip">'
