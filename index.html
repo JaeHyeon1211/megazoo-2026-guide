@@ -1412,7 +1412,11 @@
   }
   function closeSheet(){
     const el = document.getElementById('sheet');
-    if(el) el.classList.remove('on');
+    if(!el) return;
+    el.classList.remove('on');
+    // 화면 밖으로 내려간 뒤 내용을 비워 접근성 트리에도 남지 않게 한다
+    clearTimeout(el._t);
+    el._t = setTimeout(function(){ if(!el.classList.contains('on')) el.innerHTML = ''; }, 260);
   }
   function paintOverlay(){
     const svg = document.getElementById('mapsvg');
