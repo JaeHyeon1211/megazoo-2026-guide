@@ -132,6 +132,37 @@ ok('5508 = 칸나나코리아', b508.label === '칸나나코리아');
 ok('3211 = 아이조아 매트', b211.label === '아이조아 매트');
 ok('편의시설 데이터 있음', (MZ.fac||[]).length >= 14, 'n=' + (MZ.fac||[]).length);
 
+// 7) 거리 환산 근거(2026-11-19 재계산) — 화면의 거리·시각은 이 상수로만 계산된다
+var W_PT = 3215.29, H_PT = 2267.72;            // 배치도 PDF 1페이지(pt)
+var M_PER_XUNIT = R.UNIT_M;                     // x 1단위 = 0.260m
+var M_PER_PT_X = M_PER_XUNIT * 1000 / W_PT;     // 가로: 252m / 3115.0pt = 0.08090
+ok('가로 1,000단위 ≈ 260m', Math.abs(M_PER_XUNIT*1000 - 260) <= 0.5, 'm=' + (M_PER_XUNIT*1000));
+ok('환산하면 표준 1부스 폭 37.1pt = 3.0m', Math.abs(37.1*M_PER_PT_X - 3.0) < 0.02, 'm=' + (37.1*M_PER_PT_X).toFixed(3));
+ok('2홀↔ 5홀 출입구 간격 ≈ 189m(홀 3개 폭)', Math.abs((R.GATES['5']-R.GATES['2'])*M_PER_XUNIT - 189) < 6, 'm=' + ((R.GATES['5']-R.GATES['2'])*M_PER_XUNIT).toFixed(1));
+ok('세로 보정은 0.70~0.75', R.YCORR > 0.70 && R.YCORR < 0.75, 'k=' + R.YCORR);
+ok('세로 1,000단위 ≈ 191m (171m/2032.4pt 기준)', Math.abs(R.dist({x:0,y:0},{x:0,y:1000})*M_PER_XUNIT - 190.8) < 1.5, 'm=' + (R.dist({x:0,y:0},{x:0,y:1000})*M_PER_XUNIT).toFixed(1));
+ok('가로 이동만 있을 때 직선거리 = 좌표 차이 그대로', Math.abs(R.dist({x:0,y:0},{x:1000,y:0}) - 1000) < 1e-6);
+
+// 8) 화면 표기 — 거리는 '도면 직선거리 환산 참고치'로, 사람 화장실은 미확인으로 분리
+T.setFavs(['2457','5601','4641','5441']);
+T.goTab('course');
+var courseHtml = T.viewHtml();
+ok('내 코스: 도면 직선거리 참고치 라벨', /도면 직선거리/.test(courseHtml) && /참고치/.test(courseHtml));
+ok('내 코스: 대기·구매시간 미포함 명시', /구매시간은 빠져/.test(courseHtml));
+ok('내 코스: 예전 166m 표기 없음', !/166\s*m/.test(courseHtml));
+ok('내 코스: 도면 1,000 ≈ 260m 근거 표기', /1,000\s*\u2248\s*260m/.test(courseHtml));
+T.setFavs(['2232','2457']);
+T.goTab('course');
+var courseAnchor = T.viewHtml();
+ok('정시 이벤트를 담으면 시간순 우선 배치·교차 가능 문구', /시간순 우선 배치/.test(courseAnchor) && /교차/.test(courseAnchor));
+T.setView('all');
+var infoHtml = T.viewHtml();
+var infoText = infoHtml.replace(/<[^>]+>/g,' ');
+ok('안내: 사람 화장실 위치 미확인 분리', /사람 화장실[\s\S]{0,80}위치 미확인/.test(infoText));
+ok('안내: 킨텍스 공식 시설안내 링크·확인일', /kintex\.com\/web\/ko\/service\/facilities2\.do/.test(infoHtml) && /2026-11-19 확인/.test(infoHtml));
+ok('안내: 유아휴게실·4홀·공식 사무번호', /유아휴게실[\s\S]{0,40}4홀 부근/.test(infoHtml) && /031-995-8114/.test(infoHtml) && /031-995-8233/.test(infoHtml));
+ok('안내: 옛 사무번호(031-810) 없음', !/031-810/.test(infoHtml));
+
 res.fails = fails;
 JSON.stringify(res);
 """

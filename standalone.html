@@ -95,6 +95,8 @@
   .crset label{display:block;font-size:10.5px;color:var(--ink3);font-weight:800;margin-bottom:3px}
   .crset select{width:100%;font-size:12.5px;border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 4px;color:var(--ink);font-weight:700}
   .crsum{font-size:12px;color:var(--ink2);margin-top:9px;background:#fafaf7;border:1px solid var(--line);border-radius:10px;padding:8px 10px;word-break:keep-all}
+  .crfine{font-size:11.5px;color:var(--ink3);margin-top:6px;line-height:1.55;word-break:keep-all}
+  .crfine b{color:var(--ink2)}
   /* 핵심 코스 프리셋 */
   .core{margin-top:10px;border:1px solid #f3d47a;background:#fffdf5;border-radius:12px;padding:10px 11px}
   .core .ch{font-size:12.5px;font-weight:800;color:#92620a}
@@ -674,10 +676,29 @@
   // 규칙(2026-11-19 확정): 2홀로 입장 → 출입문과 가장 가까운 세로 통로로 안쪽 끝까지 들어가며
   // 양쪽 부스를 보고, 안쪽 끝에서부터 가로줄을 한 칸씩 출입문 방향으로 올라와 마지막은 출입문 쪽
   // 부스에서 끝난다. 한 번 지나온 부스는 두 번 넣지 않는다.
-  // ※ 최단 경로 계산이 아니라 공개 배치도 좌표로 만든 참고용 순서입니다. 거리·시간은 추정치입니다.
-  function dist(a,b){ return Math.hypot(a.x-b.x, (a.y-b.y)*0.75); }
-  const UNIT_M = 0.166;     // 도면 1,000 ≈ 166m (부스 3m 폭 환산 · 추정)
-  const PACE_MPM = 50;      // 통로 보행 50m/분(붐빈 전시장 기준 · 추정)
+  // ※ 최단 경로 계산이 아니라 공개 배치도 좌표로 만든 참고용 순서입니다.
+  //   거리·시각은 부스 좌표를 '도면 직선거리'로 환산한 참고치이고, 통로를 도는 실제 보행거리·
+  //   도착시각이 아닙니다. 대기줄·구매 시간은 들어 있지 않습니다.
+  //
+  // [거리 환산 근거 — 2026-11-19 재확인, 숫자로 재현 가능]
+  //  1) 도면: 주최 공개 부스배치도 PDF(2026.11.17) 1페이지 = 3,215.29 × 2,267.72pt.
+  //     부스 좌표는 이 페이지를 가로·세로 각각 0~1,000으로 나눈 값이라, 1단위의 실제 길이가 축마다 다르다.
+  //       x 1단위 = 3,215.29 / 1,000 = 3.2153pt,  y 1단위 = 2,267.72 / 1,000 = 2.2677pt
+  //  2) 도면의 전시장 영역(회색 바탕 사각형) = 3,115.0 × 2,032.4pt.
+  //     킨텍스 공식 시설안내(kintex.com 시설개요)의 제1전시장 2~5홀 규격은 홀당 63m × 171m이고,
+  //     4홀이 나란히 붙어 있으므로 이 영역은 4×63m = 252m × 171m에 해당한다.
+  //       가로 252m / 3,115.0pt = 0.08090 m/pt,  세로 171m / 2,032.4pt = 0.08414 m/pt
+  //  3) 검산①: 도면의 표준 1부스 칸 폭 37.1pt × 0.08090 = 3.00m (킨텍스가 밝힌 3m×3m 부스 기준과 일치)
+  //     검산②: 2홀 출입구(108.8) ~ 5홀 출입구(844.7) = 735.9단위 = 2,366.4pt × 0.08090 = 191m
+  //            (홀 3개 폭 3×63m = 189m와 1% 차이)
+  //  4) 따라서 x 1단위 = 3.2153pt × 0.08090 = 0.260m → 도면 1,000단위 ≈ 260m
+  //     y 1단위 = 2.2677pt × 0.08414 = 0.191m → 세로 보정 = 0.191 / 0.260 = 0.7335
+  //     (페이지 가로:세로 비만 쓰면 2.2677/3.2153 = 0.7053. 위 0.7335는 도면 영역 실측값을 쓴 값)
+  //  ※ 이전 판의 '1,000 ≈ 166m / 세로 0.75'는 위 계산으로 재현되지 않아 2026-11-19에 바로잡았다.
+  const YCORR = 0.7335;     // 세로 보정: y 1단위는 x 1단위보다 짧다(위 4항)
+  function dist(a,b){ return Math.hypot(a.x-b.x, (a.y-b.y)*YCORR); }
+  const UNIT_M = 0.260;     // x 1단위 ≈ 0.260m (도면 1,000 ≈ 260m, 위 근거)
+  const PACE_MPM = 50;      // 통로 보행 50m/분(붐빈 전시장 기준 · 가정)
   const WALK_MIN = UNIT_M / PACE_MPM;
   const DWELL_DEF = 4;
   const dwellNow = () => Math.max(1, +course.dwell || DWELL_DEF);
@@ -1196,8 +1217,11 @@
       + '</div>'
       + (total? '<div class="crsum">'+esc(dayLabel)+' '+fmtMin(+course.start)+' · <b>2홀 입구</b> 출발 (입구 고정)<br>'
           + '2홀 → 3홀 → 4홀 → 5홀 · 홀마다 세로 통로 진입 뒤 가로줄 훑기<br>'
-          + '이동 약 <b>'+meters.toLocaleString()+'m</b>(도보 ~'+moveMin+'분) · 부스당 '+dwell+'분 · 예상 종료 <b>'+fmtMin(endMin)+'</b>'
-          + (anchorN? ' · 정시 이벤트 '+anchorN+'곳 고정' : '')+'</div>' : '')
+          + '도면 직선거리 약 <b>'+meters.toLocaleString()+'m</b>(도보 ~'+moveMin+'분) · 부스당 '+dwell+'분 · 예상 종료 <b>'+fmtMin(endMin)+'</b>'
+          + (anchorN? ' · 정시 이벤트 '+anchorN+'곳 고정' : '')+'</div>'
+          + '<div class="crfine">※ 거리·시각은 <b>도면 직선거리 환산 참고치</b>입니다. 통로를 도는 실제 보행거리·도착시각이 아니고, 현장 대기줄·<b>구매시간은 빠져</b> 있습니다.</div>'
+          + (anchorN? '<div class="crfine">⏰ 정시 이벤트·오픈런 '+anchorN+'곳을 시간에 맞추려고 앞쪽에 배치했습니다. 이런 항목이 있으면 기본 순서(한 방향으로 훑고 되돌아가지 않기)와 달리 <b>동선이 일부 교차할 수 있습니다.</b></div>' : '')
+          : '')
       + '<div class="prog"><i style="width:'+pctv+'%"></i></div>'
       + '<div class="nums"><span>방문 완료 '+dn+' / '+total+'</span><span>'+pctv+'%</span></div>'
       + '<div class="btnrow">'
@@ -1259,7 +1283,7 @@
         no++;
         rows.push('<div class="rstep"><span class="rno">'+no+'</span><span>'+esc(s.b.label||('부스 '+s.b.id))
           + ' <em style="font-style:normal;color:var(--ink3)">'+esc(s.b.id)+' · '+esc(HALLNAME[s.b.hall])+'</em><br>'
-          + '약 '+fmtMin(tm)+' 도착 · 앞 부스에서 '+legM+'m</span></div>');
+          + '도면 환산 약 '+fmtMin(tm)+' 도착 · 앞 부스에서 직선 '+legM+'m</span></div>');
         cur = s.b; tm += dwell;
       });
       html += '<div class="rev"><h3>🔁 다시 볼 곳 '+revSteps.length+'곳</h3>'
@@ -1267,7 +1291,8 @@
         + rows.join('')
         + '<div style="font-size:11px;color:#7c6ba8;margin-top:6px">※ 되짚는 구간까지 포함한 예상 시각입니다. 통로가 붐비면 더 걸려요.</div></div>';
     }
-    html += '<div class="note">※ 순서는 주최 공개 배치도(2026.11.17) 좌표로 계산한 <b>참고용</b> 순서입니다. 2홀 입구에서 가장 가까운 세로 통로로 안쪽 끝까지 들어가 양쪽 부스를 본 뒤, 안쪽 가로줄부터 출입문 쪽으로 한 줄씩 훑고 마지막은 출입문 쪽 부스에서 끝납니다. 홀은 2홀 → 3홀 → 4홀 → 5홀 순서이고, 홀마다 같은 방식으로 돕니다. 오픈런·선착순·정시 이벤트는 공개 문구에 시각이 적힌 것만 먼저 고정했습니다. 거리·시간은 도면 1,000 ≈ 166m·통로 보행 50m/분 가정의 <b>추정치</b>이고, 현장 대기줄·통로 사정에 따라 달라집니다.</div>';
+    html += '<div class="note">※ 순서는 주최 공개 배치도(2026.11.17) 좌표로 계산한 <b>참고용</b> 순서입니다. 2홀 입구에서 가장 가까운 세로 통로로 안쪽 끝까지 들어가 양쪽 부스를 본 뒤, 안쪽 가로줄부터 출입문 쪽으로 한 줄씩 훑고 마지막은 출입문 쪽 부스에서 끝납니다. 홀은 2홀 → 3홀 → 4홀 → 5홀 순서이고, 홀마다 같은 방식으로 돕니다. 오픈런·선착순·정시 이벤트는 공개 문구에 시각이 적힌 것만 먼저 고정했습니다. 거리·시간은 <b>도면 직선거리 환산 참고치</b>(도면 1,000 ≈ 260m · 통로 보행 50m/분 가정)이고, 통로를 도는 실제 보행거리·도착시각이 아니며 대기줄·구매 시간은 빠져 있습니다.</div>';
+    if(anchorN) html += '<div class="note">⏰ <b>정시/오픈런 항목을 포함하면 시간순 우선 배치</b> 때문에 <b>기본 순서와 달리 동선이 일부 교차할 수 있습니다</b>. 위 「정시 이벤트 '+anchorN+'곳 고정」이 그 경우이고, 각 단계에 이벤트 시각과 도착 시각·남는 여유를 같이 적어 두었습니다.</div>';
     html += '</div>';
     view.innerHTML = html;
     bindCourse();
@@ -1474,7 +1499,9 @@
       + '<div class="krow"><span class="kk" style="background:#8b5e34">☕</span><span><b>카페테리아 4곳</b> — 앉아서 먹을 수 있는 구역.</span></div>'
       + '<div class="krow"><span class="kk" style="background:#111827">🚪</span><span><b>출입구</b> — 2~5홀 입구 라인. 동선은 늘 2홀 입구에서 시작해요.</span></div>'
       + '<div class="krow"><span class="kk" style="background:#2563eb">★</span><span><b>이벤트존·만남의 광장</b></span></div>'
-      + '· <b>사람 화장실·수유실·의무실</b>은 주최 부스배치도에 표시가 없어 지도에 찍지 않았어요. 유아휴게실·의무실·안내데스크는 모두 <b>5홀 앞(1층)</b>, 물품보관함은 1~4홀 각 입구 옆입니다(킨텍스 안내). 정확한 지점은 현장 안내데스크(031-810-8114)에서 확인하세요.<br>'
+      + '· <b>사람 화장실</b> — 주최 부스배치도(2026.11.17)에 표기가 없어 <b>위치 미확인</b>입니다. 그래서 지도에 임의로 찍지 않았고, 현장 안내표지나 안내데스크에서 확인해 주세요(수유실·의무실도 배치도에는 없습니다).<br>'
+      + '· <b>킨텍스 지원시설</b>(공식 홈페이지 시설안내, 2026-11-19 확인) — 안내데스크 <b>5홀 앞(1층)</b> 031-995-8114 · 의무실 <b>5홀 부근</b> 031-995-8233 · 유아휴게실·수유실 <b>4홀 부근</b> 031-995-8124 · 물품보관함 <b>1~4홀 각 입구 옆</b>(소 1,000·중 2,000·대 3,000원) · 치안센터(분실물) <b>1홀 앞</b> 031-995-8304. 운영 09:00~18:00이지만 행사 운영에 따라 바뀔 수 있습니다. 출처: <a href="https://www.kintex.com/web/ko/service/facilities2.do" target="_blank" rel="noopener">킨텍스 지원시설 안내</a><br>'
+      + '· <b>반려동물 화장실</b>은 주최 배치도에 위치가 표기된 6곳만 지도에 찍었습니다(사람 화장실과 별개).<br>'
       + '· 📍 <b>내 위치</b>는 GPS가 아니라 <b>직접 찍는 핀</b>이에요(지도 길게 누르기 또는 「내 위치」 버튼).<br>'
       + '· 배치도 원본: 주최측 공개 부스배치도 PDF(2026.11.17) — <a href="https://k-pet.co.kr/visitor/megazoos2_floormap/" target="_blank" rel="noopener">원본 보기</a>';
   }
@@ -1702,7 +1729,7 @@
       + '<div class="box"><h3>동선·지도 읽는 법</h3><ul>'
       + '<li>동선은 <b>2홀 입구 고정</b>입니다. 출입문에서 가장 가까운 세로 통로로 안쪽 끝까지 들어가며 양쪽 부스를 보고, 안쪽 가로줄부터 출입문 쪽으로 한 줄씩 훑어 마지막은 출입문 쪽 부스에서 끝납니다</li>'
       + '<li>한 번 지나온 부스는 동선에 두 번 들어가지 않습니다. 꼭 다시 봐야 할 곳은 각 단계의 <b>🔁 다시 볼 곳</b>에 담으면 메인 동선을 다 돈 뒤에 되짚는 순서가 따로 나옵니다</li>'
-      + '<li>부스당 체류 시간은 <b>2~10분</b>에서 바꿀 수 있고, 거리·시각은 도면 좌표를 환산한 <b>추정치</b>입니다(현장 대기·통로 사정에 따라 달라짐)</li>'
+      + '<li>부스당 체류 시간은 <b>2~10분</b>에서 바꿀 수 있고, 거리·시각은 <b>도면 직선거리 환산 참고치</b>입니다(실제 통로 보행거리·도착시각 아님, 대기·구매시간 미포함). 담은 곳에 정시·오픈런이 있으면 시간에 맞춰 먼저 배치하므로 동선이 일부 교차할 수 있습니다</li>'
       + '<li>배치도에서 <b>부스를 누르면</b> 그 부스의 이벤트·가격·확인 포인트가 열리고, 지도를 <b>길게 누르면 내 위치 핀</b>을 찍습니다(자동 GPS 아님)</li>'
       + '</ul></div>'
       + '<div class="box"><h3>참고 링크</h3><ul>'
@@ -1798,7 +1825,8 @@
   window.MZROUTE = {buildRoute: buildRoute, routeOrder: routeOrder, hallRoute: hallRoute, orderByHall: orderByHall,
     evTimesFor: evTimesFor, evNoBuy: evNoBuy, ROW_BANDS: ROW_BANDS, ROW_OF: ROW_OF, ENTRIES: ENTRIES,
     HALL_GEO: HALL_GEO, GATES: GATES, COL_OF: COL_OF, MAP_VIEWS: MAP_VIEWS, CORE: CORE, courseOpt: courseOpt,
-    hallKey: hallKey, UNIT_M: UNIT_M};
+    hallKey: hallKey, UNIT_M: UNIT_M,
+    YCORR: YCORR, dist: dist, PACE_MPM: PACE_MPM};
 })();
 </script>
 </body>
