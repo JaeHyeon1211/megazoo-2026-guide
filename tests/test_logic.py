@@ -101,6 +101,14 @@ ok('전체 보기: 지도 이미지 있음', /map_full\.jpg/.test(vh0));
   ok('홀 전환(' + k + ') 후 지도·오버레이 컨테이너 존재', /id="mapsvg"/.test(vh) && /map_h|map_full/.test(vh));
 });
 
+// 3-1) 다시 볼 곳이 있어도 배치도 오버레이가 그려진다(되짚는 점선)
+T.setRev(['2457']);
+T.setView('all');
+ok('다시 볼 곳 되짚기 선이 그려진다', /stroke-dasharray/.test(T.overlayHtml()));
+T.setView('2');
+ok('홀 전환 후에도 되짚기 선 유지', /stroke-dasharray/.test(T.overlayHtml()));
+T.setRev([]);
+
 // 4) 내 위치 핀
 T.setHere(120, 900);
 ok('내 위치 핀 표시', /내 위치/.test(T.overlayHtml()));

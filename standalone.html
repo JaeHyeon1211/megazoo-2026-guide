@@ -1453,7 +1453,7 @@
     if(steps.length){
       const rv = steps.filter(x=>rev.has(x.b.id));
       if(rv.length){
-        const chain = [steps[steps.length-1].b].concat(rv.slice().reverse());
+        const chain = [steps[steps.length-1].b].concat(rv.slice().reverse().map(s=>s.b));
         const pts = chain.map(x=>x.x.toFixed(1)+','+x.y.toFixed(1)).join(' ');
         s += '<polyline points="'+pts+'" fill="none" stroke="#7c3aed" stroke-width="2.4" stroke-dasharray="6 4" stroke-opacity="0.85"/>';
       }
@@ -1790,6 +1790,7 @@
     viewHtml: function(){ return document.getElementById('view').innerHTML; },
     overlayHtml: function(){ var s = document.getElementById('mapsvg'); return s ? s.innerHTML : ''; },
     setFavs: function(ids){ favs = new Set(ids); save(); },
+    setRev: function(ids){ rev = new Set(ids); saveRev(); },
     setHere: function(x,y){ here = {x:x, y:y, t:'09:00'}; saveHere(); renderMap(); },
     getHere: function(){ return here; },
     goTab: function(t){ switchTab(t); }
