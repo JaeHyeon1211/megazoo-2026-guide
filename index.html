@@ -150,9 +150,39 @@
 
   /* map */
   .mapwrap{padding:12px}
-  .mapwrap img{width:100%;border:1px solid var(--line);border-radius:12px;background:#fff}
-  .legend{font-size:12px;color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px;margin-top:10px}
+  .mapctl{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+  .mapctl .sp{flex:1}
+  .mapctl .zbtn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:5px 10px;font-size:14px;font-weight:800;color:var(--ink);line-height:1.1}
+  .zlab{font-size:11.5px;font-weight:800;color:var(--ink2);min-width:32px;text-align:center}
+  .stage{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:12px;background:#fff;touch-action:none;user-select:none;-webkit-user-select:none}
+  .stage.pinmode{outline:2px solid var(--brand);outline-offset:-2px}
+  .canvas{position:relative;width:100%;transform-origin:0 0}
+  .canvas img{display:block;width:100%;height:auto;pointer-events:none}
+  .canvas svg{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
+  .maptip{font-size:11.5px;color:var(--ink3);margin-top:7px;line-height:1.55;word-break:keep-all}
+  .legend{font-size:12px;color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px;margin-top:10px;line-height:1.6;word-break:keep-all}
   .legend b{color:var(--ink)}
+  .legend .krow{display:flex;gap:6px;align-items:flex-start;margin-top:4px}
+  .legend .kk{flex:0 0 auto;font-size:11px;font-weight:800;border-radius:6px;padding:1px 6px;color:#fff}
+
+  /* booth sheet */
+  .sheet{position:fixed;left:0;right:0;bottom:0;z-index:70;background:#fff;border-radius:16px 16px 0 0;
+    box-shadow:0 -8px 30px rgba(0,0,0,.18);transform:translateY(106%);transition:transform .22s ease;
+    max-height:80vh;overflow:auto;padding:12px 14px calc(20px + env(safe-area-inset-bottom));max-width:520px;margin:0 auto}
+  .sheet.on{transform:translateY(0)}
+  .sheet .grab{width:42px;height:4px;border-radius:2px;background:#e2e2dc;margin:0 auto 10px}
+  .sheet .sh{display:flex;gap:8px;align-items:flex-start}
+  .sheet .sh .x{margin-left:auto;border:0;background:#f1f1ee;border-radius:50%;width:30px;height:30px;font-size:14px;font-weight:800;color:#555;flex:0 0 auto}
+  .sheet .item{font-size:12.5px;color:#333;padding:6px 0;border-top:1px solid #f2f2ee;word-break:keep-all}
+  .sheet .item:first-child{border-top:0}
+  .chk{display:inline-block;font-size:10.5px;font-weight:800;border-radius:5px;padding:1px 5px;background:#ecfdf5;color:#065f46;margin-right:4px}
+  .chk.buy{background:#fff7ed;color:#9a3412}
+  .step .acts{flex-wrap:wrap}
+  .tick.revon{background:#ede9fe;border-color:#c4b5fd;color:#5b21b6}
+  .rev{background:#f7f5ff;border:1px solid #ddd6fe;border-radius:13px;padding:11px;margin:12px 0 4px}
+  .rev h3{margin:0 0 4px;font-size:13.5px;color:#5b21b6}
+  .rev .rstep{display:flex;gap:7px;font-size:12.5px;color:#333;padding:5px 0;border-top:1px dashed #e5e0fb;word-break:keep-all}
+  .rev .rno{flex:0 0 18px;height:18px;border-radius:50%;background:#7c3aed;color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px}
 
   /* info */
   .info-page{padding:12px}
@@ -236,6 +266,8 @@
 
   <main id="view"></main>
 
+  <div class="sheet" id="sheet"></div>
+
   <nav><div class="inner">
     <button data-tab="booth" data-on="1"><span class="ic">🔍</span>부스</button>
     <button data-tab="event"><span class="ic">🎁</span>이벤트</button>
@@ -268,8 +300,10 @@
   const CATS = ['펫푸드','펫용품','펫의료&헬스케어','펫테크','펫서비스','유관기관/협단체/매체','기타 반려'];
   const EVFILTERS = [
     {k:'ev', label:'이벤트 있음'},
-    {k:'openRun', label:'오픈런'},
+    {k:'noBuy', label:'구매 없이'},
+    {k:'time', label:'시간 정해진'},
     {k:'firstCome', label:'선착순'},
+    {k:'openRun', label:'오픈런'},
     {k:'coupon', label:'쿠폰'},
     {k:'fav', label:'즐겨찾기만'}
   ];
@@ -588,6 +622,8 @@
   const LS_FAV = 'mz26.fav.v1';
   const LS_DONE = 'mz26.done.v1';
   const LS_COURSE = 'mz26.course.v1';
+  const LS_REV = 'mz26.rev.v1';
+  const LS_HERE = 'mz26.here.v1';
   const VISITS = [
     {k:'1120', label:'11/20(금)', dow:5},
     {k:'1121', label:'11/21(토)', dow:6},
@@ -596,7 +632,13 @@
   const START_TIMES = [570,600,630,660,690,720,750,780,810,840,870];
   let favs = new Set(loadJSON(LS_FAV, []));
   let done = new Set(loadJSON(LS_DONE, []));
-  let course = Object.assign({day:'1122', start:570, entry:'2'}, loadJSON(LS_COURSE, {}));
+  let rev = new Set(loadJSON(LS_REV, []));
+  let course = Object.assign({day:'1122', start:570, entry:'2', dwell:4}, loadJSON(LS_COURSE, {}));
+  let here = loadJSON(LS_HERE, null);
+  let mapView = 'all';
+  let mapZoom = {s:1, tx:0, ty:0};
+  let pinMode = false;
+  let facOn = true;
   let tab = 'booth';
   let q = '';
   let hall = 'all';
@@ -607,6 +649,8 @@
   function loadJSON(k, d){ try{ const v = JSON.parse(localStorage.getItem(k)); return v==null?d:v; }catch(e){ return d; } }
   function save(){ try{ localStorage.setItem(LS_FAV, JSON.stringify([...favs])); localStorage.setItem(LS_DONE, JSON.stringify([...done])); }catch(e){} updateFavBadge(); }
   function saveCourse(){ try{ localStorage.setItem(LS_COURSE, JSON.stringify(course)); }catch(e){} }
+  function saveRev(){ try{ localStorage.setItem(LS_REV, JSON.stringify([...rev])); }catch(e){} }
+  function saveHere(){ try{ localStorage.setItem(LS_HERE, JSON.stringify(here)); }catch(e){} }
   function toast(msg){ const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('on'), 1800); }
 
   // ---------- share link ----------
@@ -626,34 +670,32 @@
     if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(function(){toast('공유 링크를 복사했어요')}).catch(function(){toast(url)}); } else { toast(url); }
   }
 
-  // ---------- route : 우선순위 기반 추천 순서 ----------
-  // ※ 최단 경로/최적 경로 계산이 아니라, 정시 이벤트 시각을 고정한 뒤 가까운 부스를 잇는 참고용 순서입니다.
+  // ---------- route : 2홀 입구에서 시작하는 1개 동선(재현 님 확정 규칙) ----------
+  // 규칙(2026-11-19 확정): 2홀로 입장 → 출입문과 가장 가까운 세로 통로로 안쪽 끝까지 들어가며
+  // 양쪽 부스를 보고, 안쪽 끝에서부터 가로줄을 한 칸씩 출입문 방향으로 올라와 마지막은 출입문 쪽
+  // 부스에서 끝난다. 한 번 지나온 부스는 두 번 넣지 않는다.
+  // ※ 최단 경로 계산이 아니라 공개 배치도 좌표로 만든 참고용 순서입니다. 거리·시간은 추정치입니다.
   function dist(a,b){ return Math.hypot(a.x-b.x, (a.y-b.y)*0.75); }
-  const WALK_MIN = 0.006;   // 도면 좌표 1,000 ≈ 350m · 4km/h 보행 가정(추정)
-  const DWELL_MIN = 4;      // 부스당 체류 시간 추정
+  const UNIT_M = 0.166;     // 도면 1,000 ≈ 166m (부스 3m 폭 환산 · 추정)
+  const PACE_MPM = 50;      // 통로 보행 50m/분(붐빈 전시장 기준 · 추정)
+  const WALK_MIN = UNIT_M / PACE_MPM;
+  const DWELL_DEF = 4;
+  const dwellNow = () => Math.max(1, +course.dwell || DWELL_DEF);
   const isRush = b => !!(b.openRun || b.firstCome);
-  const ENTRY_Y = 960;      // 배치도 하단 출입구 라인
-  // 홀별 출입구 좌표: 배치도 하단(출입구 쪽) 부스들의 가운데 x를 출발점으로 사용
-  const ENTRIES = (function(){
-    const out = {};
-    HALLS.slice(0,4).forEach(h=>{
-      const xs = BOOTHS.filter(b=>b.hall===h.k && b.y>820).map(b=>b.x).sort((a,b)=>a-b);
-      out[h.k] = {x: xs.length? xs[Math.floor(xs.length/2)] : 120, y: ENTRY_Y, name: h.name+' 입구'};
-    });
-    return out;
-  })();
+  const ENTRY_Y = 974.7;    // 배치도 하단 출입구 라인
+  // 홀별 출입구 x — 주최 공식 배치도(2026.11.17)의 '출입구 Hall n' 위치를 도면 좌표로 옮긴 값
+  const GATES = {'2':108.8, '3':344.3, '4':606.2, '5':844.7};
+  const ENTRIES = {};
+  ['2','3','4','5'].forEach(k=>{ ENTRIES[k] = {x:GATES[k], y:ENTRY_Y, name:HALLNAME[k]+' 입구'}; });
 
-  // ---------- 가로 훑기(③) ----------
-  // 배치도에서 부스 y좌표는 안쪽(위)부터 입구(아래)까지 같은 '가로 줄'로 반복됩니다.
-  // 같은 줄의 부스는 앞면이 같은 가로 통로를 향하므로, 한 줄을 왼쪽에서 오른쪽으로 훑은 뒤
-  // 다음 줄로 내려가 반대 방향으로 훑으면 되짚는 구간 없이 홀을 가로로 지나갈 수 있습니다.
-  // (아래 줄 묶음은 주최 부스배치도 PDF의 부스 y좌표에서 이웃 줄 간격 30·묶음 폭 70 이내로 묶은 것)
+  // 가로줄 묶음: 부스 y좌표가 이웃 줄 간격 30·묶음 폭 70 이내면 같은 가로줄로 묶는다
+  // (주최 부스배치도 PDF의 부스 y좌표 기준)
   const ROW_BANDS = (function(){
     const ys = [...new Set(BOOTHS.map(b=>Math.round(b.y*10)/10))].sort((a,b)=>a-b);
     const out = [];
     ys.forEach(y=>{
       const last = out[out.length-1];
-      if(last && (y-last.max)<=30 && (y-last.min)<=70){ last.max = y; }
+      if(last && (y-last.max)<=8 && (y-last.min)<=20){ last.max = y; }
       else out.push({min:y, max:y});
     });
     return out.map((r,i)=>({i:i, min:r.min, max:r.max, c:(r.min+r.max)/2}));
@@ -670,45 +712,71 @@
     });
     return m;
   })();
-  // 안쪽(작은 y) 줄 → 입구 쪽(큰 y) 줄 순서로 내려오면서, 줄마다 좌→우·우→좌를 번갈아 훑습니다.
-  // 2·3·4홀 입구는 2홀 쪽 끝(왼쪽)에서 오른쪽으로, 5홀 입구는 반대로 시작합니다.
-  // 안쪽(작은 y) 줄 → 입구 쪽(큰 y) 줄 순서로 내려오면서, 줄마다 좌→우·우→좌를 번갈아 훑습니다.
-  // 홀은 2홀 → 3홀 → 4홀 → 5홀 순서로 넘어가고(5홀 입구로 출발하면 반대), 같은 홀 안에서만
-  // 가로 줄을 오가므로 3홀·5홀을 되돌아오는 일이 없습니다.
-  // 경기도공동관·ART존은 x 위치에 따라 4·5홀 구간에 함께 둔다.
-  const HALL_SWEEP = ['2','3','4','5'];
-  const hallSweepKey = b => {
+
+  const HALL_ORDER = ['2','3','4','5'];
+  // 경기도공동관·ART존은 x 위치에 따라 4·5홀 구간에 함께 둔다
+  function hallKey(b){
     if(b.hall === '2' || b.hall === '3' || b.hall === '4' || b.hall === '5') return b.hall;
-    return b.x < 720 ? '4' : '5';
-  };
-  function sweepSort(list, entry, rushFirst){
-    const mirror = (entry === '5');
-    const halls = mirror ? HALL_SWEEP.slice().reverse() : HALL_SWEEP;
-    const out = [];
-    halls.forEach(h=>{
-      const sub = list.filter(b=>hallSweepKey(b) === h);
-      if(!sub.length) return;
-      const by = {};
-      sub.forEach(b=>{ const k = ROW_OF[b.id]; (by[k] = by[k] || []).push(b); });
-      const keys = Object.keys(by).map(Number).sort((a,b)=>a-b);
-      keys.forEach((k,n)=>{
-        const ltr = ((n%2===0) !== mirror);   // 줄을 지날 때마다 방향을 바꾼다
-        const arr = by[k];
-        // 줄 안에서는 진행 방향(x) 순서 그대로 가되, 같은 자리에 붙어 있으면 오픈런·선착순 부스를 먼저 봅니다
-        const key = b => {
-          const x = ltr ? b.x : -b.x;
-          return [Math.round(x/45), rushFirst && isRush(b) ? 0 : 1, x];
-        };
-        arr.sort((a,b)=>{
-          const ka = key(a), kb = key(b);
-          return (ka[0]-kb[0]) || (ka[1]-kb[1]) || (ka[2]-kb[2]);
-        });
-        out.push(...arr);
+    return b.x < 715 ? '4' : '5';
+  }
+  // 홀별 세로 통로: 부스 x를 18 이내로 묶어 기둥(부스 열)을 만들고, 기둥 사이를 통로로 본다.
+  // 출입구 x에서 가장 가까운 통로가 이 홀의 '세로로 쭉 들어가는' 통로다.
+  const HALL_GEO = (function(){
+    const out = {};
+    HALL_ORDER.forEach(h=>{
+      const xs = [...new Set(BOOTHS.filter(b=>hallKey(b)===h).map(b=>Math.round(b.x*10)/10))].sort((a,b)=>a-b);
+      const cols = [];
+      xs.forEach(x=>{
+        const last = cols[cols.length-1];
+        if(last && x - last.max <= 18) last.max = x;
+        else cols.push({min:x, max:x});
       });
+      const aisles = [];
+      for(let i=0;i<cols.length-1;i++) aisles.push((cols[i].max + cols[i+1].min)/2);
+      let spine = aisles.length ? aisles[0] : GATES[h], bd = Infinity;
+      aisles.forEach(a=>{ const d = Math.abs(a - GATES[h]); if(d < bd){ bd = d; spine = a; } });
+      let lc = -1, rc = -1;
+      cols.forEach((c,i)=>{ if(c.max < spine) lc = i; });
+      cols.forEach((c,i)=>{ if(rc < 0 && c.min > spine) rc = i; });
+      out[h] = {cols:cols, aisles:aisles, spine:spine, lc:lc, rc:rc};
+    });
+    return out;
+  })();
+  const COL_OF = (function(){
+    const m = {};
+    BOOTHS.forEach(b=>{
+      const g = HALL_GEO[hallKey(b)]; if(!g) return;
+      let idx = -1;
+      g.cols.forEach((c,i)=>{ if(idx<0 && b.x >= c.min-0.6 && b.x <= c.max+0.6) idx = i; });
+      m[b.id] = idx;
+    });
+    return m;
+  })();
+
+  // 한 홀 안의 순서: ①세로 통로 진입(출입문 → 안쪽 끝, 줄마다 좌우 교대)
+  //                ②안쪽 가로줄 → 출입문 쪽 가로줄(줄마다 좌→우·우→좌 교대, ①에서 본 부스 제외)
+  function hallRoute(list, h){
+    const g = HALL_GEO[h];
+    if(!g || !list.length) return [];
+    const spineCols = [g.lc, g.rc].filter(i=>i>=0);
+    const spine = [], others = [];
+    list.forEach(b=>{ (spineCols.indexOf(COL_OF[b.id]) >= 0 ? spine : others).push(b); });
+    const out = [];
+    // 세로 통로는 지나가는 순서 그대로: 출입문(큰 y) → 안쪽(작은 y), 같은 높이면 왼쪽부터
+    out.push(...spine.slice().sort((a,b)=> (b.y - a.y) || (a.x - b.x)));
+    const rRow = {};
+    others.forEach(b=>{ const k = ROW_OF[b.id]; (rRow[k] = rRow[k] || []).push(b); });
+    Object.keys(rRow).map(Number).sort((a,b)=>a-b).forEach((k,n)=>{
+      out.push(...rRow[k].slice().sort((a,b)=> n%2 ? b.x-a.x : a.x-b.x));
     });
     return out;
   }
-  function orderByHall(list){ return sweepSort(list, course.entry); }
+  function routeOrder(list){
+    const out = [];
+    HALL_ORDER.forEach(h=>{ out.push(...hallRoute(list.filter(b=>hallKey(b)===h), h)); });
+    return out;
+  }
+  function orderByHall(list){ return routeOrder(list); }
 
   // 이벤트 문구의 요일 표기(금·토 / 일 / 매일)를 시간 앞에서 찾아 묶는다
   function daySetBefore(txt, idx){
@@ -785,7 +853,7 @@
       else { (b.openRun || b.firstCome) ? rush.push(b) : rest.push(b); }
     });
     timed.sort((a,b)=> (a._anchor-b._anchor) || (dist(startPt,a)-dist(startPt,b)));
-    let pool = sweepSort(rush.concat(rest), course.entry, true);   // 대기열도 가로 훑기 순서
+    let pool = routeOrder(rush.concat(rest));   // 대기열도 2홀 입구 기준 동선 순서
     const anchors = timed.slice();
     const steps = [];
     let cur = startPt, curT = startMin, guard = 0;
@@ -798,8 +866,8 @@
         for(let i=0;i<cands.length;i++){
           const b = cands[i];
           const toB = dist(cur,b), bToA = dist(b,anchor), toA = dist(cur,anchor);
-          const extra = (toB + bToA - toA)*WALK_MIN + DWELL_MIN;   // 우회 추가 비용(분)
-          const arriveA = curT + (toB + bToA)*WALK_MIN + DWELL_MIN;
+          const extra = (toB + bToA - toA)*WALK_MIN + dwellNow();   // 우회 추가 비용(분)
+          const arriveA = curT + (toB + bToA)*WALK_MIN + dwellNow();
           if(arriveA <= anchor._anchor - 5 && extra <= Math.max(0, slack-5)*0.7){
             chosen = b;   // 정시 이벤트를 놓치지 않는 범위에서 가로 훑기 순서대로 우회
             break;
@@ -811,13 +879,13 @@
       if(!chosen){
         const proj = curT + dist(cur,anchor)*WALK_MIN;
         steps.push({b:anchor, arrive: proj, anchor: anchor._anchor, late: proj > anchor._anchor + 1});
-        curT = Math.max(proj, anchor._anchor) + DWELL_MIN;
+        curT = Math.max(proj, anchor._anchor) + dwellNow();
         cur = anchor;
         anchors.shift();
       } else {
         curT += dist(cur, chosen)*WALK_MIN;
         steps.push({b:chosen, arrive: curT});
-        curT += DWELL_MIN;
+        curT += dwellNow();
         cur = chosen;
         pool = pool.filter(x=> x !== chosen);
       }
@@ -835,6 +903,18 @@
   }
 
   // ---------- filtering ----------
+  // 이벤트 참여 조건 — 원문 문구는 그대로 두고 '구매 필요/구매 없이'만 화면에서 나눠 본다
+  const BUY_RE = /(구매\s*시|구매\s*이벤트|제품\s*구매|구매\s*후|구매\s*조건|결제|구입|영수증|원\s*이상|만원\s*이상)/;
+  const GIVE_RE = /(증정|샘플|체험|뽑기|룰렛|추첨|참여|팔로우|구독|회원가입|인증|시식|쿠폰|할인|선물|기프트|데모)/;
+  function evNoBuy(b){
+    return (b.ev||[]).some(t=> !BUY_RE.test(t) && GIVE_RE.test(t));
+  }
+  function evTag(t){
+    if(BUY_RE.test(t)) return '<span class="chk buy">구매 필요</span>';
+    if(GIVE_RE.test(t)) return '<span class="chk">구매 없이</span>';
+    return '';
+  }
+  function courseDow(){ return (VISITS.find(v=>v.k===course.day) || VISITS[0]).dow; }
   function match(b){
     if(hall !== 'all' && b.hall !== hall) return false;
     if(cat !== 'all'){
@@ -842,6 +922,8 @@
       if(!cs.includes(cat)) return false;
     }
     if(evFilter.has('ev') && !(b.ev && b.ev.length)) return false;
+    if(evFilter.has('noBuy') && !evNoBuy(b)) return false;
+    if(evFilter.has('time') && !evTimesFor(b, courseDow()).length) return false;
     if(evFilter.has('openRun') && !b.openRun) return false;
     if(evFilter.has('firstCome') && !b.firstCome) return false;
     if(evFilter.has('coupon') && !b.coupon) return false;
@@ -907,7 +989,7 @@
       + priceBlock(b)
       + (b.ev&&b.ev.length ? ('<div class="evwrap"><div class="evsummary"><span class="lab">현장 이벤트</span>'+esc(first)+'</div>'
           + '<button class="more" data-more="'+esc(b.id)+'">'+more+'</button>'
-          + '<div class="evfull" id="ev-'+esc(b.id)+'">'+b.ev.map(e=>'<div class="item">'+esc(e)+'</div>').join('')+'</div>'
+          + '<div class="evfull" id="ev-'+esc(b.id)+'">'+b.ev.map(e=>'<div class="item">'+evTag(e)+esc(e)+'</div>').join('')+'</div>'
           + '</div>') : '')
       + '<div class="tags">'+tagRow(b)+'</div>'
       + coreItemLine(b)
@@ -1020,6 +1102,8 @@
   // 부스 번호 미확인 브랜드도 같은 필터를 적용한다(홀·카테고리 정보가 없으면 지정 시 숨김)
   function unplacedMatch(u){
     if(evFilter.has('fav')) return false;
+    if(evFilter.has('time')) return false;   // 시간이 공개되지 않은 브랜드는 '시간 정해진'에서 뺀다
+    if(evFilter.has('noBuy') && !(u.ev||[]).some(t=> !BUY_RE.test(t) && GIVE_RE.test(t))) return false;
     const txt = [u.n].concat(u.ev||[]).join(' ');
     if(evFilter.has('openRun') && !/오픈런/.test(txt)) return false;
     if(evFilter.has('firstCome') && !/선착순/.test(txt)) return false;
@@ -1087,12 +1171,18 @@
     const anchorCount = {};
     steps.forEach(s=>{ if(s.anchor != null) anchorCount[s.anchor] = (anchorCount[s.anchor]||0)+1; });
     const dayLabel = (VISITS.find(v=>v.k===course.day) || VISITS[0]).label;
-    const entryName = (ENTRIES[course.entry] || ENTRIES['2']).name;
+    const dwell = dwellNow();
+    const revSteps = steps.filter(s=>rev.has(s.b.id));
+    let mUnits = 0, walkPt = opt.startPt;
+    steps.forEach(s=>{ mUnits += dist(walkPt, s.b); walkPt = s.b; });
+    const meters = Math.round(mUnits * UNIT_M);
+    const endMin = total ? steps[total-1].arrive + dwell : 0;
+    const moveMin = Math.round(meters / PACE_MPM);
     let html = '<div class="course">';
-    html += '<div class="hero"><h2>내 즐겨찾기 추천 방문 순서</h2>'
+    html += '<div class="hero"><h2>내 방문 순서</h2>'
       + '<p>'+(total
-          ? '세로 통로를 오르내리는 대신 <b>가로 줄 단위</b>로 훑는 동선으로 정리했어요. 2홀부터 5홀까지 홀 단위로 넘어가고, 홀 안에서는 입구 반대쪽(안쪽) 줄에서 시작해 입구 쪽 줄로 내려오며 한 줄은 왼쪽→오른쪽, 다음 줄은 오른쪽→왼쪽으로 번갈아 지나갑니다. 정시 이벤트 시각은 먼저 고정되고, 그 사이에 이 순서대로 부스를 넣습니다.'
-          : '부스 목록에서 ☆를 눌러 가고 싶은 곳을 담으면, 방문일·시작 시간·출발 입구에 맞춰 추천 순서를 만들어 드려요.')+'</p>'
+          ? '2홀로 입장해 <b>출입문에서 가장 가까운 세로 통로</b>로 안쪽 끝까지 들어가며 양쪽 부스를 보고, 안쪽 끝에서부터 <b>가로줄을 한 칸씩 출입문 쪽으로</b> 올라와 마지막은 출입문 쪽 부스에서 끝나요. 한 번 지난 부스는 다시 넣지 않고, 꼭 다시 볼 곳은 아래 <b>🔁 다시 볼 곳</b>에 따로 담깁니다.'
+          : '부스 목록에서 ☆를 눌러 가고 싶은 곳을 담으면, 2홀 입구에서 출발하는 순서를 만들어 드려요.')+'</p>'
       + '<div class="crset">'
       + '<div><label for="cday">방문일</label><select id="cday">'
       + VISITS.map(v=>'<option value="'+v.k+'" '+(course.day===v.k?'selected':'')+'>'+v.label+'</option>').join('')
@@ -1100,36 +1190,40 @@
       + '<div><label for="cstart">시작 시간</label><select id="cstart">'
       + START_TIMES.map(m=>'<option value="'+m+'" '+(+course.start===m?'selected':'')+'>'+fmtMin(m)+'</option>').join('')
       + '</select></div>'
-      + '<div><label for="centry">출발 입구</label><select id="centry">'
-      + ['2','3','4','5'].map(k=>'<option value="'+k+'" '+(course.entry===k?'selected':'')+'>'+HALLNAME[k]+' 입구</option>').join('')
+      + '<div><label for="cdwell">부스당 체류</label><select id="cdwell">'
+      + [2,3,4,6,8,10].map(m=>'<option value="'+m+'" '+(dwell===m?'selected':'')+'>'+m+'분</option>').join('')
       + '</select></div>'
       + '</div>'
-      + (total? '<div class="crsum">'+esc(dayLabel)+' '+fmtMin(+course.start)+' · '+esc(entryName)+' 출발<br>'+(course.entry==='5'?'5홀부터 2홀까지':'2홀부터 5홀까지')+' 홀마다 가로 줄 훑기 · 정시 이벤트 '+anchorN+'곳 고정 · 즐겨찾기 '+total+'곳</div>' : '')
+      + (total? '<div class="crsum">'+esc(dayLabel)+' '+fmtMin(+course.start)+' · <b>2홀 입구</b> 출발 (입구 고정)<br>'
+          + '2홀 → 3홀 → 4홀 → 5홀 · 홀마다 세로 통로 진입 뒤 가로줄 훑기<br>'
+          + '이동 약 <b>'+meters.toLocaleString()+'m</b>(도보 ~'+moveMin+'분) · 부스당 '+dwell+'분 · 예상 종료 <b>'+fmtMin(endMin)+'</b>'
+          + (anchorN? ' · 정시 이벤트 '+anchorN+'곳 고정' : '')+'</div>' : '')
       + '<div class="prog"><i style="width:'+pctv+'%"></i></div>'
       + '<div class="nums"><span>방문 완료 '+dn+' / '+total+'</span><span>'+pctv+'%</span></div>'
       + '<div class="btnrow">'
       + '<button class="btn primary" id="share">공유 링크</button>'
       + '<button class="btn" id="tobo">부스 더 담기</button>'
-      + (dn? '<button class="btn" id="resetdone">방문 기록 초기화</button>':'')
+      + (dn? '<button class="btn" id="resetdone">방문 기록 초기화</button>': '')
       + '</div>'
       + coreBox()
       + '</div>';
 
     if(!total){
-      html += '<div class="empty">아직 담은 부스가 없어요.<br><br>🔍 <b>부스</b> 탭에서 ☆를 누르거나<br>위의 <b>핵심 '+CORE_N+'곳 담기</b>, 또는 <b>품목별 담기</b>를 누르면<br>여기에 방문일·시간에 맞춘 추천 순서로 정리됩니다.</div></div>';
+      html += '<div class="empty">아직 담은 부스가 없어요.<br><br>🔍 <b>부스</b> 탭에서 ☆를 누르거나<br>위의 <b>핵심 '+CORE_N+'곳 담기</b>, 또는 <b>품목별 담기</b>를 누르면<br>여기에 2홀 입구 출발 순서로 정리됩니다.</div></div>';
       view.innerHTML = html;
       bindCourse(); return;
     }
     let stepNo = 0, curHall = null;
     steps.forEach(s=>{
       const b = s.b;
-      if(b.hall !== curHall){
-        curHall = b.hall;
-        const inHall = steps.filter(x=>x.b.hall===curHall).length;
-        html += '<div class="hallhead"><span class="hb '+HALLCLS[b.hall]+'">'+HALLNAME[b.hall]+'</span><span class="hs">'+inHall+'곳</span></div>';
+      if(hallKey(b) !== curHall){
+        curHall = hallKey(b);
+        const inHall = steps.filter(x=>hallKey(x.b)===curHall).length;
+        html += '<div class="hallhead"><span class="hb '+HALLCLS[b.hall]+'">'+HALLNAME[b.hall]+'</span><span class="hs">'+inHall+'곳 · 세로 진입 → 가로줄 훑기'+'</span></div>';
       }
       stepNo++;
       const isDone = done.has(b.id);
+      const isRev = rev.has(b.id);
       const first = (b.ev&&b.ev.length)? b.ev[0] : '';
       const th = (s.anchor==null)? timeHint(b) : '';
       const thTxt = th ? (/시/.test(th) ? ' · ⏰ '+th : ' · '+th) : '';
@@ -1149,13 +1243,31 @@
         + '<div class="m">'+esc(b.id)+' · '+esc(HALLNAME[b.hall])+(b.cat?' · '+esc(b.cat):'')+esc(thTxt)+'</div>'
         + '<div class="'+tCls+'">'+tTxt+'</div>'
         + (CORE_BY[b.id]? '<div class="citem in">🎯 '+esc(CORE_BY[b.id].items.join(' · '))+'</div>' : '')
-        + (first? '<div class="e">'+esc(first)+'</div>' : '')
+        + (first? '<div class="e">'+evTag(first)+esc(first)+'</div>' : '')
         + ((CORE_BY[b.id] && CORE_BY[b.id].ck) ? '<div class="cks">'+CORE_BY[b.id].ck.map(x=>'✅ '+esc(x)).join('<br>')+'</div>' : '')
         + '<div class="acts"><button class="tick" data-done="'+(isDone?1:0)+'" data-tick="'+esc(b.id)+'">'+(isDone?'방문 완료':'방문 체크')+'</button>'
+        + '<button class="tick'+(isRev?' revon':'')+'" data-rev="'+esc(b.id)+'">🔁 '+(isRev?'다시 볼 곳 담김':'다시 볼 곳')+'</button>'
         + '<button class="tick" data-star2="'+esc(b.id)+'">★ 빼기</button></div>'
         + '</div></div>';
     });
-    html += '<div class="note">※ 순서는 공개된 부스배치도 좌표로 계산한 참고용 추천 순서입니다. 세로 통로 대신 <b>가로 줄</b> 단위로 훑습니다 — 홀은 2홀 → 3홀 → 4홀 → 5홀 순서로 넘어가고(5홀 입구로 출발하면 반대), 홀 안에서는 입구 반대쪽(안쪽) 줄에서 입구 쪽 줄로 내려오며 한 줄은 왼쪽→오른쪽, 다음 줄은 오른쪽→왼쪽으로 번갈아 지나갑니다. 오픈런·선착순 부스는 가급적 앞서 배치했어요(이동 350m당 약 5분·부스당 4분 체류 가정). 정시 이벤트는 공개 문구에 시각이 적힌 것만 반영했고, 현장 대기줄과 통로 사정에 따라 달라질 수 있어요.</div>';
+    if(revSteps.length){
+      let cur = steps[steps.length-1].b, tm = endMin, no = 0;
+      const rows = [];
+      revSteps.slice().reverse().forEach(s=>{
+        const legM = Math.round(dist(cur, s.b) * UNIT_M);
+        tm += dist(cur, s.b) * WALK_MIN;
+        no++;
+        rows.push('<div class="rstep"><span class="rno">'+no+'</span><span>'+esc(s.b.label||('부스 '+s.b.id))
+          + ' <em style="font-style:normal;color:var(--ink3)">'+esc(s.b.id)+' · '+esc(HALLNAME[s.b.hall])+'</em><br>'
+          + '약 '+fmtMin(tm)+' 도착 · 앞 부스에서 '+legM+'m</span></div>');
+        cur = s.b; tm += dwell;
+      });
+      html += '<div class="rev"><h3>🔁 다시 볼 곳 '+revSteps.length+'곳</h3>'
+        + '<div style="font-size:11.5px;color:#6d28d9;line-height:1.55;margin-bottom:5px">메인 동선에서 한 번 지나간 부스는 두 번 넣지 않습니다. 위 순서를 다 돌고 난 뒤에 여기 담은 곳만 되짚어요(끝난 자리에서 가까운 순).</div>'
+        + rows.join('')
+        + '<div style="font-size:11px;color:#7c6ba8;margin-top:6px">※ 되짚는 구간까지 포함한 예상 시각입니다. 통로가 붐비면 더 걸려요.</div></div>';
+    }
+    html += '<div class="note">※ 순서는 주최 공개 배치도(2026.11.17) 좌표로 계산한 <b>참고용</b> 순서입니다. 2홀 입구에서 가장 가까운 세로 통로로 안쪽 끝까지 들어가 양쪽 부스를 본 뒤, 안쪽 가로줄부터 출입문 쪽으로 한 줄씩 훑고 마지막은 출입문 쪽 부스에서 끝납니다. 홀은 2홀 → 3홀 → 4홀 → 5홀 순서이고, 홀마다 같은 방식으로 돕니다. 오픈런·선착순·정시 이벤트는 공개 문구에 시각이 적힌 것만 먼저 고정했습니다. 거리·시간은 도면 1,000 ≈ 166m·통로 보행 50m/분 가정의 <b>추정치</b>이고, 현장 대기줄·통로 사정에 따라 달라집니다.</div>';
     html += '</div>';
     view.innerHTML = html;
     bindCourse();
@@ -1164,8 +1276,14 @@
     document.querySelectorAll('[data-tick]').forEach(el=>el.onclick=()=>{
       const id = el.dataset.tick; done.has(id)?done.delete(id):done.add(id); save(); renderCourse();
     });
+    document.querySelectorAll('[data-rev]').forEach(el=>el.onclick=()=>{
+      const id = el.dataset.rev;
+      if(rev.has(id)){ rev.delete(id); toast('다시 볼 곳에서 뺐어요'); }
+      else { rev.add(id); toast('🔁 다시 볼 곳에 담았어요'); }
+      saveRev(); renderCourse();
+    });
     document.querySelectorAll('[data-star2]').forEach(el=>el.onclick=()=>{
-      const id = el.dataset.star2; favs.delete(id); done.delete(id); save(); renderCourse();
+      const id = el.dataset.star2; favs.delete(id); done.delete(id); rev.delete(id); save(); saveRev(); renderCourse();
     });
     const s = document.getElementById('share'); if(s) s.onclick = shareLink;
     const tb = document.getElementById('tobo'); if(tb) tb.onclick = ()=> switchTab('booth');
@@ -1173,73 +1291,304 @@
     view.querySelectorAll('[data-core]').forEach(el=>el.onclick=()=>{
       const id = el.dataset.core;
       favs.has(id)? favs.delete(id) : favs.add(id);
-      if(!favs.has(id)) done.delete(id);
+      if(!favs.has(id)){ done.delete(id); rev.delete(id); saveRev(); }
       save(); renderCourse();
     });
     view.querySelectorAll('[data-grp]').forEach(el=>el.onclick=()=>{
       const g = el.dataset.grp;
       const ids = CORE_IDS_OF(g).filter(id=>BY[id]);
       if(ids.every(id=>favs.has(id))){
-        ids.forEach(id=>{ favs.delete(id); done.delete(id); });
+        ids.forEach(id=>{ favs.delete(id); done.delete(id); rev.delete(id); });
         toast(CORE_GROUP_BY[g].label+' '+ids.length+'곳을 즐겨찾기에서 뺐어요');
       } else {
         let n = 0;
         ids.forEach(id=>{ if(!favs.has(id)){ favs.add(id); n++; } });
         toast(CORE_GROUP_BY[g].label+' '+n+'곳을 담았어요');
       }
-      save(); renderCourse();
+      saveRev(); save(); renderCourse();
     });
     const ca = document.getElementById('cadd');
     if(ca) ca.onclick = ()=>{
       if(CORE_IDS.every(id=>favs.has(id))){
-        CORE_IDS.forEach(id=>{ favs.delete(id); done.delete(id); });
-        toast('핵심 '+CORE_N+'곳을 즐겨찾기에서 뺈어요');
+        CORE_IDS.forEach(id=>{ favs.delete(id); done.delete(id); rev.delete(id); });
+        toast('핵심 '+CORE_N+'곳을 즐겨찾기에서 뺐어요');
       } else {
         let n = 0;
         CORE_IDS.forEach(id=>{ if(BY[id] && !favs.has(id)){ favs.add(id); n++; } });
         toast(n? '핵심 부스 '+n+'곳을 담았어요' : '이미 다 담겨 있어요');
       }
-      save(); renderCourse();
+      saveRev(); save(); renderCourse();
     };
     const cd = document.getElementById('cday'); if(cd) cd.onchange = e=>{ course.day = e.target.value; saveCourse(); renderCourse(); };
     const cs = document.getElementById('cstart'); if(cs) cs.onchange = e=>{ course.start = +e.target.value; saveCourse(); renderCourse(); };
-    const ce = document.getElementById('centry'); if(ce) ce.onchange = e=>{ course.entry = e.target.value; saveCourse(); renderCourse(); };
+    const dw = document.getElementById('cdwell'); if(dw) dw.onchange = e=>{ course.dwell = +e.target.value; saveCourse(); renderCourse(); };
   }
 
-  // 내 코스 동선을 배치도 위에 그리기
-  function courseSvg(steps){
-    const pts = steps.map(s=>s.b.x.toFixed(1)+','+s.b.y.toFixed(1)).join(' ');
-    const dots = steps.map((s,i)=>'<circle cx="'+s.b.x+'" cy="'+s.b.y+'" r="'+(i===0?9:6)+'" fill="'+(i===0?'#16a34a':'#f05322')+'" fill-opacity="0.9"/>').join('');
-    return '<svg viewBox="0 0 1000 1000" preserveAspectRatio="none" style="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none">'
-      + '<polyline points="'+pts+'" fill="none" stroke="#f05322" stroke-width="5" stroke-opacity="0.7" stroke-linejoin="round" stroke-linecap="round"/>'
-      + dots + '</svg>';
+  // ---------- 배치도 v2: 홀 전환·확대/이동·부스 탭·내 위치 핀·편의시설 ----------
+  // 홀 버튼을 눌러도 동선·핀이 지워지지 않도록, 이미지와 오버레이(SVG)를 따로 두고
+  // 홀을 바꿀 때 오버레이를 다시 그린다(2026-11-19 renderMap 회귀 수정).
+  const MAP_VIEWS = {
+    all:{x0:0, y0:0, x1:996.6, y1:997.5, src:'map_full.jpg', name:'전체'},
+    '2':{x0:0, y0:0, x1:238, y1:997.5, src:'map_h2.jpg', name:'2홀'},
+    '3':{x0:238, y0:0, x1:472, y1:997.5, src:'map_h3.jpg', name:'3홀'},
+    '4':{x0:472, y0:0, x1:712, y1:997.5, src:'map_h4.jpg', name:'4홀'},
+    '5':{x0:712, y0:0, x1:996.6, y1:997.5, src:'map_h5.jpg', name:'5홀'}
+  };
+  const FAC_COLOR = {petwc:'#0e9f6e', cafe:'#8b5e34', gate:'#111827', zone:'#2563eb'};
+  const FAC_ICON = {petwc:'🐾', cafe:'☕', gate:'🚪', zone:'★'};
+  function mapV(){ return MAP_VIEWS[mapView] || MAP_VIEWS.all; }
+  function applyZoom(){
+    const st0 = document.getElementById('stage');
+    if(st0) st0.style.touchAction = mapZoom.s > 1 ? 'none' : 'pan-y';
+    const z = document.getElementById('zoomer');
+    if(z) z.style.transform = 'translate('+mapZoom.tx.toFixed(1)+'px,'+mapZoom.ty.toFixed(1)+'px) scale('+mapZoom.s.toFixed(2)+')';
+    const lab = document.getElementById('zlab');
+    if(lab) lab.textContent = mapZoom.s.toFixed(1)+'×';
   }
-
-  function renderMap(){
+  function clampPan(){
+    const st = document.getElementById('stage');
+    if(!st) return;
+    const w = st.clientWidth, h = st.clientHeight;
+    if(mapZoom.s <= 1.001){ mapZoom.s = 1; mapZoom.tx = 0; mapZoom.ty = 0; return; }
+    mapZoom.tx = Math.min(0, Math.max(w - w*mapZoom.s, mapZoom.tx));
+    mapZoom.ty = Math.min(0, Math.max(h - h*mapZoom.s, mapZoom.ty));
+  }
+  function zoomAt(px, py, k){
+    const s = Math.min(8, Math.max(1, mapZoom.s*k));
+    const r = s/mapZoom.s;
+    mapZoom.tx = px - (px - mapZoom.tx)*r;
+    mapZoom.ty = py - (py - mapZoom.ty)*r;
+    mapZoom.s = s;
+    clampPan(); applyZoom();
+  }
+  function stagePtToMap(px, py){
+    const st = document.getElementById('stage');
+    const v = mapV();
+    if(!st) return {x:v.x0, y:v.y0};
+    const cw = st.clientWidth * mapZoom.s, ch = st.clientHeight * mapZoom.s;
+    return {x: v.x0 + ((px - mapZoom.tx)/cw) * (v.x1-v.x0),
+            y: v.y0 + ((py - mapZoom.ty)/ch) * (v.y1-v.y0)};
+  }
+  function nearestBooth(m, rad){
+    let best = null, bd = Infinity;
+    BOOTHS.forEach(b=>{
+      const d = Math.hypot(b.x-m.x, (b.y-m.y)*0.9);
+      if(d < bd){ bd = d; best = b; }
+    });
+    return bd <= rad ? best : null;
+  }
+  function setHere(m){
+    const d = new Date();
+    const hh = ('0'+d.getHours()).slice(-2), mm = ('0'+d.getMinutes()).slice(-2);
+    here = {x: Math.round(m.x*10)/10, y: Math.round(m.y*10)/10, t: hh+':'+mm};
+    saveHere();
+    renderMap();
+    toast('내 위치를 찍었어요 · '+hh+':'+mm+' (직접 지정)');
+  }
+  function openSheet(id){
+    const b = BY[id]; if(!b) return;
+    const el = document.getElementById('sheet'); if(!el) return;
+    const isFav = favs.has(id);
+    const evs = (b.ev||[]).map(e=>'<div class="item">'+evTag(e)+esc(e)+'</div>').join('');
+    el.innerHTML = '<div class="grab"></div>'
+      + '<div class="sh"><span class="bnum '+HALLCLS[b.hall]+'">'+esc(b.id)+'</span>'
+      + '<div class="name"><div class="t">'+esc(b.label||('부스 '+b.id))+'</div>'
+      + '<div class="m">'+esc(HALLNAME[b.hall])+(b.cat? ' · '+esc(b.cat):'')+(b.approx? ' · 위치 근사값':'')+'</div></div>'
+      + '<button class="x" id="sheetx" aria-label="닫기">✕</button></div>'
+      + (evs? '<div style="margin-top:9px"><div style="font-size:11px;font-weight:800;color:var(--brand);margin-bottom:3px">현장 이벤트 '+b.ev.length+'건</div>'+evs+'</div>'
+            : '<div style="margin-top:9px;font-size:12px;color:var(--ink3)">공개된 현장 이벤트가 없어요(정보 없음이지 이벤트가 없다는 뜻은 아닙니다).</div>')
+      + priceBlock(b) + coreItemLine(b) + ckBlock(b)
+      + '<div class="btnrow"><button class="btn primary" id="sheetfav">'+(isFav? '★ 내 코스에서 빼기':'☆ 내 코스에 담기')+'</button>'
+      + '<button class="btn" id="sheetcourse">내 코스 보기</button></div>';
+    el.classList.add('on');
+    const sx = document.getElementById('sheetx'); if(sx) sx.onclick = closeSheet;
+    const sf = document.getElementById('sheetfav');
+    if(sf) sf.onclick = ()=>{
+      if(favs.has(id)){ favs.delete(id); done.delete(id); rev.delete(id); saveRev(); } else favs.add(id);
+      save(); openSheet(id); paintOverlay();
+      if(tab==='course') renderCourse();
+    };
+    const sc = document.getElementById('sheetcourse'); if(sc) sc.onclick = ()=>{ closeSheet(); switchTab('course'); };
+  }
+  function closeSheet(){
+    const el = document.getElementById('sheet');
+    if(el) el.classList.remove('on');
+  }
+  function paintOverlay(){
+    const svg = document.getElementById('mapsvg');
+    if(!svg) return;
+    const v = mapV();
+    svg.setAttribute('viewBox', v.x0+' '+v.y0+' '+(v.x1-v.x0)+' '+(v.y1-v.y0));
     const steps = buildRoute([...favs], courseOpt());
-    const line = steps.length>1 ? courseSvg(steps) : '';
+    const inV = (x,y,mg)=> x >= v.x0-mg && x <= v.x1+mg && y >= v.y0-mg && y <= v.y1+mg;
+    let s = '<g fill="#64748b" opacity="0.30">';
+    BOOTHS.forEach(b=>{ if(inV(b.x,b.y,3)) s += '<circle cx="'+b.x+'" cy="'+b.y+'" r="1.4"/>'; });
+    s += '</g>';
+    if(facOn){
+      (MZ.fac||[]).forEach(f=>{
+        if(!inV(f.x,f.y,8)) return;
+        const col = FAC_COLOR[f.k] || '#2563eb';
+        s += '<g transform="translate('+f.x+','+f.y+') scale(1,0.706)">'
+          + '<circle r="9" fill="'+col+'" fill-opacity="0.92" stroke="#fff" stroke-width="1.8"/>'
+          + '<text y="3.4" text-anchor="middle" font-size="9.5">'+(FAC_ICON[f.k]||'★')+'</text>'
+          + '</g>';
+      });
+    }
+    if(steps.length > 1){
+      const pts = steps.map(x=>x.b.x.toFixed(1)+','+x.b.y.toFixed(1)).join(' ');
+      s += '<polyline points="'+pts+'" fill="none" stroke="#f05322" stroke-width="3.2" stroke-opacity="0.75" stroke-linejoin="round" stroke-linecap="round"/>';
+    }
+    steps.forEach((x,i)=>{
+      if(!inV(x.b.x,x.b.y,8)) return;
+      const fill = i===0 ? '#16a34a' : (done.has(x.b.id) ? '#94a3b8' : '#f05322');
+      s += '<g transform="translate('+x.b.x+','+x.b.y+') scale(1,0.706)">'
+        + '<circle r="'+(i===0? 7 : 5.6)+'" fill="'+fill+'" fill-opacity="0.95" stroke="#fff" stroke-width="1.2"/>'
+        + (steps.length <= 40 ? '<text y="2.1" text-anchor="middle" font-size="6" fill="#fff" font-weight="700">'+(i+1)+'</text>' : '')
+        + '</g>';
+    });
+    if(steps.length){
+      const rv = steps.filter(x=>rev.has(x.b.id));
+      if(rv.length){
+        const chain = [steps[steps.length-1].b].concat(rv.slice().reverse());
+        const pts = chain.map(x=>x.x.toFixed(1)+','+x.y.toFixed(1)).join(' ');
+        s += '<polyline points="'+pts+'" fill="none" stroke="#7c3aed" stroke-width="2.4" stroke-dasharray="6 4" stroke-opacity="0.85"/>';
+      }
+    }
+    if(here){
+      s += '<g transform="translate('+here.x+','+here.y+') scale(1,0.706)">'
+        + '<circle r="11" fill="#dc2626" fill-opacity="0.22"/>'
+        + '<circle r="6" fill="#dc2626" stroke="#fff" stroke-width="2"/>'
+        + '<text y="-13" text-anchor="middle" font-size="9" font-weight="700" fill="#b91c1c">내 위치</text></g>';
+    }
+    svg.innerHTML = s;
+  }
+  function mapLegend(steps){
+    return '<b>보는 법</b><br>'
+      + '· 부스를 누르면 그 부스 정보(이벤트·가격·확인 포인트)가 열려요. 두 손가락으로 확대하고 끌어서 이동할 수 있습니다.<br>'
+      + (steps.length>1? '· 주황 선과 번호가 내 동선이에요(1번 초록=출발). 보라 점선은 <b>다시 볼 곳</b>으로 되짚는 구간입니다.<br>' : '')
+      + '<div class="krow"><span class="kk" style="background:#0e9f6e">🐾</span><span><b>반려동물 화장실 6곳</b> — 주최 배치도에 표기된 위치 그대로예요.</span></div>'
+      + '<div class="krow"><span class="kk" style="background:#8b5e34">☕</span><span><b>카페테리아 4곳</b> — 앉아서 먹을 수 있는 구역.</span></div>'
+      + '<div class="krow"><span class="kk" style="background:#111827">🚪</span><span><b>출입구</b> — 2~5홀 입구 라인. 동선은 늘 2홀 입구에서 시작해요.</span></div>'
+      + '<div class="krow"><span class="kk" style="background:#2563eb">★</span><span><b>이벤트존·만남의 광장</b></span></div>'
+      + '· <b>사람 화장실·수유실·의무실</b>은 주최 부스배치도에 표시가 없어 지도에 찍지 않았어요. 유아휴게실·의무실·안내데스크는 모두 <b>5홀 앞(1층)</b>, 물품보관함은 1~4홀 각 입구 옆입니다(킨텍스 안내). 정확한 지점은 현장 안내데스크(031-810-8114)에서 확인하세요.<br>'
+      + '· 📍 <b>내 위치</b>는 GPS가 아니라 <b>직접 찍는 핀</b>이에요(지도 길게 누르기 또는 「내 위치」 버튼).<br>'
+      + '· 배치도 원본: 주최측 공개 부스배치도 PDF(2026.11.17) — <a href="https://k-pet.co.kr/visitor/megazoos2_floormap/" target="_blank" rel="noopener">원본 보기</a>';
+  }
+  function renderMap(){
+    const v = mapV();
+    const steps = buildRoute([...favs], courseOpt());
     let html = '<div class="mapwrap">'
-      + '<div class="scroll" style="padding-bottom:10px">'
-      + '<button class="chip acc" data-map="all" data-on="1">전체 배치도</button>'
-      + HALLS.slice(0,4).map(h=>'<button class="chip '+h.cls+'" data-map="'+h.k+'">'+h.name+'</button>').join('')
+      + '<div class="mapctl">'
+      + ['all','2','3','4','5'].map(k=>'<button class="chip acc" data-map="'+k+'" data-on="'+(mapView===k?1:0)+'">'+MAP_VIEWS[k].name+'</button>').join('')
       + '</div>'
-      + '<div id="mapbox"'+(line?' style="position:relative"':'')+'><img src="'+imgSrc('map_full.jpg')+'" alt="2026 메가주 시즌2 부스배치도 전체">'+line+'</div>'
-      + '<div class="legend"><b>보는 법</b><br>· 부스 안 숫자가 부스 번호예요. 홀별로 <b>2홀(앞자리 2)</b>, <b>3홀(3)</b>, <b>4홀(4)</b>, <b>5홀(5)</b> 로 구분됩니다.<br>'
-      + (line? '· 주황 선·점이 <b>내 코스</b>의 가로 훑기 동선이에요(초록 점이 출발 부스).<br>' : '')
-      + '· 빨간 <b>쭈쭈쭈 아이콘</b>이 붙은 부스는 쭈쭈쭈 쿠폰 사용 가능 업체예요.<br>'
-      + '· G-01~G-26은 <b>경기도 공동관</b>, ART-01~04는 <b>ART존</b>입니다. 공동관은 <b>4·5홀 경계</b>에 걸쳐 있어 G-01~G-10은 4홀 쪽, G-11부터는 5홀 쪽입니다.<br>'
-      + '· 원본: 주최측 공개 부스배치도 PDF (2026.11.13 기준) — <a href="https://k-pet.co.kr/visitor/megazoos2_floormap/" target="_blank" rel="noopener">원본 보기</a></div>'
+      + '<div class="mapctl">'
+      + '<button class="zbtn" id="zout" aria-label="축소">－</button><span class="zlab" id="zlab">1.0×</span><button class="zbtn" id="zin" aria-label="확대">＋</button>'
+      + '<button class="zbtn" id="zfit">맞춤</button><span class="sp"></span>'
+      + '<button class="chip acc" id="facbtn" data-on="'+(facOn?1:0)+'">편의시설</button>'
+      + '<button class="chip acc" id="pinbtn" data-on="'+(pinMode?1:0)+'">📍 내 위치</button>'
+      + (here? '<button class="chip" id="pinclear">핀 지우기</button>' : '')
+      + '</div>'
+      + '<div class="stage'+(pinMode? ' pinmode':'')+'" id="stage"><div class="canvas" id="zoomer">'
+      + '<img id="mapimg" src="'+imgSrc(v.src)+'" alt="메가주 2026 부스배치도 '+esc(v.name)+'" style="aspect-ratio:'+(0.705*(v.y1-v.y0)/(v.x1-v.x0)).toFixed(4)+'">'
+      + '<svg id="mapsvg" preserveAspectRatio="none"></svg>'
+      + '</div></div>'
+      + '<div class="maptip">'
+      + (pinMode? '지도를 눌러 지금 내 위치를 찍어 주세요.'
+         : (here? '📍 '+esc(here.t||'')+'에 직접 찍은 내 위치(자동 GPS 아님) · 「핀 지우기」로 지울 수 있어요.'
+            : '지도를 <b>길게 누르면</b> 내 위치를 찍고, 부스를 누르면 부스 정보가 열립니다.'))
+      + '</div>'
+      + '<div class="legend">'+mapLegend(steps)+'</div>'
       + '</div>';
     view.innerHTML = html;
+    paintOverlay();
+    bindMap();
+  }
+  function bindMap(){
+    const st = document.getElementById('stage');
+    if(!st) return;
     view.querySelectorAll('[data-map]').forEach(el=>el.onclick=()=>{
-      view.querySelectorAll('[data-map]').forEach(x=>x.dataset.on='0');
-      el.dataset.on='1';
-      const k = el.dataset.map;
-      const box = document.getElementById('mapbox');
-      if(k==='all'){ box.innerHTML = '<img src="'+imgSrc('map_full.jpg')+'" alt="전체 배치도">'; return; }
-      var up = imgSrc('map_' + k.toLowerCase() + 'a.jpg'), dn = imgSrc('map_' + k.toLowerCase() + 'b.jpg');
-      box.innerHTML = '<img src="'+up+'" alt="'+HALLNAME[k]+' 배치도 상단"><img src="'+dn+'" alt="'+HALLNAME[k]+' 배치도 하단" style="margin-top:8px">';
+      mapView = el.dataset.map;
+      mapZoom = {s:1, tx:0, ty:0};
+      const sb = document.getElementById('sheet'); if(sb) sb.classList.remove('on');
+      renderMap();
     });
+    const zi = document.getElementById('zin'), zo = document.getElementById('zout'), zf = document.getElementById('zfit');
+    if(zi) zi.onclick = ()=>{ zoomAt(st.clientWidth/2, st.clientHeight/2, 1.5); };
+    if(zo) zo.onclick = ()=>{ zoomAt(st.clientWidth/2, st.clientHeight/2, 1/1.5); };
+    if(zf) zf.onclick = ()=>{ mapZoom = {s:1, tx:0, ty:0}; applyZoom(); };
+    const fb = document.getElementById('facbtn'); if(fb) fb.onclick = ()=>{ facOn = !facOn; renderMap(); };
+    const pb = document.getElementById('pinbtn'); if(pb) pb.onclick = ()=>{ pinMode = !pinMode; renderMap(); };
+    const pc = document.getElementById('pinclear'); if(pc) pc.onclick = ()=>{ here = null; saveHere(); renderMap(); toast('핀을 지웠어요'); };
+
+    const pts = new Map();
+    let drag = null, pinch = null, pressT = null, pinched = false;
+    const rel = e=>{ const r = st.getBoundingClientRect(); return {x: e.clientX - r.left, y: e.clientY - r.top}; };
+    st.onpointerdown = e=>{
+      const p = rel(e);
+      pts.set(e.pointerId, p);
+      try{ st.setPointerCapture(e.pointerId); }catch(_){}
+      if(pts.size === 1){
+        drag = {p0:p, tx:mapZoom.tx, ty:mapZoom.ty, moved:0, long:false};
+        clearTimeout(pressT);
+        pressT = setTimeout(()=>{
+          if(drag && drag.moved < 8 && !pinMode){ drag.long = true; setHere(stagePtToMap(p.x, p.y)); }
+        }, 560);
+      } else if(pts.size === 2){
+        clearTimeout(pressT);
+        pinched = true;
+        const a = [...pts.values()];
+        pinch = {d: Math.hypot(a[0].x-a[1].x, a[0].y-a[1].y) || 1, s: mapZoom.s,
+                 cx:(a[0].x+a[1].x)/2, cy:(a[0].y+a[1].y)/2, tx:mapZoom.tx, ty:mapZoom.ty};
+        drag = null;
+      }
+    };
+    st.onpointermove = e=>{
+      if(!pts.has(e.pointerId)) return;
+      const p = rel(e); pts.set(e.pointerId, p);
+      if(pinch && pts.size >= 2){
+        const a = [...pts.values()];
+        const d = Math.hypot(a[0].x-a[1].x, a[0].y-a[1].y) || 1;
+        const sc = Math.min(8, Math.max(1, pinch.s * d / pinch.d));
+        const k = sc / pinch.s;
+        mapZoom.s = sc;
+        mapZoom.tx = pinch.cx - (pinch.cx - pinch.tx) * k;
+        mapZoom.ty = pinch.cy - (pinch.cy - pinch.ty) * k;
+        clampPan(); applyZoom();
+        return;
+      }
+      if(drag){
+        const dx = p.x - drag.p0.x, dy = p.y - drag.p0.y;
+        drag.moved = Math.max(drag.moved, Math.abs(dx) + Math.abs(dy));
+        if(drag.moved > 6){
+          clearTimeout(pressT);
+          mapZoom.tx = drag.tx + dx; mapZoom.ty = drag.ty + dy;
+          clampPan(); applyZoom();
+        }
+      }
+    };
+    st.onpointerup = e=>{
+      clearTimeout(pressT);
+      const p = rel(e);
+      const dragged = drag ? drag.moved > 8 : false;
+      const longed = drag ? drag.long : false;
+      pts.delete(e.pointerId);
+      if(pts.size < 2) pinch = null;
+      if(!dragged && !longed && !pinch && !pinched){
+        if(pinMode){ pinMode = false; setHere(stagePtToMap(p.x, p.y)); return; }
+        const v = mapV();
+        const perPx = (st.clientWidth * mapZoom.s) / (v.x1 - v.x0);   // 도면 단위 / px
+        const b = nearestBooth(stagePtToMap(p.x, p.y), 26 / perPx);
+        if(b) openSheet(b.id);
+      }
+      if(pts.size === 0){ drag = null; pinched = false; }
+    };
+    st.onpointercancel = e=>{ clearTimeout(pressT); pts.delete(e.pointerId); pinch = null; drag = null; };
+    st.addEventListener('wheel', e=>{
+      e.preventDefault();
+      const p = rel(e);
+      zoomAt(p.x, p.y, e.deltaY < 0 ? 1.2 : 1/1.2);
+    }, {passive:false});
+    applyZoom();
   }
 
   // 강조 숫자는 ‘배송 포함 총액’(상품가+확인된 배송비) 기준. 배송비 미확정(바이오핏)만 상품가로 두고 확인처를 밝힌다.
@@ -1312,17 +1661,17 @@
       + '<div><dt>기간</dt><dd>'+esc(m.dates)+'</dd></div>'
       + '<div><dt>장소</dt><dd>'+esc(m.venue)+'</dd></div>'
       + '<div><dt>관람시간</dt><dd>'+esc(m.hours)+'</dd></div>'
-      + '<div><dt>입장료</dt><dd>2차 사전등록 6,000원(1일권) · 현장 12,000원</dd></div>'
       + '</dl></div>'
       + '<div class="box"><h3>이 가이드의 데이터</h3><ul>'
       + '<li>부스 <b>'+m.boothCount+'</b>곳 · 참가 브랜드 <b>'+m.brandCount+'</b>개 — 주최측 부스배치도&amp;리스트 PDF(2026.11.13)와 공식 참가브랜드 목록 기준</li>'
       + '<li>현장이벤트 <b>'+m.eventItemCount+'</b>건 · 부스 <b>'+m.eventBoothCount+'</b>곳 — 주최측 공개 「참가브랜드 현장이벤트 모아보기」 원문을 그대로 옮겼습니다</li>'
       + '<li>이벤트가 공개되지 않은 부스는 카드에 이벤트 칸이 비어 있습니다(정보 없음이지, 이벤트가 없다는 뜻은 아닙니다)</li>'
       + '<li>부스 번호가 공개 자료에 없는 브랜드 <b>'+m.unplacedCount+'</b>곳은 이벤트 탭 맨 아래에 따로 모았습니다</li>'
+      + '<li>'+esc(m.labelFix || '')+'</li>'
+      + '<li>'+esc(m.facSource || '')+'</li>'
       + '</ul></div>'
       + '<div class="box"><h3>현장에서 바로 쓸 것</h3><ul>'
       + '<li>입장 마감 <b>17:30</b>, 폐장 18:00. 대기줄이 길면 입장 시간이 앞당겨질 수 있다고 공지돼 있어요.</li>'
-      + '<li>쭈쭈쭈 쿠폰번호 등록 기한은 <b>11.18(수) 23:59</b>, 홈페이지 사전등록 바코드는 <b>11.19(목) 18:00부터</b> 카카오 알림톡 발송.</li>'
       + '<li>선착순 이벤트는 대부분 <b>매일</b> 수량이 리셋됩니다. 오전 회차를 노리면 개장 직후가 유리해요.</li>'
       + '<li>반려견 동반 시 목줄·인식표 필수, 이동장·유모차·슬링백 권장.</li>'
       + '</ul></div>'
@@ -1345,6 +1694,12 @@
       + '<li>가격 탭 각 행에는 판매처 URL·옵션/수량·배송비·쿠폰/구독 조건을 함께 적었습니다(2026.11.17~18 재확인). 구매 조건이 다른 가격은 행을 나눠 적었으니 같은 줄끼리 비교하세요</li>'
       + '<li>유모차 가방(5607 이비야야 FP0032)·온열 패드(2310 시리어스펫 따땃패드)는 2026.11.18에 추가했습니다. 한일의료기 보듬(3241)·개판(G-03)은 확인된 온라인 가격이 없어 가격 행 없이 부스 카드의 현장 확인 포인트만 적었습니다</li>'
       + '<li>정기구독가·쿠폰가·묶음 구매는 조건이 다릅니다. 부스 현장 가격과 비교할 땐 같은 용량·같은 구성인지 먼저 확인하세요</li>'
+      + '</ul></div>'
+      + '<div class="box"><h3>동선·지도 읽는 법</h3><ul>'
+      + '<li>동선은 <b>2홀 입구 고정</b>입니다. 출입문에서 가장 가까운 세로 통로로 안쪽 끝까지 들어가며 양쪽 부스를 보고, 안쪽 가로줄부터 출입문 쪽으로 한 줄씩 훑어 마지막은 출입문 쪽 부스에서 끝납니다</li>'
+      + '<li>한 번 지나온 부스는 동선에 두 번 들어가지 않습니다. 꼭 다시 봐야 할 곳은 각 단계의 <b>🔁 다시 볼 곳</b>에 담으면 메인 동선을 다 돈 뒤에 되짚는 순서가 따로 나옵니다</li>'
+      + '<li>부스당 체류 시간은 <b>2~10분</b>에서 바꿀 수 있고, 거리·시각은 도면 좌표를 환산한 <b>추정치</b>입니다(현장 대기·통로 사정에 따라 달라짐)</li>'
+      + '<li>배치도에서 <b>부스를 누르면</b> 그 부스의 이벤트·가격·확인 포인트가 열리고, 지도를 <b>길게 누르면 내 위치 핀</b>을 찍습니다(자동 GPS 아님)</li>'
       + '</ul></div>'
       + '<div class="box"><h3>참고 링크</h3><ul>'
       + '<li><a href="https://k-pet.co.kr/portfolio-items/26pet_k2_brandevent/" target="_blank" rel="noopener">주최측 현장이벤트 원문</a></li>'
@@ -1425,7 +1780,20 @@
   switchTab(hashTab && ['booth','event','price','course','map','info'].includes(hashTab) ? hashTab : 'booth');
 
   // 계산 로직을 검증에 그대로 쓸 수 있게 노출 (화면 동작에는 영향 없음)
-  window.MZROUTE = {buildRoute: buildRoute, sweepSort: sweepSort, orderByHall: orderByHall, evTimesFor: evTimesFor, ROW_BANDS: ROW_BANDS, ROW_OF: ROW_OF, ENTRIES: ENTRIES, CORE: CORE, courseOpt: courseOpt};
+  // 화면·계산 검증(회귀 테스트)에서 그대로 부를 수 있게 노출 — 화면 동작에는 영향 없음
+  window.MZTEST = {
+    setView: function(k){ mapView = k; mapZoom = {s:1, tx:0, ty:0}; renderMap(); },
+    viewHtml: function(){ return document.getElementById('view').innerHTML; },
+    overlayHtml: function(){ var s = document.getElementById('mapsvg'); return s ? s.innerHTML : ''; },
+    setFavs: function(ids){ favs = new Set(ids); save(); },
+    setHere: function(x,y){ here = {x:x, y:y, t:'09:00'}; saveHere(); renderMap(); },
+    getHere: function(){ return here; },
+    goTab: function(t){ switchTab(t); }
+  };
+  window.MZROUTE = {buildRoute: buildRoute, routeOrder: routeOrder, hallRoute: hallRoute, orderByHall: orderByHall,
+    evTimesFor: evTimesFor, evNoBuy: evNoBuy, ROW_BANDS: ROW_BANDS, ROW_OF: ROW_OF, ENTRIES: ENTRIES,
+    HALL_GEO: HALL_GEO, GATES: GATES, COL_OF: COL_OF, MAP_VIEWS: MAP_VIEWS, CORE: CORE, courseOpt: courseOpt,
+    hallKey: hallKey, UNIT_M: UNIT_M};
 })();
 </script>
 </body>
