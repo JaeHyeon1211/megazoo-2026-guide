@@ -143,8 +143,9 @@
   .step.isdone .no{background:#16a34a}
   .step .body{flex:1;min-width:0}
   .step .t{font-weight:700;font-size:14.5px;word-break:keep-all}
+  .step .t[data-open]{cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;text-decoration-color:#cfcfc9}
   .step .m{font-size:11.5px;color:var(--ink3);margin-top:1px}
-  .step .e{font-size:12px;color:#444;margin-top:5px;word-break:keep-all}
+  .step .e{font-size:12px;color:#444;margin-top:5px;word-break:keep-all;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
   .step .acts{display:flex;gap:6px;margin-top:8px}
   .tick{border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 9px;font-size:12px;font-weight:700;color:#444}
   .tick[data-done="1"]{background:#16a34a;border-color:#16a34a;color:#fff}
@@ -1288,7 +1289,7 @@
       }
       html += '<div class="step'+(isDone?' isdone':'')+'">'
         + '<div class="no">'+(isDone?'✓':stepNo)+'</div>'
-        + '<div class="body"><div class="t">'+esc(b.label||('부스 '+b.id))+'</div>'
+        + '<div class="body"><div class="t" data-open="'+esc(b.id)+'">'+esc(b.label||('부스 '+b.id))+'</div>'
         + '<div class="m">'+esc(b.id)+' · '+esc(HALLNAME[b.hall])+(b.cat?' · '+esc(b.cat):'')+esc(thTxt)+'</div>'
         + '<div class="'+tCls+'">'+tTxt+'</div>'
         + (CORE_BY[b.id]? '<div class="citem in">🎯 '+esc(CORE_BY[b.id].items.join(' · '))+'</div>' : '')
@@ -1827,6 +1828,8 @@
       if(el){ el.classList.toggle('open'); de.textContent = el.classList.contains('open')? '브랜드 설명 접기 ▲' : '브랜드 설명 ▾'; }
       return;
     }
+    const op2 = e.target.closest('[data-open]');
+    if(op2){ openSheet(op2.dataset.open); return; }
   });
 
   // init
