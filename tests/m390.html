@@ -10,7 +10,13 @@
 </style>
 </head>
 <body>
-<div class="h">메가주 가이드 모바일(390×844) 확인용 프레임 · 실제 배포 페이지를 같은 폭의 iframe으로 엽니다</div>
-<iframe id="f" src="../index.html#tab=course" title="모바일 390 확인"></iframe>
+<div class="h">메가주 가이드 모바일(390×844) 확인용 프레임 · 실제 배포 페이지를 같은 폭의 iframe으로 엽니다 · ?v=값을 주면 그 값으로 캐시를 우회합니다</div>
+<iframe id="f" title="모바일 390 확인"></iframe>
+<script>
+  (function(){
+    var v = new URLSearchParams(location.search).get('v');
+    document.getElementById('f').src = '../index.html' + (v ? '?v=' + encodeURIComponent(v) : '') + '#tab=course';
+  })();
+</script>
 </body>
 </html>
