@@ -1530,10 +1530,6 @@
     bindItems();
   }
   function bindItems(){
-    view.querySelectorAll('[data-cview]').forEach(el=>el.onclick=()=>{
-      courseView = el.dataset.cview === 'item' ? 'item' : 'order';
-      course.view = courseView; saveCourse(); renderCourse();
-    });
     view.querySelectorAll('[data-ichip]').forEach(el=>el.onclick=()=>{
       const k = el.dataset.ichip;
       itemSel = k;
@@ -2064,6 +2060,12 @@
     }
     const op2 = e.target.closest('[data-open]');
     if(op2){ openSheet(op2.dataset.open); return; }
+    // 방문 순서 ↔ 품목별 목록 보기 전환 — 두 보기 모두 같은 seg를 쓰므로 공통 처리
+    const cv = e.target.closest('[data-cview]');
+    if(cv){
+      courseView = cv.dataset.cview === 'item' ? 'item' : 'order';
+      course.view = courseView; saveCourse(); renderCourse(); return;
+    }
   });
 
   // init
