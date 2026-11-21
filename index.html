@@ -2075,6 +2075,8 @@
   document.getElementById('stBrand').textContent = MZ.meta.brandCount;
   document.getElementById('stEv').textContent = MZ.meta.eventBoothCount;
   const hashTab = (location.hash.match(/tab=(\w+)/)||[])[1];
+  // 공유·바로가기용: #tab=course&v=item 이면 품목별 목록으로 바로 연다
+  if((location.hash.match(/v=(\w+)/)||[])[1] === 'item'){ courseView = 'item'; course.view = 'item'; }
   switchTab(hashTab && ['booth','event','price','course','map','info'].includes(hashTab) ? hashTab : 'booth');
 
   // 계산 로직을 검증에 그대로 쓸 수 있게 노출 (화면 동작에는 영향 없음)
