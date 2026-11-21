@@ -261,7 +261,7 @@
   .igrp.hasfav{border-color:#f3d47a;box-shadow:0 0 0 1px #f7e8b6 inset}
   .igh{display:flex;gap:8px;align-items:flex-start;padding:11px 12px;cursor:pointer}
   .igh .t{flex:1;min-width:0}
-  .igh .tt{font-size:14.5px;font-weight:800;letter-spacing:-.25px;word-break:keep-all}
+  .igh .itt{font-size:14.5px;font-weight:800;letter-spacing:-.25px;word-break:keep-all}
   .igh .ms{font-size:11px;color:var(--ink3);margin-top:2px}
   .igh .ms b{color:#92620a}
   .igh .iprev{display:inline-block;margin-top:5px;font-size:10.5px;font-weight:700;color:#8a6d2f;background:#fffbeb;border:1px solid #f3e2b0;border-radius:6px;padding:1px 6px;line-height:1.6}
@@ -1474,7 +1474,7 @@
     const allOn = ids.length>0 && cnt.favN===ids.length;
     return '<div class="igrp'+(cnt.favN?' hasfav':'')+'">'
       + '<div class="igh" data-iopen="'+esc(g.key)+'" role="button" aria-expanded="'+(open?'true':'false')+'">'
-      +   '<div class="t"><div class="tt">'+esc(grpShort(g))+'</div>'
+      +   '<div class="t"><div class="itt">'+esc(grpShort(g))+'</div>'
       +     '<div class="ms"><b>'+ids.length+'곳</b> · 담김 '+cnt.favN+' · 방문 '+cnt.doneN+'</div>'
       +     (open? '' : '<div class="iprev">'+esc(prev)+'</div>')+'</div>'
       +   '<span class="ar">'+(open?'접기 ▲':'펼치기 ▾')+'</span></div>'
@@ -1496,7 +1496,7 @@
     const prev = list.length > 7 ? list.slice(0,7).map(b=>b.id).join('·')+' 외 '+(list.length-7)+'곳' : list.map(b=>b.id).join('·');
     return '<div class="igrp hasfav"><div class="igh" data-iopen="fav" role="button" aria-expanded="'+(open?'true':'false')+'"'
       + ' style="background:#fffbeb">'
-      + '<div class="t"><div class="tt">'+esc(title||'★ 찜한 부스')+'</div>'
+      + '<div class="t"><div class="itt">'+esc(title||'★ 찜한 부스')+'</div>'
       + '<div class="ms"><b>'+list.length+'곳</b> · 방문 '+doneN+'</div>'
       + (open? '' : '<div class="iprev">'+esc(prev)+'</div>')+'</div>'
       + '<span class="ar">'+(open?'접기 ▲':'펼치기 ▾')+'</span></div>'
