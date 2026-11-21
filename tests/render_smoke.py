@@ -42,6 +42,16 @@ try { T.setFavs(['2457','5601','4641','5441']); T.goTab('course'); var c = T.vie
   out.courseCoreFolded = /id="coretoggle"/.test(c);
   out.courseRouteAfterCore = c.indexOf('class="step') > 0 && c.indexOf('class="step') < c.indexOf('id="coretoggle"');
 } catch(e){ out.courseErr = String(e); }
+// 품목별 목록 보기(2026-11-22) — 보기를 바꿔도 오류 없이 그려지고 줄이 나온다
+try { T.setCourseView('item'); var it = T.viewHtml();
+  out.itemLen = it.length;
+  out.itemChips = (it.match(/data-ichip=/g)||[]).length;
+  out.itemSections = (it.match(/class="igrp/g)||[]).length;
+  T.setItemSel('probio'); var ip = T.viewHtml();
+  out.itemProbioRows = (ip.match(/data-ifav=/g)||[]).length;
+  out.itemHasMapBtn = /data-imap=/.test(ip);
+  T.setItemSel('all'); T.setCourseView('order');
+} catch(e){ out.itemErr = String(e); }
 JSON.stringify(out);
 """
 res = json.loads(ctx.eval(CODE))

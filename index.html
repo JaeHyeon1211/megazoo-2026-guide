@@ -242,6 +242,47 @@
   .pcheck ol{margin:0;padding-left:18px;font-size:11.5px;color:var(--ink2);line-height:1.6;word-break:keep-all}
   .pfoot{font-size:11.5px;color:var(--ink3);line-height:1.6;padding:4px 2px 20px;word-break:keep-all}
 
+  /* 꼭 사야 될 리스트 — 품목별 목록 */
+  .seg{display:flex;gap:3px;background:#e7e7e1;border-radius:11px;padding:3px;margin-bottom:9px}
+  .seg button{flex:1;border:0;background:transparent;border-radius:9px;padding:8px 4px;font-size:12.5px;font-weight:800;color:var(--ink3)}
+  .seg button[data-on="1"]{background:#fff;color:var(--brand);box-shadow:0 1px 3px rgba(0,0,0,.10)}
+  .ilist{padding:10px 12px 24px}
+  .ihead{background:#fffdf5;border:1px solid #f3d47a;border-radius:14px;padding:12px}
+  .ihead h2{margin:0 0 3px;font-size:16px;color:#7c4a03;letter-spacing:-.3px}
+  .ihead p{margin:0;font-size:12px;color:#8a6d2f;line-height:1.55;word-break:keep-all}
+  .ihead .isum{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+  .ihead .isum span{font-size:11.5px;font-weight:800;color:#7c4a03;background:#fff;border:1px solid #f0dc9c;border-radius:999px;padding:2px 8px}
+  .ibar{position:sticky;top:0;z-index:15;background:var(--bg);margin:8px -12px 4px;padding:7px 12px;border-bottom:1px solid var(--line)}
+  .ibar .ichips{padding:0}
+  .chip.i{font-size:12.5px;padding:6px 11px}
+  .chip.i b{font-weight:800;color:var(--ink3);margin-left:3px;font-size:11px}
+  .chip.i[data-on="1"] b{color:#fff}
+  .igrp{background:#fff;border:1px solid var(--line);border-radius:13px;margin-bottom:8px;overflow:hidden}
+  .igrp.hasfav{border-color:#f3d47a;box-shadow:0 0 0 1px #f7e8b6 inset}
+  .igh{display:flex;gap:8px;align-items:flex-start;padding:11px 12px;cursor:pointer}
+  .igh .t{flex:1;min-width:0}
+  .igh .tt{font-size:14.5px;font-weight:800;letter-spacing:-.25px;word-break:keep-all}
+  .igh .ms{font-size:11px;color:var(--ink3);margin-top:2px}
+  .igh .ms b{color:#92620a}
+  .igh .iprev{display:inline-block;margin-top:5px;font-size:10.5px;font-weight:700;color:#8a6d2f;background:#fffbeb;border:1px solid #f3e2b0;border-radius:6px;padding:1px 6px;line-height:1.6}
+  .igh .ar{flex:0 0 auto;font-size:11.5px;font-weight:800;color:#92620a;padding-top:2px}
+  .ibody{border-top:1px dashed #ecece4;padding:8px 10px 10px}
+  .ibody .grow{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:5px}
+  .gnote{font-size:10.5px;color:#7c6b3f;background:#fdf9ec;border:1px solid #f0e2b6;border-radius:8px;padding:6px 8px;line-height:1.55;word-break:keep-all;margin-bottom:6px}
+  .irow{display:flex;gap:8px;padding:9px 0;border-top:1px solid #f4f4f0;align-items:flex-start}
+  .irow:first-of-type{border-top:0}
+  .irow.done{opacity:.62}
+  .irow .bnum{margin-top:1px}
+  .irow .imain{flex:1;min-width:0}
+  .irow .it{font-weight:700;font-size:13.5px;word-break:keep-all;cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;text-decoration-color:#d6d6cf}
+  .irow .im{font-size:10.5px;color:var(--ink3);margin-top:1px;word-break:keep-all}
+  .irow .iacts{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
+  .mini{border:1px solid var(--line);background:#fff;border-radius:7px;padding:4px 8px;font-size:11px;font-weight:800;color:#444;white-space:nowrap}
+  .mini[data-on="1"]{background:#fef3c7;border-color:#eab308;color:#7c4a03}
+  .mini.done[data-on="1"]{background:#16a34a;border-color:#16a34a;color:#fff}
+  .irow .ick{margin-top:5px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:5px 8px;font-size:10.5px;color:#333;line-height:1.5;word-break:keep-all}
+  .ifoot{font-size:11px;color:var(--ink3);line-height:1.6;margin:2px 2px 10px;word-break:keep-all}
+
   /* bottom nav */
   nav{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(255,255,255,.97);
     border-top:1px solid var(--line);backdrop-filter:blur(8px);padding-bottom:env(safe-area-inset-bottom)}
@@ -653,7 +694,8 @@
   let favs = new Set(loadJSON(LS_FAV, []));
   let done = new Set(loadJSON(LS_DONE, []));
   let rev = new Set(loadJSON(LS_REV, []));
-  let course = Object.assign({day:'1122', start:570, entry:'2', dwell:4}, loadJSON(LS_COURSE, {}));
+  let course = Object.assign({day:'1122', start:570, entry:'2', dwell:4, view:'order'}, loadJSON(LS_COURSE, {}));
+  let courseView = course.view === 'item' ? 'item' : 'order';   // 방문 순서 / 품목별 목록
   let here = loadJSON(LS_HERE, null);
   let mapView = 'all';
   let mapZoom = {s:1, tx:0, ty:0};
@@ -1214,6 +1256,7 @@
       + '<div class="calt">선정 기준·제외한 곳은 <b>안내</b> 탭에 있어요.</div></div></div>';
   }
   function renderCourse(){
+    if(courseView === 'item'){ renderItems(); return; }
     const opt = courseOpt();
     const steps = buildRoute([...favs], opt);
     const total = steps.length;
@@ -1230,7 +1273,7 @@
     const meters = Math.round(mUnits * UNIT_M);
     const endMin = total ? steps[total-1].arrive + dwell : 0;
     const moveMin = Math.round(meters / PACE_MPM);
-    let html = '<div class="course">';
+    let html = '<div class="course">' + courseSeg();
     html += '<div class="hero"><h2>내 방문 순서</h2>'
       + '<p>'+(total
           ? '2홀 입구 → 세로 통로로 안쪽 끝 → 가로줄 한 칸씩 출입문 쪽. 한 번 지난 곳은 다시 넣지 않고, <b>🔁 다시 볼 곳</b>은 맨 뒤에 모아요.'
@@ -1380,6 +1423,183 @@
     const dw = document.getElementById('cdwell'); if(dw) dw.onchange = e=>{ course.dwell = +e.target.value; saveCourse(); renderCourse(); };
   }
 
+  // ---------- 꼭 사야 될 리스트: 품목별 목록 ----------
+  // 2026-11-22 슬랙 #메가주 요청: "내가 꼭 사야될 리스트에서 품목별로 목록리스트로 볼수잇게 해줄래"
+  // 필수품목 CORE 69곳(중복 포함 78칸)을 품목(CORE_GROUPS)별로 묶고, 품목 하나를 고르면 그 품목 부스가
+  // 부스번호·홀·확인 포인트·담기·방문 체크·지도 표시까지 한 목록으로 이어지게 보여 준다.
+  // 기존 방문 순서(renderCourse)와 데이터는 그대로 두고 보기만 나눈다.
+  let itemSel = 'all';         // 'all' | 품목 key | 'fav'(찜한 부스 전체)
+  const itemOpen = new Set();  // 펼친 품목 key
+  const noteOpen = new Set();  // 품목 기준·주의 문구를 펼친 key
+  const ckOpen = new Set();    // 확인 포인트를 펼친 부스 id
+  let focusId = null;          // 배치도에서 강조하는 부스 id
+
+  function grpShort(g){ return g.label.replace(/\s*\(.*\)\s*$/, ''); }
+  function grpIds(k){ return (CORE_GROUP_BY[k] ? CORE_IDS_OF(k) : []).filter(id=>BY[id]); }
+  function itemCounts(ids){
+    return {favN: ids.filter(id=>favs.has(id)).length, doneN: ids.filter(id=>done.has(id)).length};
+  }
+  function courseSeg(){
+    return '<div class="seg">'
+      + '<button data-cview="order" data-on="'+(courseView==='order'?1:0)+'">🗺️ 방문 순서</button>'
+      + '<button data-cview="item" data-on="'+(courseView==='item'?1:0)+'">🛒 품목별 목록</button></div>';
+  }
+  // 품목 목록의 부스 한 줄 — 이름을 누르면 부스 상세 시트가 열린다(data-open은 공통 처리)
+  function itemRow(b, hideItems){
+    const c = CORE_BY[b.id];
+    const isFav = favs.has(b.id), isDone = done.has(b.id);
+    const ck = (c && c.ck) || [];
+    const others = c ? c.items.filter(x => !(hideItems && hideItems.indexOf(x) >= 0)) : [];
+    const showCk = ckOpen.has(b.id);
+    return '<div class="irow'+(isDone?' done':'')+'">'
+      + '<span class="bnum '+HALLCLS[b.hall]+'">'+esc(b.id)+'</span>'
+      + '<div class="imain">'
+      +   '<div class="it" data-open="'+esc(b.id)+'">'+esc(b.label||('부스 '+b.id))+'</div>'
+      +   '<div class="im">'+esc(HALLNAME[b.hall])+(b.cat? ' · '+esc(b.cat):'')+(others.length? ' · '+esc(others.join('·'))+'도 있음':'')+(b.approx? ' · 위치 근사값':'')+'</div>'
+      +   '<div class="iacts">'
+      +     '<button class="mini" data-ifav="'+esc(b.id)+'" data-on="'+(isFav?1:0)+'">'+(isFav?'★ 담김':'☆ 담기')+'</button>'
+      +     '<button class="mini done" data-idone="'+esc(b.id)+'" data-on="'+(isDone?1:0)+'">'+(isDone?'✓ 방문함':'방문 체크')+'</button>'
+      +     '<button class="mini" data-imap="'+esc(b.id)+'">🗺️ 지도</button>'
+      +     (ck.length? '<button class="mini" data-ick="'+esc(b.id)+'" data-on="'+(showCk?1:0)+'">확인 '+ck.length+'</button>' : '')
+      +   '</div>'
+      +   (showCk? '<div class="ick">'+ck.map(x=>'✅ '+esc(x)).join('<br>')+'</div>' : '')
+      + '</div></div>';
+  }
+  // 품목 하나 = 접었다 펴는 한 덩어리. 접혀 있을 때는 부스번호를 한 줄로 미리 보여 준다.
+  function itemSection(g){
+    const ids = grpIds(g.key);
+    const cnt = itemCounts(ids);
+    const open = itemSel===g.key || itemOpen.has(g.key);
+    const prev = ids.length > 7 ? ids.slice(0,7).join('·')+' 외 '+(ids.length-7)+'곳' : ids.join('·');
+    const allOn = ids.length>0 && cnt.favN===ids.length;
+    return '<div class="igrp'+(cnt.favN?' hasfav':'')+'">'
+      + '<div class="igh" data-iopen="'+esc(g.key)+'" role="button" aria-expanded="'+(open?'true':'false')+'">'
+      +   '<div class="t"><div class="tt">'+esc(grpShort(g))+'</div>'
+      +     '<div class="ms"><b>'+ids.length+'곳</b> · 담김 '+cnt.favN+' · 방문 '+cnt.doneN+'</div>'
+      +     (open? '' : '<div class="iprev">'+esc(prev)+'</div>')+'</div>'
+      +   '<span class="ar">'+(open?'접기 ▲':'펼치기 ▾')+'</span></div>'
+      + (open? '<div class="ibody">'
+          + '<div class="grow">'
+          +   '<button class="mini" data-igrp="'+esc(g.key)+'" data-on="'+(allOn?1:0)+'">'+(allOn? '이 품목 '+ids.length+'곳 전부 빼기' : '이 품목 '+ids.length+'곳 전부 담기')+'</button>'
+          +   '<button class="mini" data-inote="'+esc(g.key)+'" data-on="'+(noteOpen.has(g.key)?1:0)+'">기준·주의 '+(noteOpen.has(g.key)?'접기 ▲':'▾')+'</button>'
+          + '</div>'
+          + (noteOpen.has(g.key)? '<div class="gnote">'+esc(g.note)+'</div>' : '')
+          + routeOrder(ids.map(id=>BY[id])).map(b=>itemRow(b, [grpShort(g)])).join('')
+          + '</div>' : '')
+      + '</div>';
+  }
+  // 찜한 부스(품목 리스트 밖 포함)도 같은 줄 모양으로, 동선 순서대로
+  function favSection(ids, title){
+    const list = routeOrder(ids.map(id=>BY[id]));
+    const open = itemSel==='fav' || itemOpen.has('fav');
+    const doneN = list.filter(b=>done.has(b.id)).length;
+    const prev = list.length > 7 ? list.slice(0,7).map(b=>b.id).join('·')+' 외 '+(list.length-7)+'곳' : list.map(b=>b.id).join('·');
+    return '<div class="igrp hasfav"><div class="igh" data-iopen="fav" role="button" aria-expanded="'+(open?'true':'false')+'"'
+      + ' style="background:#fffbeb">'
+      + '<div class="t"><div class="tt">'+esc(title||'★ 찜한 부스')+'</div>'
+      + '<div class="ms"><b>'+list.length+'곳</b> · 방문 '+doneN+'</div>'
+      + (open? '' : '<div class="iprev">'+esc(prev)+'</div>')+'</div>'
+      + '<span class="ar">'+(open?'접기 ▲':'펼치기 ▾')+'</span></div>'
+      + (open? '<div class="ibody">'+list.map(b=>itemRow(b, null)).join('')+'</div>' : '')
+      + '</div>';
+  }
+  function renderItems(){
+    const coreFav = CORE_IDS.filter(id=>favs.has(id)).length;
+    const coreDone = CORE_IDS.filter(id=>done.has(id)).length;
+    const chips = [['all','전체',CORE_N], ['fav','★ 찜한 부스',String(favs.size)]]
+      .concat(CORE_GROUPS.map(g=>[g.key, grpShort(g), String(grpIds(g.key).length)]))
+      .map(x=>'<button class="chip i" data-ichip="'+esc(x[0])+'" data-on="'+(itemSel===x[0]?1:0)+'">'+esc(x[1])+' <b>'+x[2]+'</b></button>')
+      .join('');
+    let html = '<div class="ilist">' + courseSeg()
+      + '<div class="ihead"><h2>🛒 꼭 사야 될 리스트</h2>'
+      + '<p>품목을 고르면 그 품목을 파는 부스가 <b>부스번호·홀·확인 포인트</b>까지 한 줄씩 나옵니다. 한 부스가 여러 품목에 있으면 품목마다 한 번씩 나와요(중복 '+CORE_OVERLAP+'칸).</p>'
+      + '<div class="isum"><span>품목 '+CORE_GROUPS.length+'개</span><span>부스 '+CORE_N+'곳</span><span>담김 '+coreFav+'</span><span>방문 '+coreDone+'</span></div></div>'
+      + '<div class="ibar"><div class="scroll ichips">'+chips+'</div></div>';
+    if(itemSel === 'fav'){
+      html += favSection([...favs].filter(id=>BY[id]), '★ 찜한 부스 (동선 순서)');
+      if(!favs.size) html += '<div class="empty">아직 찜한 부스가 없어요.<br>위 품목에서 <b>☆ 담기</b>를 누르면 여기에 모입니다.</div>';
+    } else {
+      html += CORE_GROUPS.map(g=>itemSection(g)).join('');
+      const extra = [...favs].filter(id=>BY[id] && !CORE_SET.has(id));
+      if(extra.length && itemSel === 'all') html += favSection(extra, '직접 찜한 부스 (품목 리스트 밖)');
+    }
+    html += '<div class="ifoot">※ 표시된 '+CORE_N+'곳은 <b>방문 후보</b>예요(현장 판매·재고 확인 전). 「담기」를 누르면 내 코스 방문 순서에 들어가고, 「방문 체크」는 여기와 방문 순서에 함께 남아요. 품목 선정 기준과 제외한 곳은 <b>안내</b> 탭에 있습니다.</div>'
+      + '<div class="btnrow"><button class="btn" id="iinfo">안내 탭에서 기준 보기</button><button class="btn primary" id="iorder">방문 순서로 보기</button></div>'
+      + '</div>';
+    view.innerHTML = html;
+    bindItems();
+  }
+  function bindItems(){
+    view.querySelectorAll('[data-cview]').forEach(el=>el.onclick=()=>{
+      courseView = el.dataset.cview === 'item' ? 'item' : 'order';
+      course.view = courseView; saveCourse(); renderCourse();
+    });
+    view.querySelectorAll('[data-ichip]').forEach(el=>el.onclick=()=>{
+      const k = el.dataset.ichip;
+      itemSel = k;
+      if(k !== 'all' && k !== 'fav') itemOpen.add(k);   // 품목을 고르면 그 품목은 펼쳐서 보여 준다
+      renderCourse();
+      try{ window.scrollTo({top:0}); }catch(e){}
+    });
+    view.querySelectorAll('[data-iopen]').forEach(el=>el.onclick=()=>{
+      const k = el.dataset.iopen;
+      const openNow = (itemSel===k) || itemOpen.has(k);
+      itemOpen.delete(k);
+      if(openNow){ if(itemSel===k) itemSel = 'all'; }
+      else itemOpen.add(k);
+      renderCourse();
+    });
+    view.querySelectorAll('[data-ifav]').forEach(el=>el.onclick=()=>{
+      const id = el.dataset.ifav;
+      if(favs.has(id)){ favs.delete(id); done.delete(id); rev.delete(id); saveRev(); }
+      else favs.add(id);
+      save(); renderCourse();
+    });
+    view.querySelectorAll('[data-idone]').forEach(el=>el.onclick=()=>{
+      const id = el.dataset.idone;
+      done.has(id)? done.delete(id) : done.add(id);
+      save(); renderCourse();
+    });
+    view.querySelectorAll('[data-ick]').forEach(el=>el.onclick=()=>{
+      const id = el.dataset.ick;
+      ckOpen.has(id)? ckOpen.delete(id) : ckOpen.add(id);
+      renderCourse();
+    });
+    view.querySelectorAll('[data-inote]').forEach(el=>el.onclick=()=>{
+      const k = el.dataset.inote;
+      noteOpen.has(k)? noteOpen.delete(k) : noteOpen.add(k);
+      renderCourse();
+    });
+    view.querySelectorAll('[data-igrp]').forEach(el=>el.onclick=()=>{
+      const k = el.dataset.igrp;
+      const ids = grpIds(k);
+      if(ids.every(id=>favs.has(id))){
+        ids.forEach(id=>{ favs.delete(id); done.delete(id); rev.delete(id); });
+        toast(CORE_GROUP_BY[k].label+' '+ids.length+'곳을 즐겨찾기에서 뺐어요');
+      } else {
+        let n = 0;
+        ids.forEach(id=>{ if(!favs.has(id)){ favs.add(id); n++; } });
+        toast(CORE_GROUP_BY[k].label+' '+n+'곳을 담았어요');
+      }
+      saveRev(); save(); renderCourse();
+    });
+    view.querySelectorAll('[data-imap]').forEach(el=>el.onclick=()=> mapFocus(el.dataset.imap));
+    const io = document.getElementById('iorder');
+    if(io) io.onclick = ()=>{ courseView='order'; course.view='order'; saveCourse(); renderCourse(); };
+    const ii = document.getElementById('iinfo');
+    if(ii) ii.onclick = ()=> switchTab('info');
+  }
+  // 품목 목록의 「지도」 — 배치도 탭으로 넘어가 그 부스 홀을 열고 빨간 테두리로 표시
+  function mapFocus(id){
+    const b = BY[id]; if(!b) return;
+    focusId = id;
+    mapView = MAP_VIEWS[b.hall] ? b.hall : 'all';
+    mapZoom = {s:1, tx:0, ty:0};
+    pinMode = false;
+    switchTab('map');
+    toast(b.id+' 부스 위치를 표시했어요');
+  }
+
   // ---------- 배치도 v2: 홀 전환·확대/이동·부스 탭·내 위치 핀·편의시설 ----------
   // 홀 버튼을 눌러도 동선·핀이 지워지지 않도록, 이미지와 오버레이(SVG)를 따로 두고
   // 홀을 바꿀 때 오버레이를 다시 그린다(2026-11-19 renderMap 회귀 수정).
@@ -1520,6 +1740,15 @@
         + '<circle r="6" fill="#dc2626" stroke="#fff" stroke-width="2"/>'
         + '<text y="-13" text-anchor="middle" font-size="9" font-weight="700" fill="#b91c1c">내 위치</text></g>';
     }
+    // 품목 목록의 「지도」로 지정한 부스 강조 — 동선 핀과 겹쳐도 보이게 테두리만 그린다
+    if(focusId && BY[focusId] && inV(BY[focusId].x, BY[focusId].y, 40)){
+      const f = BY[focusId];
+      s += '<g transform="translate('+f.x+','+f.y+') scale(1,0.706)">'
+        + '<circle r="17" fill="#dc2626" fill-opacity="0.14"/>'
+        + '<circle r="11" fill="none" stroke="#dc2626" stroke-width="3.4"/>'
+        + '<circle r="3.6" fill="#dc2626" stroke="#fff" stroke-width="1.2"/></g>'
+        + '<text x="'+f.x+'" y="'+(f.y-17)+'" text-anchor="middle" font-size="11" font-weight="800" fill="#b91c1c" stroke="#fff" stroke-width="2.6" paint-order="stroke">'+esc(f.id)+'</text>';
+    }
     svg.innerHTML = s;
   }
   function mapLegend(steps){
@@ -1548,6 +1777,7 @@
       + '<button class="chip acc" id="facbtn" data-on="'+(facOn?1:0)+'">편의시설</button>'
       + '<button class="chip acc" id="pinbtn" data-on="'+(pinMode?1:0)+'">📍 내 위치</button>'
       + (here? '<button class="chip" id="pinclear">핀 지우기</button>' : '')
+      + (focusId? '<button class="chip" id="focusclr" style="border-color:#fca5a5;color:#b91c1c">🔴 '+esc(focusId)+' 표시 끄기</button>' : '')
       + '</div>'
       + '<div class="stage'+(pinMode? ' pinmode':'')+'" id="stage"><div class="canvas" id="zoomer">'
       + '<img id="mapimg" src="'+imgSrc(v.src)+'" alt="메가주 2026 부스배치도 '+esc(v.name)+'" style="aspect-ratio:'+((v.x1-v.x0)/(0.705*(v.y1-v.y0))).toFixed(4)+'">'
@@ -1580,6 +1810,7 @@
     const fb = document.getElementById('facbtn'); if(fb) fb.onclick = ()=>{ facOn = !facOn; renderMap(); };
     const pb = document.getElementById('pinbtn'); if(pb) pb.onclick = ()=>{ pinMode = !pinMode; renderMap(); };
     const pc = document.getElementById('pinclear'); if(pc) pc.onclick = ()=>{ here = null; saveHere(); renderMap(); toast('핀을 지웠어요'); };
+    const fc = document.getElementById('focusclr'); if(fc) fc.onclick = ()=>{ focusId = null; renderMap(); };
 
     const pts = new Map();
     let drag = null, pinch = null, pressT = null, pinched = false;
@@ -1854,11 +2085,19 @@
     setRev: function(ids){ rev = new Set(ids); saveRev(); },
     setHere: function(x,y){ here = {x:x, y:y, t:'09:00'}; saveHere(); renderMap(); },
     getHere: function(){ return here; },
-    goTab: function(t){ switchTab(t); }
+    goTab: function(t){ switchTab(t); },
+    setCourseView: function(v){ courseView = (v==='item'?'item':'order'); renderCourse(); },
+    setItemSel: function(k){ itemSel = k||'all'; renderCourse(); },
+    getItemSel: function(){ return itemSel; },
+    getFocus: function(){ return focusId; },
+    setDone: function(ids){ done = new Set(ids); save(); },
+    focusBooth: function(id){ mapFocus(id); },
+    clearFocus: function(){ focusId = null; renderMap(); }
   };
   window.MZROUTE = {buildRoute: buildRoute, routeOrder: routeOrder, hallRoute: hallRoute, orderByHall: orderByHall,
     evTimesFor: evTimesFor, evNoBuy: evNoBuy, ROW_BANDS: ROW_BANDS, ROW_OF: ROW_OF, ENTRIES: ENTRIES,
     HALL_GEO: HALL_GEO, GATES: GATES, COL_OF: COL_OF, MAP_VIEWS: MAP_VIEWS, CORE: CORE, courseOpt: courseOpt,
+    CORE_GROUPS: CORE_GROUPS, grpShort: grpShort, CORE_SET: CORE_SET,
     hallKey: hallKey, UNIT_M: UNIT_M,
     YCORR: YCORR, dist: dist, PACE_MPM: PACE_MPM};
 })();

@@ -135,7 +135,10 @@
   .btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;padding:9px 12px;font-size:13px;font-weight:700}
   .btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
   .hallhead{display:flex;align-items:center;gap:8px;margin:18px 2px 7px}
-  .hallhead .hb{font-size:12px;font-weight:800;color:#fff;border-radius:7px;padding:3px 8px}
+  .hallhead .hb{font-size:12px;font-weight:800;color:#fff;border-radius:7px;padding:3px 8px;background:var(--ha)}
+  .hallhead .hb.h2{background:var(--h2)} .hallhead .hb.h3{background:var(--h3)}
+  .hallhead .hb.h4{background:var(--h4)} .hallhead .hb.h5{background:var(--h5)}
+  .hallhead .hb.hg{background:var(--hg)} .hallhead .hb.ha{background:var(--ha)}
   .hallhead .hs{font-size:12px;color:var(--ink3)}
   .step{display:flex;gap:10px;background:#fff;border:1px solid var(--line);border-radius:13px;padding:10px 11px;margin-bottom:8px}
   .step .no{flex:0 0 26px;height:26px;border-radius:50%;background:var(--ink);color:#fff;font-size:12.5px;font-weight:800;display:flex;align-items:center;justify-content:center}
@@ -143,8 +146,9 @@
   .step.isdone .no{background:#16a34a}
   .step .body{flex:1;min-width:0}
   .step .t{font-weight:700;font-size:14.5px;word-break:keep-all}
+  .step .t[data-open]{cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;text-decoration-color:#cfcfc9}
   .step .m{font-size:11.5px;color:var(--ink3);margin-top:1px}
-  .step .e{font-size:12px;color:#444;margin-top:5px;word-break:keep-all}
+  .step .e{font-size:12px;color:#444;margin-top:5px;word-break:keep-all;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
   .step .acts{display:flex;gap:6px;margin-top:8px}
   .tick{border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 9px;font-size:12px;font-weight:700;color:#444}
   .tick[data-done="1"]{background:#16a34a;border-color:#16a34a;color:#fff}
@@ -238,6 +242,47 @@
   .pcheck ol{margin:0;padding-left:18px;font-size:11.5px;color:var(--ink2);line-height:1.6;word-break:keep-all}
   .pfoot{font-size:11.5px;color:var(--ink3);line-height:1.6;padding:4px 2px 20px;word-break:keep-all}
 
+  /* 꼭 사야 될 리스트 — 품목별 목록 */
+  .seg{display:flex;gap:3px;background:#e7e7e1;border-radius:11px;padding:3px;margin-bottom:9px}
+  .seg button{flex:1;border:0;background:transparent;border-radius:9px;padding:8px 4px;font-size:12.5px;font-weight:800;color:var(--ink3)}
+  .seg button[data-on="1"]{background:#fff;color:var(--brand);box-shadow:0 1px 3px rgba(0,0,0,.10)}
+  .ilist{padding:10px 12px 24px}
+  .ihead{background:#fffdf5;border:1px solid #f3d47a;border-radius:14px;padding:12px}
+  .ihead h2{margin:0 0 3px;font-size:16px;color:#7c4a03;letter-spacing:-.3px}
+  .ihead p{margin:0;font-size:12px;color:#8a6d2f;line-height:1.55;word-break:keep-all}
+  .ihead .isum{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+  .ihead .isum span{font-size:11.5px;font-weight:800;color:#7c4a03;background:#fff;border:1px solid #f0dc9c;border-radius:999px;padding:2px 8px}
+  .ibar{position:sticky;top:0;z-index:15;background:var(--bg);margin:8px -12px 4px;padding:7px 12px;border-bottom:1px solid var(--line)}
+  .ibar .ichips{padding:0}
+  .chip.i{font-size:12.5px;padding:6px 11px}
+  .chip.i b{font-weight:800;color:var(--ink3);margin-left:3px;font-size:11px}
+  .chip.i[data-on="1"] b{color:#fff}
+  .igrp{background:#fff;border:1px solid var(--line);border-radius:13px;margin-bottom:8px;overflow:hidden}
+  .igrp.hasfav{border-color:#f3d47a;box-shadow:0 0 0 1px #f7e8b6 inset}
+  .igh{display:flex;gap:8px;align-items:flex-start;padding:11px 12px;cursor:pointer}
+  .igh .t{flex:1;min-width:0}
+  .igh .tt{font-size:14.5px;font-weight:800;letter-spacing:-.25px;word-break:keep-all}
+  .igh .ms{font-size:11px;color:var(--ink3);margin-top:2px}
+  .igh .ms b{color:#92620a}
+  .igh .iprev{display:inline-block;margin-top:5px;font-size:10.5px;font-weight:700;color:#8a6d2f;background:#fffbeb;border:1px solid #f3e2b0;border-radius:6px;padding:1px 6px;line-height:1.6}
+  .igh .ar{flex:0 0 auto;font-size:11.5px;font-weight:800;color:#92620a;padding-top:2px}
+  .ibody{border-top:1px dashed #ecece4;padding:8px 10px 10px}
+  .ibody .grow{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:5px}
+  .gnote{font-size:10.5px;color:#7c6b3f;background:#fdf9ec;border:1px solid #f0e2b6;border-radius:8px;padding:6px 8px;line-height:1.55;word-break:keep-all;margin-bottom:6px}
+  .irow{display:flex;gap:8px;padding:9px 0;border-top:1px solid #f4f4f0;align-items:flex-start}
+  .irow:first-of-type{border-top:0}
+  .irow.done{opacity:.62}
+  .irow .bnum{margin-top:1px}
+  .irow .imain{flex:1;min-width:0}
+  .irow .it{font-weight:700;font-size:13.5px;word-break:keep-all;cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;text-decoration-color:#d6d6cf}
+  .irow .im{font-size:10.5px;color:var(--ink3);margin-top:1px;word-break:keep-all}
+  .irow .iacts{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
+  .mini{border:1px solid var(--line);background:#fff;border-radius:7px;padding:4px 8px;font-size:11px;font-weight:800;color:#444;white-space:nowrap}
+  .mini[data-on="1"]{background:#fef3c7;border-color:#eab308;color:#7c4a03}
+  .mini.done[data-on="1"]{background:#16a34a;border-color:#16a34a;color:#fff}
+  .irow .ick{margin-top:5px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:5px 8px;font-size:10.5px;color:#333;line-height:1.5;word-break:keep-all}
+  .ifoot{font-size:11px;color:var(--ink3);line-height:1.6;margin:2px 2px 10px;word-break:keep-all}
+
   /* bottom nav */
   nav{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(255,255,255,.97);
     border-top:1px solid var(--line);backdrop-filter:blur(8px);padding-bottom:env(safe-area-inset-bottom)}
@@ -251,6 +296,20 @@
     font-size:13px;padding:9px 14px;border-radius:10px;opacity:0;transition:.25s;pointer-events:none;z-index:60;max-width:90%;text-align:center}
   .toast.on{opacity:.95}
   .note{font-size:12px;color:var(--ink3);padding:0 12px 10px;line-height:1.6}
+
+  /* 현장용 간단 표시 — 긴 설명은 접어 두고 필요한 것만 보이게 */
+  .prods.clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .evsummary.clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .tgl{border:0;background:transparent;color:#2563eb;font-size:12px;font-weight:700;padding:7px 0 0;display:block}
+  .dsc{display:none;font-size:12.5px;color:var(--ink2);margin-top:5px;word-break:keep-all}
+  .dsc.open{display:block}
+  .fold{display:none;word-break:keep-all}
+  .fold.open{display:block}
+  .morelist{display:block;width:100%;margin:2px 0 18px;border:1px solid var(--line);background:#fff;
+    border-radius:12px;padding:12px;font-size:13px;font-weight:800;color:#2563eb}
+  .corebar{display:flex;align-items:center;gap:8px}
+  .corebar .ch{flex:1}
+  .corebar .cbt{border:1px solid #e8c86a;background:#fff;color:#92620a;border-radius:8px;padding:5px 9px;font-size:11.5px;font-weight:800;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -635,7 +694,8 @@
   let favs = new Set(loadJSON(LS_FAV, []));
   let done = new Set(loadJSON(LS_DONE, []));
   let rev = new Set(loadJSON(LS_REV, []));
-  let course = Object.assign({day:'1122', start:570, entry:'2', dwell:4}, loadJSON(LS_COURSE, {}));
+  let course = Object.assign({day:'1122', start:570, entry:'2', dwell:4, view:'order'}, loadJSON(LS_COURSE, {}));
+  let courseView = course.view === 'item' ? 'item' : 'order';   // 방문 순서 / 품목별 목록
   let here = loadJSON(LS_HERE, null);
   let mapView = 'all';
   let mapZoom = {s:1, tx:0, ty:0};
@@ -1005,10 +1065,10 @@
       +   '<div class="name"><div class="t">'+esc(nm)+'</div><div class="m">'+esc(meta)+(b.approx?' · 위치 근사값':'')+'</div></div>'
       +   '<button class="star" data-star="'+esc(b.id)+'" data-fav="'+(favs.has(b.id)?'1':'0')+'" aria-label="즐겨찾기">'+(favs.has(b.id)?'★':'☆')+'</button>'
       + '</div>'
-      + (br.i ? '<div class="info">'+esc(br.i)+'</div>' : '')
-      + ((br.p&&br.p.length)? '<div class="prods">대표 제품 · '+esc(br.p.join(' / '))+'</div>' : '')
+      + ((br.p&&br.p.length)? '<div class="prods clamp">대표 제품 · '+esc(br.p.join(' / '))+'</div>' : '')
+      + (br.i ? '<button class="tgl" data-desc="'+esc(b.id)+'">브랜드 설명 ▾</button><div class="dsc" id="dsc-'+esc(b.id)+'">'+esc(br.i)+'</div>' : '')
       + priceBlock(b)
-      + (b.ev&&b.ev.length ? ('<div class="evwrap"><div class="evsummary"><span class="lab">현장 이벤트</span>'+esc(first)+'</div>'
+      + (b.ev&&b.ev.length ? ('<div class="evwrap"><div class="evsummary clamp"><span class="lab">현장 이벤트</span>'+esc(first)+'</div>'
           + '<button class="more" data-more="'+esc(b.id)+'">'+more+'</button>'
           + '<div class="evfull" id="ev-'+esc(b.id)+'">'+b.ev.map(e=>'<div class="item">'+evTag(e)+esc(e)+'</div>').join('')+'</div>'
           + '</div>') : '')
@@ -1034,6 +1094,7 @@
   }
 
   function renderBooth(){
+    shownBooths = BOOTH_PAGE;
     let html = '<div class="controls">'
       + '<div class="search"><input id="q" placeholder="브랜드·부스번호·품목 검색 (예: 라포그, 3238)" value="'+esc(q)+'">'
       + '<button class="clr" id="clr" style="display:'+(q?'block':'none')+'">×</button></div>'
@@ -1062,11 +1123,22 @@
     paintBoothList();
   }
   // 검색 결과 목록만 갱신 (입력창 DOM·포커스 유지)
+  const BOOTH_PAGE = 60;
+  let shownBooths = BOOTH_PAGE;
   function paintBoothList(){
     const arr = sortedList();
     const evCount = arr.filter(b=>b.ev&&b.ev.length).length;
     const list = document.getElementById('list');
-    if(list) list.innerHTML = arr.length? arr.map(card).join('') : '<div class="empty">조건에 맞는 부스가 없어요.<br>검색어나 필터를 풀어보세요.</div>';
+    if(list){
+      const part = arr.slice(0, shownBooths);
+      list.innerHTML = part.length
+        ? part.map(card).join('') + (arr.length > part.length
+            ? '<button class="morelist" id="morebooth">'+part.length+' / '+arr.length+'곳 표시 중 · 다음 '+(BOOTH_PAGE)+'곳 보기</button>'
+            : '')
+        : '<div class="empty">조건에 맞는 부스가 없어요.<br>검색어나 필터를 풀어보세요.</div>';
+      const mb = document.getElementById('morebooth');
+      if(mb) mb.onclick = ()=>{ shownBooths += BOOTH_PAGE; paintBoothList(); };
+    }
     const cnt = document.getElementById('cnt');
     if(cnt) cnt.textContent = arr.length+'개 부스 · 이벤트 있는 부스 '+evCount+'개';
   }
@@ -1155,8 +1227,9 @@
   const SUPP_RULE = '영양제로 넣을지는 제품 형태(져키·필름·츄르)가 아니라 ① 제조사가 내건 용도(영양제·보조제 / 일반 간식·사료·샴푸) ② 성분·보장량 ③ 급여법(먹이는지, 바르는지, 씻는지)로 정했습니다. 그래서 져키·필름·츄르 형태라도 영양제로 파는 제품은 각 품목 칸에 넣었고(5523 포피펫필름·캐피펫필름, 5734 메이드인랩 눈 건강 져키형), 사료·간식·샴푸에 성분으로 든 유산균·오메가3는 뺐습니다. 2427 닥터아나 3-6-9 오일은 「바르는 오메가3」로 확인돼(2026-11-18) 뺐습니다. 5623 닥터헤리엇은 츄르 형태 영양제(오랄케어·가스트로)를 팔지만 장 건강 제품이 유산균 제제인지 표시사항으로 확인하지 못해 유산균 칸에 넣지 않았습니다 — 제외 목록에서 실제 영양제로 팔리는 제품이 빠진 것으로 확인되면 칸에 넣습니다.';
   // 방문 후보와 내 코스 담기를 구분하는 안내
   function candidateNotice(){
-    return '표시된 '+CORE_N+'곳은 <b>방문 후보</b> 수입니다 — 현장 판매·재고·유모차 호환까지 확인된 수가 아닙니다. 기존 즐겨찾기 '+favs.size+'곳은 그대로 남아 있고, 아래 <b>「이 품목 담기」</b>나 <b>「핵심 '+CORE_N+'곳 한 번에 담기」</b>를 눌러야 내 코스에 들어갑니다.';
+    return '표시된 '+CORE_N+'곳은 <b>방문 후보</b>이고(현장 판매·재고 확인 전), 아래 「이 품목 담기」를 눌러야 내 코스에 들어갑니다.';
   }
+  let coreOpen = false;
   function coreBox(){
     const on = CORE_IDS.filter(id=>favs.has(id)).length;
     const groups = CORE_GROUPS.map(g=>{
@@ -1172,17 +1245,18 @@
       }).join('');
       return '<div class="cgrp"><div class="cgh"><span>'+esc(g.label)+'</span><em>'+ids.length+'곳 · '+cnt+' 담김</em>'
         + '<button class="cgadd" data-grp="'+esc(g.key)+'" data-on="'+(cnt===ids.length?1:0)+'">'+(cnt===ids.length?'이 품목 빼기':'이 품목 담기')+'</button></div>'
-        + '<div class="cl">'+chips+'</div>'
-        + '<div class="calt">'+esc(g.note)+'</div></div>';
+        + '<div class="cl">'+chips+'</div></div>';
     }).join('');
-    return '<div class="core"><div class="ch">🎯 재현 필수품목 — 가야 될 곳<em>'+on+'/'+CORE.length+' 담김</em></div>'
-      + '<div class="csub">필수품목 '+CORE_GROUPS.length+'가지 · 부스 '+CORE_N+'곳 (품목 칸 합계 '+CORE_GROUP_SUM+'칸, 두 품목을 같이 파는 '+CORE_OVERLAP+'곳은 양쪽 칸에 표시)</div>'
+    return '<div class="core"><div class="corebar"><div class="ch">🎯 필수품목 '+CORE_N+'곳 <em>'+on+' 담김</em></div>'
+      + '<button class="cbt" id="coretoggle">'+(coreOpen?'접기 ▲':'펼치기 ▾')+'</button></div>'
+      + '<div class="fold'+(coreOpen?' open':'')+'">'
       + '<div class="cnote">'+candidateNotice()+'</div>'
       + '<button class="cbtn" id="cadd">'+(on===CORE.length?'핵심 '+CORE_N+'곳 빼기':'핵심 '+CORE_N+'곳 한 번에 담기')+'</button>'
-      + '<div class="cnote">🧪 <b>영양제 분류 기준</b> — '+esc(SUPP_RULE)+'</div>'
-      + groups + '</div>';
+      + groups
+      + '<div class="calt">선정 기준·제외한 곳은 <b>안내</b> 탭에 있어요.</div></div></div>';
   }
   function renderCourse(){
+    if(courseView === 'item'){ renderItems(); return; }
     const opt = courseOpt();
     const steps = buildRoute([...favs], opt);
     const total = steps.length;
@@ -1199,11 +1273,11 @@
     const meters = Math.round(mUnits * UNIT_M);
     const endMin = total ? steps[total-1].arrive + dwell : 0;
     const moveMin = Math.round(meters / PACE_MPM);
-    let html = '<div class="course">';
+    let html = '<div class="course">' + courseSeg();
     html += '<div class="hero"><h2>내 방문 순서</h2>'
       + '<p>'+(total
-          ? '2홀로 입장해 <b>출입문에서 가장 가까운 세로 통로</b>로 안쪽 끝까지 들어가며 양쪽 부스를 보고, 안쪽 끝에서부터 <b>가로줄을 한 칸씩 출입문 쪽으로</b> 올라와 마지막은 출입문 쪽 부스에서 끝나요. 한 번 지난 부스는 다시 넣지 않고, 꼭 다시 볼 곳은 아래 <b>🔁 다시 볼 곳</b>에 따로 담깁니다.'
-          : '부스 목록에서 ☆를 눌러 가고 싶은 곳을 담으면, 2홀 입구에서 출발하는 순서를 만들어 드려요.')+'</p>'
+          ? '2홀 입구 → 세로 통로로 안쪽 끝 → 가로줄 한 칸씩 출입문 쪽. 한 번 지난 곳은 다시 넣지 않고, <b>🔁 다시 볼 곳</b>은 맨 뒤에 모아요.'
+          : '부스 목록에서 ☆를 누르면 2홀 입구에서 출발하는 순서를 만들어 드려요.')+'</p>'
       + '<div class="crset">'
       + '<div><label for="cday">방문일</label><select id="cday">'
       + VISITS.map(v=>'<option value="'+v.k+'" '+(course.day===v.k?'selected':'')+'>'+v.label+'</option>').join('')
@@ -1215,12 +1289,10 @@
       + [2,3,4,6,8,10].map(m=>'<option value="'+m+'" '+(dwell===m?'selected':'')+'>'+m+'분</option>').join('')
       + '</select></div>'
       + '</div>'
-      + (total? '<div class="crsum">'+esc(dayLabel)+' '+fmtMin(+course.start)+' · <b>2홀 입구</b> 출발 (입구 고정)<br>'
-          + '2홀 → 3홀 → 4홀 → 5홀 · 홀마다 세로 통로 진입 뒤 가로줄 훑기<br>'
-          + '도면 직선거리 약 <b>'+meters.toLocaleString()+'m</b>(도보 ~'+moveMin+'분) · 부스당 '+dwell+'분 · 예상 종료 <b>'+fmtMin(endMin)+'</b>'
-          + (anchorN? ' · 정시 이벤트 '+anchorN+'곳 고정' : '')+'</div>'
-          + '<div class="crfine">※ 거리·시각은 <b>도면 직선거리 환산 참고치</b>입니다. 통로를 도는 실제 보행거리·도착시각이 아니고, 현장 대기줄·<b>구매시간은 빠져</b> 있습니다.</div>'
-          + (anchorN? '<div class="crfine">⏰ 정시 이벤트·오픈런 '+anchorN+'곳을 시간에 맞추려고 앞쪽에 배치했습니다. 이런 항목이 있으면 기본 순서(한 방향으로 훑고 되돌아가지 않기)와 달리 <b>동선이 일부 교차할 수 있습니다.</b></div>' : '')
+      + (total? '<div class="crsum">'+esc(dayLabel)+' '+fmtMin(+course.start)+' · 2홀 입구 출발 · 도면 직선 <b>'+meters.toLocaleString()+'m</b>(~'+moveMin+'분) · 부스당 '+dwell+'분 · <b>'+fmtMin(endMin)+'</b> 종료예상'
+          + (anchorN? ' · ⏰ 정시 '+anchorN+'곳' : '')+'</div>'
+          + '<div class="crfine">※ 거리는 도면 직선거리 환산 참고치(1,000 ≈ 260m) · 실제 보행·도착시각 아님 · 대기줄·구매시간은 빠져 있음</div>'
+          + (anchorN? '<div class="crfine">⏰ 정시·오픈런 '+anchorN+'곳은 <b>시간순 우선 배치</b>라 기본 순서와 달리 <b>동선이 일부 교차</b>할 수 있어요.</div>' : '')
           : '')
       + '<div class="prog"><i style="width:'+pctv+'%"></i></div>'
       + '<div class="nums"><span>방문 완료 '+dn+' / '+total+'</span><span>'+pctv+'%</span></div>'
@@ -1229,7 +1301,7 @@
       + '<button class="btn" id="tobo">부스 더 담기</button>'
       + (dn? '<button class="btn" id="resetdone">방문 기록 초기화</button>': '')
       + '</div>'
-      + coreBox()
+      + (total? '' : coreBox())
       + '</div>';
 
     if(!total){
@@ -1263,7 +1335,7 @@
       }
       html += '<div class="step'+(isDone?' isdone':'')+'">'
         + '<div class="no">'+(isDone?'✓':stepNo)+'</div>'
-        + '<div class="body"><div class="t">'+esc(b.label||('부스 '+b.id))+'</div>'
+        + '<div class="body"><div class="t" data-open="'+esc(b.id)+'">'+esc(b.label||('부스 '+b.id))+'</div>'
         + '<div class="m">'+esc(b.id)+' · '+esc(HALLNAME[b.hall])+(b.cat?' · '+esc(b.cat):'')+esc(thTxt)+'</div>'
         + '<div class="'+tCls+'">'+tTxt+'</div>'
         + (CORE_BY[b.id]? '<div class="citem in">🎯 '+esc(CORE_BY[b.id].items.join(' · '))+'</div>' : '')
@@ -1287,12 +1359,12 @@
         cur = s.b; tm += dwell;
       });
       html += '<div class="rev"><h3>🔁 다시 볼 곳 '+revSteps.length+'곳</h3>'
-        + '<div style="font-size:11.5px;color:#6d28d9;line-height:1.55;margin-bottom:5px">메인 동선에서 한 번 지나간 부스는 두 번 넣지 않습니다. 위 순서를 다 돌고 난 뒤에 여기 담은 곳만 되짚어요(끝난 자리에서 가까운 순).</div>'
+        + '<div style="font-size:11.5px;color:#6d28d9;line-height:1.55;margin-bottom:5px">위 순서를 다 돈 뒤에 끝난 자리에서 가까운 순으로 되짚아요.</div>'
         + rows.join('')
         + '<div style="font-size:11px;color:#7c6ba8;margin-top:6px">※ 되짚는 구간까지 포함한 예상 시각입니다. 통로가 붐비면 더 걸려요.</div></div>';
     }
-    html += '<div class="note">※ 순서는 주최 공개 배치도(2026.11.17) 좌표로 계산한 <b>참고용</b> 순서입니다. 2홀 입구에서 가장 가까운 세로 통로로 안쪽 끝까지 들어가 양쪽 부스를 본 뒤, 안쪽 가로줄부터 출입문 쪽으로 한 줄씩 훑고 마지막은 출입문 쪽 부스에서 끝납니다. 홀은 2홀 → 3홀 → 4홀 → 5홀 순서이고, 홀마다 같은 방식으로 돕니다. 오픈런·선착순·정시 이벤트는 공개 문구에 시각이 적힌 것만 먼저 고정했습니다. 거리·시간은 <b>도면 직선거리 환산 참고치</b>(도면 1,000 ≈ 260m · 통로 보행 50m/분 가정)이고, 통로를 도는 실제 보행거리·도착시각이 아니며 대기줄·구매 시간은 빠져 있습니다.</div>';
-    if(anchorN) html += '<div class="note">⏰ <b>정시/오픈런 항목을 포함하면 시간순 우선 배치</b> 때문에 <b>기본 순서와 달리 동선이 일부 교차할 수 있습니다</b>. 위 「정시 이벤트 '+anchorN+'곳 고정」이 그 경우이고, 각 단계에 이벤트 시각과 도착 시각·남는 여유를 같이 적어 두었습니다.</div>';
+    html += '<div class="note">※ 순서는 주최 배치도(2026.11.17) 좌표 기준 <b>참고용</b>이에요. 거리는 <b>도면 직선거리</b> 환산 <b>참고치</b>(1,000 ≈ 260m · 50m/분)이고 대기·구매시간은 빠져 있어요.</div>';
+    html += coreBox();
     html += '</div>';
     view.innerHTML = html;
     bindCourse();
@@ -1332,6 +1404,8 @@
       }
       saveRev(); save(); renderCourse();
     });
+    const ct = document.getElementById('coretoggle');
+    if(ct) ct.onclick = ()=>{ coreOpen = !coreOpen; renderCourse(); };
     const ca = document.getElementById('cadd');
     if(ca) ca.onclick = ()=>{
       if(CORE_IDS.every(id=>favs.has(id))){
@@ -1347,6 +1421,183 @@
     const cd = document.getElementById('cday'); if(cd) cd.onchange = e=>{ course.day = e.target.value; saveCourse(); renderCourse(); };
     const cs = document.getElementById('cstart'); if(cs) cs.onchange = e=>{ course.start = +e.target.value; saveCourse(); renderCourse(); };
     const dw = document.getElementById('cdwell'); if(dw) dw.onchange = e=>{ course.dwell = +e.target.value; saveCourse(); renderCourse(); };
+  }
+
+  // ---------- 꼭 사야 될 리스트: 품목별 목록 ----------
+  // 2026-11-22 슬랙 #메가주 요청: "내가 꼭 사야될 리스트에서 품목별로 목록리스트로 볼수잇게 해줄래"
+  // 필수품목 CORE 69곳(중복 포함 78칸)을 품목(CORE_GROUPS)별로 묶고, 품목 하나를 고르면 그 품목 부스가
+  // 부스번호·홀·확인 포인트·담기·방문 체크·지도 표시까지 한 목록으로 이어지게 보여 준다.
+  // 기존 방문 순서(renderCourse)와 데이터는 그대로 두고 보기만 나눈다.
+  let itemSel = 'all';         // 'all' | 품목 key | 'fav'(찜한 부스 전체)
+  const itemOpen = new Set();  // 펼친 품목 key
+  const noteOpen = new Set();  // 품목 기준·주의 문구를 펼친 key
+  const ckOpen = new Set();    // 확인 포인트를 펼친 부스 id
+  let focusId = null;          // 배치도에서 강조하는 부스 id
+
+  function grpShort(g){ return g.label.replace(/\s*\(.*\)\s*$/, ''); }
+  function grpIds(k){ return (CORE_GROUP_BY[k] ? CORE_IDS_OF(k) : []).filter(id=>BY[id]); }
+  function itemCounts(ids){
+    return {favN: ids.filter(id=>favs.has(id)).length, doneN: ids.filter(id=>done.has(id)).length};
+  }
+  function courseSeg(){
+    return '<div class="seg">'
+      + '<button data-cview="order" data-on="'+(courseView==='order'?1:0)+'">🗺️ 방문 순서</button>'
+      + '<button data-cview="item" data-on="'+(courseView==='item'?1:0)+'">🛒 품목별 목록</button></div>';
+  }
+  // 품목 목록의 부스 한 줄 — 이름을 누르면 부스 상세 시트가 열린다(data-open은 공통 처리)
+  function itemRow(b, hideItems){
+    const c = CORE_BY[b.id];
+    const isFav = favs.has(b.id), isDone = done.has(b.id);
+    const ck = (c && c.ck) || [];
+    const others = c ? c.items.filter(x => !(hideItems && hideItems.indexOf(x) >= 0)) : [];
+    const showCk = ckOpen.has(b.id);
+    return '<div class="irow'+(isDone?' done':'')+'">'
+      + '<span class="bnum '+HALLCLS[b.hall]+'">'+esc(b.id)+'</span>'
+      + '<div class="imain">'
+      +   '<div class="it" data-open="'+esc(b.id)+'">'+esc(b.label||('부스 '+b.id))+'</div>'
+      +   '<div class="im">'+esc(HALLNAME[b.hall])+(b.cat? ' · '+esc(b.cat):'')+(others.length? ' · '+esc(others.join('·'))+'도 있음':'')+(b.approx? ' · 위치 근사값':'')+'</div>'
+      +   '<div class="iacts">'
+      +     '<button class="mini" data-ifav="'+esc(b.id)+'" data-on="'+(isFav?1:0)+'">'+(isFav?'★ 담김':'☆ 담기')+'</button>'
+      +     '<button class="mini done" data-idone="'+esc(b.id)+'" data-on="'+(isDone?1:0)+'">'+(isDone?'✓ 방문함':'방문 체크')+'</button>'
+      +     '<button class="mini" data-imap="'+esc(b.id)+'">🗺️ 지도</button>'
+      +     (ck.length? '<button class="mini" data-ick="'+esc(b.id)+'" data-on="'+(showCk?1:0)+'">확인 '+ck.length+'</button>' : '')
+      +   '</div>'
+      +   (showCk? '<div class="ick">'+ck.map(x=>'✅ '+esc(x)).join('<br>')+'</div>' : '')
+      + '</div></div>';
+  }
+  // 품목 하나 = 접었다 펴는 한 덩어리. 접혀 있을 때는 부스번호를 한 줄로 미리 보여 준다.
+  function itemSection(g){
+    const ids = grpIds(g.key);
+    const cnt = itemCounts(ids);
+    const open = itemSel===g.key || itemOpen.has(g.key);
+    const prev = ids.length > 7 ? ids.slice(0,7).join('·')+' 외 '+(ids.length-7)+'곳' : ids.join('·');
+    const allOn = ids.length>0 && cnt.favN===ids.length;
+    return '<div class="igrp'+(cnt.favN?' hasfav':'')+'">'
+      + '<div class="igh" data-iopen="'+esc(g.key)+'" role="button" aria-expanded="'+(open?'true':'false')+'">'
+      +   '<div class="t"><div class="tt">'+esc(grpShort(g))+'</div>'
+      +     '<div class="ms"><b>'+ids.length+'곳</b> · 담김 '+cnt.favN+' · 방문 '+cnt.doneN+'</div>'
+      +     (open? '' : '<div class="iprev">'+esc(prev)+'</div>')+'</div>'
+      +   '<span class="ar">'+(open?'접기 ▲':'펼치기 ▾')+'</span></div>'
+      + (open? '<div class="ibody">'
+          + '<div class="grow">'
+          +   '<button class="mini" data-igrp="'+esc(g.key)+'" data-on="'+(allOn?1:0)+'">'+(allOn? '이 품목 '+ids.length+'곳 전부 빼기' : '이 품목 '+ids.length+'곳 전부 담기')+'</button>'
+          +   '<button class="mini" data-inote="'+esc(g.key)+'" data-on="'+(noteOpen.has(g.key)?1:0)+'">기준·주의 '+(noteOpen.has(g.key)?'접기 ▲':'▾')+'</button>'
+          + '</div>'
+          + (noteOpen.has(g.key)? '<div class="gnote">'+esc(g.note)+'</div>' : '')
+          + routeOrder(ids.map(id=>BY[id])).map(b=>itemRow(b, [grpShort(g)])).join('')
+          + '</div>' : '')
+      + '</div>';
+  }
+  // 찜한 부스(품목 리스트 밖 포함)도 같은 줄 모양으로, 동선 순서대로
+  function favSection(ids, title){
+    const list = routeOrder(ids.map(id=>BY[id]));
+    const open = itemSel==='fav' || itemOpen.has('fav');
+    const doneN = list.filter(b=>done.has(b.id)).length;
+    const prev = list.length > 7 ? list.slice(0,7).map(b=>b.id).join('·')+' 외 '+(list.length-7)+'곳' : list.map(b=>b.id).join('·');
+    return '<div class="igrp hasfav"><div class="igh" data-iopen="fav" role="button" aria-expanded="'+(open?'true':'false')+'"'
+      + ' style="background:#fffbeb">'
+      + '<div class="t"><div class="tt">'+esc(title||'★ 찜한 부스')+'</div>'
+      + '<div class="ms"><b>'+list.length+'곳</b> · 방문 '+doneN+'</div>'
+      + (open? '' : '<div class="iprev">'+esc(prev)+'</div>')+'</div>'
+      + '<span class="ar">'+(open?'접기 ▲':'펼치기 ▾')+'</span></div>'
+      + (open? '<div class="ibody">'+list.map(b=>itemRow(b, null)).join('')+'</div>' : '')
+      + '</div>';
+  }
+  function renderItems(){
+    const coreFav = CORE_IDS.filter(id=>favs.has(id)).length;
+    const coreDone = CORE_IDS.filter(id=>done.has(id)).length;
+    const chips = [['all','전체',CORE_N], ['fav','★ 찜한 부스',String(favs.size)]]
+      .concat(CORE_GROUPS.map(g=>[g.key, grpShort(g), String(grpIds(g.key).length)]))
+      .map(x=>'<button class="chip i" data-ichip="'+esc(x[0])+'" data-on="'+(itemSel===x[0]?1:0)+'">'+esc(x[1])+' <b>'+x[2]+'</b></button>')
+      .join('');
+    let html = '<div class="ilist">' + courseSeg()
+      + '<div class="ihead"><h2>🛒 꼭 사야 될 리스트</h2>'
+      + '<p>품목을 고르면 그 품목을 파는 부스가 <b>부스번호·홀·확인 포인트</b>까지 한 줄씩 나옵니다. 한 부스가 여러 품목에 있으면 품목마다 한 번씩 나와요(중복 '+CORE_OVERLAP+'칸).</p>'
+      + '<div class="isum"><span>품목 '+CORE_GROUPS.length+'개</span><span>부스 '+CORE_N+'곳</span><span>담김 '+coreFav+'</span><span>방문 '+coreDone+'</span></div></div>'
+      + '<div class="ibar"><div class="scroll ichips">'+chips+'</div></div>';
+    if(itemSel === 'fav'){
+      html += favSection([...favs].filter(id=>BY[id]), '★ 찜한 부스 (동선 순서)');
+      if(!favs.size) html += '<div class="empty">아직 찜한 부스가 없어요.<br>위 품목에서 <b>☆ 담기</b>를 누르면 여기에 모입니다.</div>';
+    } else {
+      html += CORE_GROUPS.map(g=>itemSection(g)).join('');
+      const extra = [...favs].filter(id=>BY[id] && !CORE_SET.has(id));
+      if(extra.length && itemSel === 'all') html += favSection(extra, '직접 찜한 부스 (품목 리스트 밖)');
+    }
+    html += '<div class="ifoot">※ 표시된 '+CORE_N+'곳은 <b>방문 후보</b>예요(현장 판매·재고 확인 전). 「담기」를 누르면 내 코스 방문 순서에 들어가고, 「방문 체크」는 여기와 방문 순서에 함께 남아요. 품목 선정 기준과 제외한 곳은 <b>안내</b> 탭에 있습니다.</div>'
+      + '<div class="btnrow"><button class="btn" id="iinfo">안내 탭에서 기준 보기</button><button class="btn primary" id="iorder">방문 순서로 보기</button></div>'
+      + '</div>';
+    view.innerHTML = html;
+    bindItems();
+  }
+  function bindItems(){
+    view.querySelectorAll('[data-cview]').forEach(el=>el.onclick=()=>{
+      courseView = el.dataset.cview === 'item' ? 'item' : 'order';
+      course.view = courseView; saveCourse(); renderCourse();
+    });
+    view.querySelectorAll('[data-ichip]').forEach(el=>el.onclick=()=>{
+      const k = el.dataset.ichip;
+      itemSel = k;
+      if(k !== 'all' && k !== 'fav') itemOpen.add(k);   // 품목을 고르면 그 품목은 펼쳐서 보여 준다
+      renderCourse();
+      try{ window.scrollTo({top:0}); }catch(e){}
+    });
+    view.querySelectorAll('[data-iopen]').forEach(el=>el.onclick=()=>{
+      const k = el.dataset.iopen;
+      const openNow = (itemSel===k) || itemOpen.has(k);
+      itemOpen.delete(k);
+      if(openNow){ if(itemSel===k) itemSel = 'all'; }
+      else itemOpen.add(k);
+      renderCourse();
+    });
+    view.querySelectorAll('[data-ifav]').forEach(el=>el.onclick=()=>{
+      const id = el.dataset.ifav;
+      if(favs.has(id)){ favs.delete(id); done.delete(id); rev.delete(id); saveRev(); }
+      else favs.add(id);
+      save(); renderCourse();
+    });
+    view.querySelectorAll('[data-idone]').forEach(el=>el.onclick=()=>{
+      const id = el.dataset.idone;
+      done.has(id)? done.delete(id) : done.add(id);
+      save(); renderCourse();
+    });
+    view.querySelectorAll('[data-ick]').forEach(el=>el.onclick=()=>{
+      const id = el.dataset.ick;
+      ckOpen.has(id)? ckOpen.delete(id) : ckOpen.add(id);
+      renderCourse();
+    });
+    view.querySelectorAll('[data-inote]').forEach(el=>el.onclick=()=>{
+      const k = el.dataset.inote;
+      noteOpen.has(k)? noteOpen.delete(k) : noteOpen.add(k);
+      renderCourse();
+    });
+    view.querySelectorAll('[data-igrp]').forEach(el=>el.onclick=()=>{
+      const k = el.dataset.igrp;
+      const ids = grpIds(k);
+      if(ids.every(id=>favs.has(id))){
+        ids.forEach(id=>{ favs.delete(id); done.delete(id); rev.delete(id); });
+        toast(CORE_GROUP_BY[k].label+' '+ids.length+'곳을 즐겨찾기에서 뺐어요');
+      } else {
+        let n = 0;
+        ids.forEach(id=>{ if(!favs.has(id)){ favs.add(id); n++; } });
+        toast(CORE_GROUP_BY[k].label+' '+n+'곳을 담았어요');
+      }
+      saveRev(); save(); renderCourse();
+    });
+    view.querySelectorAll('[data-imap]').forEach(el=>el.onclick=()=> mapFocus(el.dataset.imap));
+    const io = document.getElementById('iorder');
+    if(io) io.onclick = ()=>{ courseView='order'; course.view='order'; saveCourse(); renderCourse(); };
+    const ii = document.getElementById('iinfo');
+    if(ii) ii.onclick = ()=> switchTab('info');
+  }
+  // 품목 목록의 「지도」 — 배치도 탭으로 넘어가 그 부스 홀을 열고 빨간 테두리로 표시
+  function mapFocus(id){
+    const b = BY[id]; if(!b) return;
+    focusId = id;
+    mapView = MAP_VIEWS[b.hall] ? b.hall : 'all';
+    mapZoom = {s:1, tx:0, ty:0};
+    pinMode = false;
+    switchTab('map');
+    toast(b.id+' 부스 위치를 표시했어요');
   }
 
   // ---------- 배치도 v2: 홀 전환·확대/이동·부스 탭·내 위치 핀·편의시설 ----------
@@ -1489,21 +1740,29 @@
         + '<circle r="6" fill="#dc2626" stroke="#fff" stroke-width="2"/>'
         + '<text y="-13" text-anchor="middle" font-size="9" font-weight="700" fill="#b91c1c">내 위치</text></g>';
     }
+    // 품목 목록의 「지도」로 지정한 부스 강조 — 동선 핀과 겹쳐도 보이게 테두리만 그린다
+    if(focusId && BY[focusId] && inV(BY[focusId].x, BY[focusId].y, 40)){
+      const f = BY[focusId];
+      s += '<g transform="translate('+f.x+','+f.y+') scale(1,0.706)">'
+        + '<circle r="17" fill="#dc2626" fill-opacity="0.14"/>'
+        + '<circle r="11" fill="none" stroke="#dc2626" stroke-width="3.4"/>'
+        + '<circle r="3.6" fill="#dc2626" stroke="#fff" stroke-width="1.2"/></g>'
+        + '<text x="'+f.x+'" y="'+(f.y-17)+'" text-anchor="middle" font-size="11" font-weight="800" fill="#b91c1c" stroke="#fff" stroke-width="2.6" paint-order="stroke">'+esc(f.id)+'</text>';
+    }
     svg.innerHTML = s;
   }
   function mapLegend(steps){
     return '<b>보는 법</b><br>'
-      + '· 부스를 누르면 그 부스 정보(이벤트·가격·확인 포인트)가 열려요. 두 손가락으로 확대하고 끌어서 이동할 수 있습니다.<br>'
-      + (steps.length>1? '· 주황 선과 번호가 내 동선이에요(1번 초록=출발). 보라 점선은 <b>다시 볼 곳</b>으로 되짚는 구간입니다.<br>' : '')
-      + '<div class="krow"><span class="kk" style="background:#0e9f6e">🐾</span><span><b>반려동물 화장실 6곳</b> — 주최 배치도에 표기된 위치 그대로예요.</span></div>'
-      + '<div class="krow"><span class="kk" style="background:#8b5e34">☕</span><span><b>카페테리아 4곳</b> — 앉아서 먹을 수 있는 구역.</span></div>'
-      + '<div class="krow"><span class="kk" style="background:#111827">🚪</span><span><b>출입구</b> — 2~5홀 입구 라인. 동선은 늘 2홀 입구에서 시작해요.</span></div>'
+      + '· 부스를 누르면 정보가 열리고, 두 손가락으로 확대·이동할 수 있어요.<br>'
+      + (steps.length>1? '· 주황 선·번호가 내 동선(1번 초록=출발). 보라 점선은 <b>다시 볼 곳</b> 되짚기.<br>' : '')
+      + '<div class="krow"><span class="kk" style="background:#0e9f6e">🐾</span><span><b>반려동물 화장실 6곳</b> — 주최 배치도에 표기된 위치 그대로.</span></div>'
+      + '<div class="krow"><span class="kk" style="background:#8b5e34">☕</span><span><b>카페테리아 4곳</b> — 앉아서 먹는 구역.</span></div>'
+      + '<div class="krow"><span class="kk" style="background:#111827">🚪</span><span><b>출입구</b> — 동선은 늘 2홀 입구에서 시작.</span></div>'
       + '<div class="krow"><span class="kk" style="background:#2563eb">★</span><span><b>이벤트존·만남의 광장</b></span></div>'
-      + '· <b>사람 화장실</b> — 주최 부스배치도(2026.11.17)에 표기가 없어 <b>위치 미확인</b>입니다. 그래서 지도에 임의로 찍지 않았고, 현장 안내표지나 안내데스크에서 확인해 주세요(수유실·의무실도 배치도에는 없습니다).<br>'
-      + '· <b>킨텍스 지원시설</b>(공식 홈페이지 시설안내, 2026-11-19 확인) — 안내데스크 <b>5홀 앞(1층)</b> 031-995-8114 · 의무실 <b>5홀 부근</b> 031-995-8233 · 유아휴게실·수유실 <b>4홀 부근</b> 031-995-8124 · 물품보관함 <b>1~4홀 각 입구 옆</b>(소 1,000·중 2,000·대 3,000원) · 치안센터(분실물) <b>1홀 앞</b> 031-995-8304. 운영 09:00~18:00이지만 행사 운영에 따라 바뀔 수 있습니다. 출처: <a href="https://www.kintex.com/web/ko/service/facilities2.do" target="_blank" rel="noopener">킨텍스 지원시설 안내</a><br>'
-      + '· <b>반려동물 화장실</b>은 주최 배치도에 위치가 표기된 6곳만 지도에 찍었습니다(사람 화장실과 별개).<br>'
-      + '· 📍 <b>내 위치</b>는 GPS가 아니라 <b>직접 찍는 핀</b>이에요(지도 길게 누르기 또는 「내 위치」 버튼).<br>'
-      + '· 배치도 원본: 주최측 공개 부스배치도 PDF(2026.11.17) — <a href="https://k-pet.co.kr/visitor/megazoos2_floormap/" target="_blank" rel="noopener">원본 보기</a>';
+      + '· <b>사람 화장실</b> — 주최 배치도에 표기가 없어 <b>위치 미확인</b>. 안내표지·안내데스크에서 확인(수유실·의무실도 배치도엔 없음).<br>'
+      + '· 안내데스크 <b>5홀 앞(1층)</b> 031-995-8114 · 의무실 <b>5홀 부근</b> 031-995-8233 · 유아휴게실·수유실 <b>4홀 부근</b> 031-995-8124 · 물품보관함 1~4홀 입구 옆(1,000~3,000원) · 분실물 1홀 앞 031-995-8304 — <a href="https://www.kintex.com/web/ko/service/facilities2.do" target="_blank" rel="noopener">킨텍스 지원시설</a>(2026-11-19 확인)<br>'
+      + '· 📍 <b>내 위치</b>는 GPS가 아니라 <b>직접 찍는 핀</b>이에요.<br>'
+      + '· 배치도 원본: <a href="https://k-pet.co.kr/visitor/megazoos2_floormap/" target="_blank" rel="noopener">주최 부스배치도 PDF</a>(2026.11.17)';
   }
   function renderMap(){
     const v = mapV();
@@ -1518,6 +1777,7 @@
       + '<button class="chip acc" id="facbtn" data-on="'+(facOn?1:0)+'">편의시설</button>'
       + '<button class="chip acc" id="pinbtn" data-on="'+(pinMode?1:0)+'">📍 내 위치</button>'
       + (here? '<button class="chip" id="pinclear">핀 지우기</button>' : '')
+      + (focusId? '<button class="chip" id="focusclr" style="border-color:#fca5a5;color:#b91c1c">🔴 '+esc(focusId)+' 표시 끄기</button>' : '')
       + '</div>'
       + '<div class="stage'+(pinMode? ' pinmode':'')+'" id="stage"><div class="canvas" id="zoomer">'
       + '<img id="mapimg" src="'+imgSrc(v.src)+'" alt="메가주 2026 부스배치도 '+esc(v.name)+'" style="aspect-ratio:'+((v.x1-v.x0)/(0.705*(v.y1-v.y0))).toFixed(4)+'">'
@@ -1550,6 +1810,7 @@
     const fb = document.getElementById('facbtn'); if(fb) fb.onclick = ()=>{ facOn = !facOn; renderMap(); };
     const pb = document.getElementById('pinbtn'); if(pb) pb.onclick = ()=>{ pinMode = !pinMode; renderMap(); };
     const pc = document.getElementById('pinclear'); if(pc) pc.onclick = ()=>{ here = null; saveHere(); renderMap(); toast('핀을 지웠어요'); };
+    const fc = document.getElementById('focusclr'); if(fc) fc.onclick = ()=>{ focusId = null; renderMap(); };
 
     const pts = new Map();
     let drag = null, pinch = null, pressT = null, pinched = false;
@@ -1648,13 +1909,12 @@
     const cats = [];
     PRICES.forEach(p=>{ if(cats.indexOf(p.cat)<0) cats.push(p.cat); });
     let html = '<div class="price-page"><div class="ph"><h2>💰 핵심 품목 온라인 가격</h2>'
-      + '<p>2026-11-17~18 다시 조회한 값입니다. 행마다 판매처 URL·옵션/수량·배송비·쿠폰/구독 조건을 함께 적었고, <b>같은 상품이라도 구매 조건이 다르면 행을 나눠</b> 적었습니다(1개 단품 / 2개 묶음 / 정기구독·정기배송). 부스 번호를 누르면 그 부스로 이동합니다.</p>'
-      + '<p><b>강조한 숫자는 “배송 포함 총액”</b>입니다. 판매처에서 확인한 <b>상품가 + 배송비</b>를 더한, 그 행 상품 1개만 살 때의 결제 예상액이고, 바로 옆에 상품가·배송비와 무료배송 조건을 같이 적었습니다. 배송비가 아직 확정되지 않은 행(바이오핏 단품·정기배송)은 총액으로 단정하지 않고 <b>“상품가 OO원(배송비 결제창·신청화면 확인)”</b>으로 적었습니다.</p>'
-      + '<p><b>“확인된 구매가”</b>는 판매처 페이지에서 직접 확인한 값입니다. 쿠팡·오픈마켓 가격추적 사이트(로우차트·폴센트·에누리)의 값이 더 낮을 수 있어, 전체 최저를 확인한 것처럼 보이는 “최저가” 대신 <b>“관측가(변동 가능)”</b>로 따로 표시했고 관측일이 오래된 값은 <b>“과거 관측 · 현재가 미확인”</b>으로 적었습니다. 같은 줄의 확인가와 관측가를 섞어 비교하지 마세요.</p></div>'
-      + '<p>알림동의(소식알림) 쿠폰처럼 알림 설정·동의를 거쳐야 나오는 값은 공개 판매가와 분리해 <b>“조건부”</b> 줄로만 적었습니다(이비야야 스마트스토어 공개 판매가 35,900원 · 소식알림 동의 쿠폰 시 34,900원). 다른 쿠폰가는 강조 숫자 옆에 어떤 쿠폰인지(쿠폰가·회원 쿠폰가)를 함께 적었습니다. 판매처가 보여주는 <b>“도착 확률”은 조회 시점 안내일 뿐 배송 보장이 아닙니다.</b></p>'
-      + '<div class="pcheck"><div class="pcheck-h">🧾 현장 비교 체크리스트</div><ol>'
+      + '<p>2026-11-17~18 확인한 값이에요. 강조한 숫자는 <b>배송 포함 총액</b>이고, 구매 조건(단품·묶음·정기구독·쿠폰가)이 다르면 행을 나눠 적었어요. 부스 번호를 누르면 그 부스로 갑니다.</p>'
+      + '<p>‘관측가’는 가격추적 사이트 값이라 바뀔 수 있어요.</p>'
+      + '<div class="pcheck"><div class="pcheck-h" id="ckhead" style="cursor:pointer">🧾 현장 비교 체크리스트 <span style="color:#2563eb">▾</span></div>'
+      + '<ol class="fold" id="ckbody" style="margin-top:4px">'
       + CHECKLIST.map(c=>'<li>'+esc(c)+'</li>').join('')
-      + '</ol></div>';
+      + '</ol></div></div>';
     cats.forEach(c=>{
       html += '<div class="pcat-h">'+esc(c)+'</div>';
       PRICES.filter(p=>p.cat===c).forEach(p=>{
@@ -1679,65 +1939,62 @@
           + '</div>';
       });
     });
-    html += '<div class="pfoot">※ 표기 기준 — 강조한 숫자는 <b>배송 포함 총액</b>(확인한 상품가 + 확인한 배송비, 그 행 상품 1개 기준)입니다. 배송비가 확정되지 않은 행은 <b>상품가</b>로 적고 옆에 확인처(결제창·신청화면)를 밝혔습니다. <b>“확인된 구매가”</b>는 판매처 페이지에서 직접 확인한 값으로, 전체 최저가를 확인했다는 뜻이 아닙니다. 쿠팡·오픈마켓 가격추적 사이트(로우차트·폴센트·에누리) 값은 수시로 바뀌고 결제 금액과 다를 수 있어 <b>“관측가(변동 가능)”</b>, 오래된 값은 <b>“과거 관측 · 현재가 미확인”</b>으로 따로 표시했습니다. 무료배송 조건은 한 번에 담는 금액 기준이라 함께 살 때 배송비가 달라질 수 있습니다. 정기구독·정기배송은 해지 조건(위약금·할인반환금)을 확인하고, 묶음 상품은 개당 단가로만 비교하지 마세요. 현장 이벤트(사은품·룰렛·쿠폰)는 이벤트 탭과 각 부스 카드에 따로 정리해 두었습니다. 알림동의 쿠폰처럼 받기·동의가 필요한 값은 강조 숫자가 아니라 <b>“조건부”</b> 줄에 적었고, 판매처의 <b>“도착 확률”은 배송 보장이 아닌 조회 시점 안내</b>입니다. 실제 결제 금액은 쿠폰·카드·멤버십 적용 후 결제창에서 확인하세요.</div>'
+    html += '<div class="pfoot">※ 실제 결제액은 쿠폰·카드 적용 후 결제창에서 확인하세요. 배송비가 확정되지 않은 행은 상품가로 적었고, 무료배송 조건은 한 번에 담는 금액 기준이에요. 정기구독·정기배송은 1회 구매가가 아니니 해지 조건을 확인하세요.</div>'
       + '</div>';
     view.innerHTML = html;
+    const ckh = document.getElementById('ckhead');
+    if(ckh) ckh.onclick = ()=>{ const b = document.getElementById('ckbody'); if(b) b.classList.toggle('open'); };
     view.querySelectorAll('[data-goto]').forEach(el=>{ el.onclick = ()=>{ q = el.dataset.goto; hall='all'; cat='all'; evFilter.clear(); switchTab('booth'); }; });
   }
   function renderInfo(){
     const m = MZ.meta;
-    view.innerHTML = '<div class="info-page">'
+    let html = '<div class="info-page">'
       + '<div class="box"><h3>행사 정보</h3><dl>'
       + '<div><dt>행사</dt><dd>'+esc(m.fair)+'</dd></div>'
       + '<div><dt>기간</dt><dd>'+esc(m.dates)+'</dd></div>'
       + '<div><dt>장소</dt><dd>'+esc(m.venue)+'</dd></div>'
       + '<div><dt>관람시간</dt><dd>'+esc(m.hours)+'</dd></div>'
       + '</dl></div>'
-      + '<div class="box"><h3>이 가이드의 데이터</h3><ul>'
-      + '<li>부스 <b>'+m.boothCount+'</b>곳 · 참가 브랜드 <b>'+m.brandCount+'</b>개 — 주최측 부스배치도&amp;리스트 PDF(2026.11.13)와 공식 참가브랜드 목록 기준</li>'
-      + '<li>현장이벤트 <b>'+m.eventItemCount+'</b>건 · 부스 <b>'+m.eventBoothCount+'</b>곳 — 주최측 공개 「참가브랜드 현장이벤트 모아보기」 원문을 그대로 옮겼습니다</li>'
-      + '<li>이벤트가 공개되지 않은 부스는 카드에 이벤트 칸이 비어 있습니다(정보 없음이지, 이벤트가 없다는 뜻은 아닙니다)</li>'
-      + '<li>부스 번호가 공개 자료에 없는 브랜드 <b>'+m.unplacedCount+'</b>곳은 이벤트 탭 맨 아래에 따로 모았습니다</li>'
-      + '<li>'+esc(m.labelFix || '')+'</li>'
-      + '<li>'+esc(m.facSource || '')+'</li>'
-      + '</ul></div>'
       + '<div class="box"><h3>현장에서 바로 쓸 것</h3><ul>'
-      + '<li>입장 마감 <b>17:30</b>, 폐장 18:00. 대기줄이 길면 입장 시간이 앞당겨질 수 있다고 공지돼 있어요.</li>'
-      + '<li>선착순 이벤트는 대부분 <b>매일</b> 수량이 리셋됩니다. 오전 회차를 노리면 개장 직후가 유리해요.</li>'
-      + '<li>반려견 동반 시 목줄·인식표 필수, 이동장·유모차·슬링백 권장.</li>'
-      + '</ul></div>'
-      + '<div class="box"><h3>필수품목 목록 읽는 법</h3><ul>'
-      + '<li>「🎯 재현 필수품목 — 가야 될 곳」에 표시된 <b>'+CORE_N+'곳은 방문 후보 수</b>입니다. <b>현장 판매·재고·유모차 호환이 확인된 수가 아닙니다</b></li>'
-      + '<li>목록에 올라와 있다고 내 코스에 들어가는 것이 아닙니다. <b>기존 즐겨찾기는 그대로 유지</b>되고, <b>「이 품목 담기」</b> 또는 <b>「핵심 '+CORE_N+'곳 한 번에 담기」</b>를 눌러야 내 코스에 들어갑니다(담긴 수는 「N/'+CORE_N+' 담김」으로 표시)</li>'
-      + '<li>품목 칸의 부스 번호·브랜드는 2026.11.13 주최 등록 제품과 브랜드 공식몰로 확인한 후보이고, 같은 부스가 두 품목을 팔면 두 칸에 함께 나옵니다</li>'
-      + '</ul></div>'
-      + '<div class="box"><h3>영양제 분류 기준</h3><ul>'
-      + '<li>'+esc(SUPP_RULE)+'</li>'
-      + '<li>형태만 보고 빼지 않았다는 점이 중요합니다 — 져키·필름·츄르 형태 영양제도 제조사가 영양제로 팔면 넣었습니다</li>'
-      + '</ul></div>'
-      + '<div class="box"><h3>유모차 방석·매트·XXL 옷 보완(2026.11.18)</h3><ul>'
-      + '<li><b>유모차 방석·매트 4곳 대조</b> — 2401 코코리에또펫·5457 리토가토·5624 안트미미펫은 공식몰에서 방석·쿠션·라이너 판매를 확인해 후보에 넣었고(가드와 별도 제품), 2356 독토리는 등록 제품이 「펫모차가드」뿐이고 자사몰이 준비 중이라 빼고 사유를 적었습니다. 확인 중에 3555 조아펫(유모차 매트리스)도 추가했습니다</li>'
-      + '<li><b>XXL 옷 7곳</b>은 「공개자료로 큰 사이즈(2XL 이상)를 확인한 후보」로 표기했습니다. 2XL·5XL 명칭만으로 원두(9kg)에게 맞는다고 단정하지 않고, 2026.11.18에 확인된 가슴둘레·등(총)길이만 적었습니다(확인된 곳: 4149 하이위드 2XL 가슴 57·총장 43cm 등). 나머지 의류 부스 169곳은 <b>미확인이며 미판매가 아닙니다</b></li>'
-      + '</ul></div>'
-      + '<div class="box"><h3>온라인 가격 비교</h3><ul>'
-      + '<li>가격 탭의 온라인 가격은 <b>2026.11.17~18 조회</b> 기준입니다. 공식몰·네이버 스마트스토어 판매가와 확인된 구매가(배송 포함 총액)를 함께 적었습니다</li>'
-      + '<li>강조한 숫자는 <b>배송 포함 총액</b>(상품가 + 확인된 배송비, 상품 1개 기준)이고 옆에 상품가·배송비·무료배송 조건을 같이 적었습니다. 배송비가 확정되지 않은 바이오핏 단품·정기배송은 “상품가 OO원(배송비 결제창·신청화면 확인)”으로 표기했습니다. “확인된 구매가”는 판매처에서 직접 확인한 값이며 전체 최저가를 확인한 것은 아닙니다 — 쿠팡·오픈마켓 가격추적 사이트 값은 “관측가(변동 가능)”, 오래된 값은 “과거 관측 · 현재가 미확인”으로 따로 표시했습니다</li>'
-      + '<li>가격 탭 각 행에는 판매처 URL·옵션/수량·배송비·쿠폰/구독 조건을 함께 적었습니다(2026.11.17~18 재확인). 구매 조건이 다른 가격은 행을 나눠 적었으니 같은 줄끼리 비교하세요</li>'
-      + '<li>유모차 가방(5607 이비야야 FP0032)·온열 패드(2310 시리어스펫 따땃패드)는 2026.11.18에 추가했습니다. 한일의료기 보듬(3241)·개판(G-03)은 확인된 온라인 가격이 없어 가격 행 없이 부스 카드의 현장 확인 포인트만 적었습니다</li>'
-      + '<li>정기구독가·쿠폰가·묶음 구매는 조건이 다릅니다. 부스 현장 가격과 비교할 땐 같은 용량·같은 구성인지 먼저 확인하세요</li>'
-      + '</ul></div>'
-      + '<div class="box"><h3>동선·지도 읽는 법</h3><ul>'
-      + '<li>동선은 <b>2홀 입구 고정</b>입니다. 출입문에서 가장 가까운 세로 통로로 안쪽 끝까지 들어가며 양쪽 부스를 보고, 안쪽 가로줄부터 출입문 쪽으로 한 줄씩 훑어 마지막은 출입문 쪽 부스에서 끝납니다</li>'
-      + '<li>한 번 지나온 부스는 동선에 두 번 들어가지 않습니다. 꼭 다시 봐야 할 곳은 각 단계의 <b>🔁 다시 볼 곳</b>에 담으면 메인 동선을 다 돈 뒤에 되짚는 순서가 따로 나옵니다</li>'
-      + '<li>부스당 체류 시간은 <b>2~10분</b>에서 바꿀 수 있고, 거리·시각은 <b>도면 직선거리 환산 참고치</b>입니다(실제 통로 보행거리·도착시각 아님, 대기·구매시간 미포함). 담은 곳에 정시·오픈런이 있으면 시간에 맞춰 먼저 배치하므로 동선이 일부 교차할 수 있습니다</li>'
-      + '<li>배치도에서 <b>부스를 누르면</b> 그 부스의 이벤트·가격·확인 포인트가 열리고, 지도를 <b>길게 누르면 내 위치 핀</b>을 찍습니다(자동 GPS 아님)</li>'
+      + '<li>선착순·오픈런은 대개 <b>매일</b> 수량이 리셋돼요. 오전 회차는 개장 직후가 유리해요.</li>'
+      + '<li>반려견은 목줄·인식표 필수, 유모차·이동장 권장. 화장실·안내데스크 위치는 <b>배치도</b> 탭 범례에 있어요.</li>'
       + '</ul></div>'
       + '<div class="box"><h3>참고 링크</h3><ul>'
       + '<li><a href="https://k-pet.co.kr/portfolio-items/26pet_k2_brandevent/" target="_blank" rel="noopener">주최측 현장이벤트 원문</a></li>'
       + '<li><a href="https://k-pet.co.kr/visitor/megazoos2_floormap/" target="_blank" rel="noopener">부스배치도 PDF</a></li>'
       + '<li><a href="https://megazoo.co.kr/2026-2-exhibitor-gallery/" target="_blank" rel="noopener">참가브랜드 목록</a></li>'
       + '</ul></div>'
+      + '<div class="box"><h3 id="ih1" style="cursor:pointer">필수품목 '+CORE_N+'곳 선정 기준 · 제외한 곳 ▾</h3><div class="fold" id="ib1">'
+      + '<div style="font-size:12px;color:var(--ink2);line-height:1.6">부스 번호·브랜드는 2026.11.13 주최 등록 제품과 브랜드 공식몰로 확인한 <b>후보</b>이고, 현장 판매·재고가 확인된 수가 아닙니다. 같은 부스가 두 품목을 팔면 두 칸에 함께 나옵니다.</div>'
+      + CORE_GROUPS.map(g=>'<div style="font-size:12px;color:var(--ink2);line-height:1.6;margin-top:8px"><b style="color:#92620a">'+esc(g.label)+'</b> — '+esc(g.note)+'</div>').join('')
+      + '</div></div>'
+      + '<div class="box"><h3 id="ih2" style="cursor:pointer">영양제 분류 기준 ▾</h3><div class="fold" id="ib2">'
+      + '<div style="font-size:12px;color:var(--ink2);line-height:1.65">'+esc(SUPP_RULE)+'</div>'
+      + '</div></div>'
+      + '<div class="box"><h3 id="ih3" style="cursor:pointer">유모차 방석·매트 · XXL 옷 보완 ▾</h3><div class="fold" id="ib3"><ul>'
+      + '<li><b>유모차 방석·매트</b> — 2401 코코리에또펫·5457 리토가토·5624 안트미미펫은 공식몰에서 방석·쿠션·라이너 판매를 확인해 넣었고, 2356 독토리는 등록 제품이 「펫모차가드」뿐이라 뺐습니다. 3555 조아펫은 유모차 매트리스로 추가</li>'
+      + '<li><b>XXL 옷 7곳</b>은 2XL 이상을 공식몰에서 확인한 후보입니다. 2XL·5XL 명칭만으로 원두(9kg)에게 맞는다고 단정하지 않았고, 확인된 치수(예: 4149 하이위드 2XL 가슴 57·총장 43cm)만 적었습니다. 나머지 의류 부스 169곳은 <b>미확인이며 미판매가 아닙니다</b></li>'
+      + '</ul></div></div>'
+      + '<div class="box"><h3 id="ih4" style="cursor:pointer">가격·데이터 표기 기준 ▾</h3><div class="fold" id="ib4"><ul>'
+      + '<li>부스 <b>'+m.boothCount+'</b>곳 · 참가 브랜드 <b>'+m.brandCount+'</b>개 — 주최 부스배치도&amp;리스트 PDF(2026.11.13)와 공식 참가브랜드 목록</li>'
+      + '<li>현장이벤트 <b>'+m.eventItemCount+'</b>건 · 부스 <b>'+m.eventBoothCount+'</b>곳 — 주최 공개 「현장이벤트 모아보기」 원문. 이벤트 칸이 비어 있는 것은 정보가 없다는 뜻입니다</li>'
+      + '<li>부스 번호가 공개 자료에 없는 브랜드 <b>'+m.unplacedCount+'</b>곳은 이벤트 탭 맨 아래</li>'
+      + '<li>'+esc(m.labelFix || '')+'</li>'
+      + '<li>'+esc(m.facSource || '')+'</li>'
+      + '<li>온라인 가격은 <b>2026.11.17~18 조회</b>. 강조 숫자는 <b>배송 포함 총액</b>이고, “관측가”는 가격추적 사이트 값이라 바꿀 수 있습니다. 정기구독·쿠폰가·묶음은 1회 구매가가 아닙니다</li>'
+      + '</ul></div></div>'
+      + '<div class="box"><h3 id="ih5" style="cursor:pointer">동선·지도 읽는 법 ▾</h3><div class="fold" id="ib5"><ul>'
+      + '<li>동선은 <b>2홀 입구 고정</b> — 세로 통로로 안쪽 끝까지 → 가로줄을 출입문 쪽으로 한 줄씩</li>'
+      + '<li>한 번 지나온 부스는 다시 넣지 않고, <b>🔁 다시 볼 곳</b>은 동선을 다 돈 뒤 되짚는 순서로 따로 나옵니다</li>'
+      + '<li>부스당 체류는 <b>2~10분</b>에서 바꿀 수 있어요. 거리는 <b>도면 직선거리 환산 참고치</b>이고 대기·구매시간은 빠져 있습니다</li>'
+      + '<li>배치도에서 <b>부스를 누르면</b> 정보가 열리고, <b>길게 누르면 내 위치 핀</b>을 찍습니다(자동 GPS 아님)</li>'
+      + '</ul></div></div>'
       + '</div>';
+    view.innerHTML = html;
+    [1,2,3,4,5].forEach(i=>{
+      const h = document.getElementById('ih'+i);
+      if(h) h.onclick = ()=>{ const b = document.getElementById('ib'+i); if(b) b.classList.toggle('open'); };
+    });
   }
 
   let _dt;
@@ -1799,6 +2056,14 @@
       if(el){ el.classList.toggle('open'); var op=el.classList.contains('open'); var lbl=mo.getAttribute('data-label')||mo.textContent; if(!mo.getAttribute('data-label')) mo.setAttribute('data-label',lbl); mo.textContent = op? '접기' : lbl; }
       return;
     }
+    const de = e.target.closest('[data-desc]');
+    if(de){
+      const el = document.getElementById('dsc-'+de.dataset.desc);
+      if(el){ el.classList.toggle('open'); de.textContent = el.classList.contains('open')? '브랜드 설명 접기 ▲' : '브랜드 설명 ▾'; }
+      return;
+    }
+    const op2 = e.target.closest('[data-open]');
+    if(op2){ openSheet(op2.dataset.open); return; }
   });
 
   // init
@@ -1820,11 +2085,19 @@
     setRev: function(ids){ rev = new Set(ids); saveRev(); },
     setHere: function(x,y){ here = {x:x, y:y, t:'09:00'}; saveHere(); renderMap(); },
     getHere: function(){ return here; },
-    goTab: function(t){ switchTab(t); }
+    goTab: function(t){ switchTab(t); },
+    setCourseView: function(v){ courseView = (v==='item'?'item':'order'); renderCourse(); },
+    setItemSel: function(k){ itemSel = k||'all'; renderCourse(); },
+    getItemSel: function(){ return itemSel; },
+    getFocus: function(){ return focusId; },
+    setDone: function(ids){ done = new Set(ids); save(); },
+    focusBooth: function(id){ mapFocus(id); },
+    clearFocus: function(){ focusId = null; renderMap(); }
   };
   window.MZROUTE = {buildRoute: buildRoute, routeOrder: routeOrder, hallRoute: hallRoute, orderByHall: orderByHall,
     evTimesFor: evTimesFor, evNoBuy: evNoBuy, ROW_BANDS: ROW_BANDS, ROW_OF: ROW_OF, ENTRIES: ENTRIES,
     HALL_GEO: HALL_GEO, GATES: GATES, COL_OF: COL_OF, MAP_VIEWS: MAP_VIEWS, CORE: CORE, courseOpt: courseOpt,
+    CORE_GROUPS: CORE_GROUPS, grpShort: grpShort, CORE_SET: CORE_SET,
     hallKey: hallKey, UNIT_M: UNIT_M,
     YCORR: YCORR, dist: dist, PACE_MPM: PACE_MPM};
 })();

@@ -47,6 +47,8 @@ var navigator = { share:null, clipboard:null };
 var location = { hash:'', origin:'http://test.local', pathname:'/index.html', search:'' };
 var window = { MZ:null, scrollTo:function(){}, addEventListener:function(){}, matchMedia:function(){ return {matches:false}; } };
 var alert = function(){};
+var setTimeout = function(fn, ms){ return 0; };
+var clearTimeout = function(){ };
 """
 
 TESTS = r"""
@@ -162,6 +164,76 @@ ok('안내: 사람 화장실 위치 미확인 분리', /사람 화장실[\s\S]{0
 ok('안내: 킨텍스 공식 시설안내 링크·확인일', /kintex\.com\/web\/ko\/service\/facilities2\.do/.test(infoHtml) && /2026-11-19 확인/.test(infoHtml));
 ok('안내: 유아휴게실·4홀·공식 사무번호', /유아휴게실[\s\S]{0,40}4홀 부근/.test(infoHtml) && /031-995-8114/.test(infoHtml) && /031-995-8233/.test(infoHtml));
 ok('안내: 옛 사무번호(031-810) 없음', !/031-810/.test(infoHtml));
+
+// 9) 꼭 사야 될 리스트 — 품목별 목록 (2026-11-22 슬랙 #메가주 요청)
+var G = R.CORE_GROUPS;
+ok('품목 그룹 11개', G.length === 11, 'n=' + G.length);
+var allItems = [];
+G.forEach(function(g){ R.CORE.forEach(function(c){ if(c.grp.indexOf(g.key)>=0) allItems.push(c.id); }); });
+ok('품목별 합계 = 필수부스 69 + 겹침 9', allItems.length === 78, 'n=' + allItems.length);
+ok('필수부스 중복 없는 69곳', new Set(R.CORE.map(function(c){return c.id;})).size === 69);
+
+T.setFavs([]); T.setDone([]);
+T.setCourseView('item');
+var iv = T.viewHtml();
+ok('품목별 보기 전환 버튼(두 보기 모두)', /data-cview="item"/.test(iv) && /data-cview="order"/.test(iv));
+ok('품목별 보기 제목', /꼭 사야 될 리스트/.test(iv));
+ok('품목 칩 13개(전체·찜 + 품목 11)', (iv.match(/data-ichip=/g)||[]).length === 13, 'n=' + (iv.match(/data-ichip=/g)||[]).length);
+ok('전체 보기: 품목 덩어리 11개', (iv.match(/class="igrp/g)||[]).length === 11, 'n=' + (iv.match(/class="igrp/g)||[]).length);
+ok('전체 보기: 접힌 품목은 부스번호를 미리 보여 준다', /class="iprev"/.test(iv));
+
+var ROW = function(h){ return (h.match(/data-ifav="([^"]+)"/g)||[]).map(function(s){ return s.slice(11, -1); }); };
+var secMiss = [], secDup = [], secCnt = true, secOrder = true, secHall = true;
+G.forEach(function(g){
+  T.setItemSel(g.key);
+  var h = T.viewHtml();
+  var got = ROW(h);
+  var want = R.CORE.filter(function(c){ return c.grp.indexOf(g.key)>=0; }).map(function(c){return c.id;});
+  if(got.length !== want.length) secCnt = false;
+  if(new Set(got).size !== got.length) secDup.push(g.key);
+  want.forEach(function(id){ if(got.indexOf(id)<0) secMiss.push(g.key + ':' + id); });
+  var exp = R.routeOrder(MZ.booths.filter(function(b){ return got.indexOf(b.id)>=0; })).map(function(b){return b.id;});
+  if(got.join(',') !== exp.join(',')) secOrder = false;
+  if(!/(2|3|4|5)홀|경기도 공동관|ART존/.test(h)) secHall = false;
+});
+ok('품목을 고르면 그 품목 부스가 모두 나온다', secCnt, secMiss.join(','));
+ok('품목 안 부스 중복 없음', secDup.length === 0, secDup.join(','));
+ok('품목 안에서 2홀 입구 동선 순서', secOrder);
+ok('부스 줄에 홀 표기', secHall);
+var seenIds = {};
+G.forEach(function(g){ T.setItemSel(g.key); ROW(T.viewHtml()).forEach(function(id){ seenIds[id] = 1; }); });
+ok('품목별 목록에 필수부스 69곳이 모두 나온다', Object.keys(seenIds).length === 69, 'n=' + Object.keys(seenIds).length);
+
+T.setFavs(['2457','5601','4641']); T.setDone(['2457']);
+T.setItemSel('eye');
+var eh = T.viewHtml();
+ok('담김·방문 상태가 줄에 표시', /★ 담김/.test(eh) && /✓ 방문함/.test(eh));
+ok('품목 머리에 담김 수 요약', /담김 1/.test(eh));
+ok('줄마다 방문 체크·지도 버튼', (eh.match(/data-idone=/g)||[]).length > 0 && (eh.match(/data-imap=/g)||[]).length > 0);
+ok('확인 포인트 버튼', /data-ick="2457"/.test(eh));
+
+T.setItemSel('all');
+var ah = T.viewHtml();
+ok('품목 밖 직접 찜한 부스 섬션', /직접 찜한 부스/.test(ah) && ah.indexOf('5601') >= 0);
+T.setItemSel('fav');
+var fh = T.viewHtml();
+ok('찜한 부스만 보기', /찜한 부스 \(동선 순서\)/.test(fh) && ROW(fh).length === 3, 'n=' + ROW(fh).length);
+
+T.setCourseView('order');
+var ov2 = T.viewHtml();
+ok('방문 순서 보기에도 보기 전환 버튼', /data-cview="order"/.test(ov2) && /data-cview="item"/.test(ov2));
+ok('방문 순서 보기·필수품목 상자 그대로', /id="coretoggle"/.test(ov2) && /class="step/.test(ov2));
+
+T.clearFocus();
+T.focusBooth('5601');
+var fov = T.overlayHtml();
+ok('품목 목록 지도 버튼: 강조 부스 저장', T.getFocus() === '5601');
+ok('품목 목록 지도 버튼: 배치도에 빨간 테두리', /stroke-width="3.4"/.test(fov));
+ok('배치도에 「표시 끄기」 칩', /id="focusclr"/.test(T.viewHtml()) && /5601/.test(T.viewHtml()));
+ok('강조 부스 번호 라벨', /5601/.test(fov));
+T.clearFocus();
+ok('표시 끄면 강조가 사라진다', !/stroke-width="3.4"/.test(T.overlayHtml()));
+T.setItemSel('all'); T.setDone([]); T.setFavs([]);
 
 res.fails = fails;
 JSON.stringify(res);
